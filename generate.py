@@ -180,29 +180,29 @@ newline = '\n'
 prompt = 'A landing page for vly.ai with a navbar, hero section, info section, faq, try it out section, and footer. The website should talk abotu how vly.ai is a revolutionary no-code platform for generating SaaS apps with natural language. We use LLMs and a highly optimized knowledge base with vector retrievals and recursive iteration system to allow full control over creating and modifying web apps - all with no code. The try it out section should include a textbox for users to enter a prompt, like this one, and with the click of a button, have it generate their landing page. While generating, there should be a space to view system output and what files are being generated.'
 
 project = Project()
-# components = project.create_page_structure(prompt)
-components = json.loads('''[
-    {
-        "name": "Navbar",
-        "description": "A navigation bar with links to different sections of the landing page and possibly a logo."
-    },
-    {
-        "name": "HeroSection",
-        "description": "A prominent section showcasing the main value proposition of vly.ai, with a catchy headline, a brief description, and a call-to-action button."
-    },
-    {
-        "name": "FaqSection",
-        "description": "A section addressing common questions and concerns about vly.ai, presented in a frequently asked questions (FAQ) format."
-    },
-    {
-        "name": "TryItOutSection",
-        "description": "A section allowing users to interact with vly.ai by entering a prompt, generating a landing page, and viewing the system output and generated files."
-    },
-    {
-        "name": "Footer",
-        "description": "A footer section with additional links, contact information, and possibly social media icons or a newsletter signup form."
-    }
-]''')
-# for i in range(3, len(components)):
-#     project.write_code_to_file(project.write_component_code_from_description(prompt, reference_media_type, reference_data, components, i), f'vly/src/{components[i]["name"]}.jsx')
-project.write_code_to_file(project.write_page_code_from_description(prompt, components), f'vly/src/App.jsx')
+# # components = project.create_page_structure(prompt)
+# components = json.loads('''[
+#     {
+#         "name": "Navbar",
+#         "description": "A navigation bar with links to different sections of the landing page and possibly a logo."
+#     },
+#     {
+#         "name": "HeroSection",
+#         "description": "A prominent section showcasing the main value proposition of vly.ai, with a catchy headline, a brief description, and a call-to-action button."
+#     },
+#     {
+#         "name": "FaqSection",
+#         "description": "A section addressing common questions and concerns about vly.ai, presented in a frequently asked questions (FAQ) format."
+#     },
+#     {
+#         "name": "TryItOutSection",
+#         "description": "A section allowing users to interact with vly.ai by entering a prompt, generating a landing page, and viewing the system output and generated files."
+#     },
+#     {
+#         "name": "Footer",
+#         "description": "A footer section with additional links, contact information, and possibly social media icons or a newsletter signup form."
+#     }
+# ]''')
+# # for i in range(3, len(components)):
+# #     project.write_code_to_file(project.write_component_code_from_description(prompt, reference_media_type, reference_data, components, i), f'vly/src/{components[i]["name"]}.jsx')
+# project.write_code_to_file(project.write_page_code_from_description(prompt, components), f'vly/src/App.jsx')
