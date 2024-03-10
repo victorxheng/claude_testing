@@ -39,8 +39,8 @@ class Project:
         with self.client.messages.stream(
             model=self.model,
             max_tokens=4096,
-            # temperature=1.0,
-            temperature=0.0,
+            temperature=1.0,
+            # temperature=0.0,
             system=system,
             messages=messages) as stream:
                 for text in stream.text_stream:
@@ -101,19 +101,19 @@ If you are not sure or cannot generate something for any possible reason, return
         return json.loads(message)
     '''using the provided reference image to help style the component. Do not copy any text in the reference image, just use it for inspiration while styling. Use the following breakdown of the reference image as well:'''
     def write_component_code_from_description(self, prompt, reference_media_type, reference_data, components, component_index):
-        system = '''You are writing landing pages with React and Tailwind. You will be given a breakdown of how the landing page should be separated into components. Use Tailwind for styling, and write only the code for the component being written. Do not leave anything blank, or to be filled in later. If you need to do some copywriting then do so. Do not leave unfinished sections, for example, do not write "Add more feature items here".'''
+        system = '''You are writing landing pages with React and Tailwind. You will be given a breakdown of how the landing page should be separated into components. Use Tailwind for styling, basing the design off the reference image and reference breakdown, and write only the code for the component being written. Do not leave anything blank, or to be filled in later. If you need to do some copywriting then do so. Do not leave unfinished sections, for example, do not write "Add more feature items here". Make sure to adhere to the prompt, which will be supplied by the user. Write ONLY code, do not explain the code.'''
         messages=[
-            self.create_user_message(prompt + f'''
+            self.create_user_message(f'''
 Here's the page structure for the landing page:
 {newline.join([component["name"] + ": " + component["description"] for component in components])}
 
-Write the file for the {components[component_index]["name"]} component, using the following breakdown of a reference component as a guide to styling the page:
+Write the file for the {components[component_index]["name"]} component. Use the following breakdown as a reference for styling:
 Background:
 The overall background color is white (bg-white)
 There are two decorative background gradient elements positioned absolutely:
 Top gradient: Positioned above the main content, rotated 30deg, using a gradient from #ff80b5 to #9089fc, with 30% opacity. It has a complex polygon clip-path.
-Bottom gradient: Positioned below the main content, using the same gradient and opacity as the top one, but with a different polygon clip-path.
 
+Bottom gradient: Positioned below the main content, using the same gradient and opacity as the top one, but with a different polygon clip-path.
 Header:
 The header is positioned absolutely at the top (absolute inset-x-0 top-0) with a high z-index (z-50)
 It contains a navigation bar with a logo on the left, navigation links in the center (hidden on mobile), and a "Log in" link on the right (hidden on mobile)
@@ -150,7 +150,9 @@ Gradients: from-[#ff80b5], to-[#9089fc]
 Clip-path: polygon(...)
 Flexbox: flex, flex-1, items-center, justify-center, justify-between, gap-x-6, gap-x-12
 Grid: grid, grid-cols-1, gap-y-10
-Responsive design: sm:, lg:''')#, reference_media_type, reference_data)
+Responsive design: sm:, lg:
+
+Make sure to adhere to this prompt: ''' + prompt, reference_media_type, reference_data)
         ]
         message = self.send_message(system, messages)
         return message
@@ -162,7 +164,7 @@ Responsive design: sm:, lg:''')#, reference_media_type, reference_data)
 Here's the page structure for the landing page:
 {newline.join([component["name"] + ": " + component["description"] for component in components])}
 
-Write the App.jsx file.''')
+Write the App.jsx file, and only the App.jsx file. Do not write any other components.''')
         ]
         message = self.send_message(system, messages)
         return message
@@ -177,7 +179,7 @@ reference_media_type = "image/jpeg"
 reference_data = base64.b64encode(httpx.get(reference_url).content).decode("utf-8")
 
 newline = '\n'
-prompt = 'A landing page for vly.ai with a navbar, hero section, info section, faq, try it out section, and footer. The website should talk abotu how vly.ai is a revolutionary no-code platform for generating SaaS apps with natural language. We use LLMs and a highly optimized knowledge base with vector retrievals and recursive iteration system to allow full control over creating and modifying web apps - all with no code. The try it out section should include a textbox for users to enter a prompt, like this one, and with the click of a button, have it generate their landing page. While generating, there should be a space to view system output and what files are being generated.'
+# prompt = 'A landing page for vly.ai with a navbar, hero section, info section, faq, try it out section, and footer. The website should talk abotu how vly.ai is a revolutionary no-code platform for generating SaaS apps with natural language. We use LLMs and a highly optimized knowledge base with vector retrievals and recursive iteration system to allow full control over creating and modifying web apps - all with no code. The try it out section should include a textbox for users to enter a prompt, like this one, and with the click of a button, have it generate their landing page. While generating, there should be a space to view system output and what files are being generated.'
 
 project = Project()
 # # components = project.create_page_structure(prompt)

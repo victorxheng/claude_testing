@@ -3,65 +3,40 @@ import React from 'react';
 
 const Features = () => {
   return (
-    <div className="relative bg-white">
-      {/* Top Gradient Background */}
-      <div
-        className="absolute inset-x-0 top-0 -z-10 transform-gpu overflow-hidden opacity-30 blur-3xl"
-        aria-hidden="true"
-      >
-        <div
-          className="ml-[calc(50%-11rem)] aspect-[1141/1512] w-[72.1875rem] rotate-[30deg] bg-gradient-to-r from-[#ff80b5] to-[#9089fc] opacity-30"
-          style={{
-            clipPath:
-              'polygon(63.1% 29.5%, 88.7% 100%, 27.9% 100%, 0% 0%, 0% 0%, 30.3% 0%)',
-          }}
-        />
-      </div>
+    <div className="bg-gray-100 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="lg:text-center">
+          <h2 className="text-base font-semibold text-indigo-600 uppercase tracking-wide">Features</h2>
+          <p className="mt-2 text-3xl leading-8 font-extrabold text-gray-900 sm:text-4xl">
+            A better way to manage your business
+          </p>
+          <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+            Our feature-packed platform is designed to streamline your operations and boost your productivity.
+          </p>
+        </div>
 
-      {/* Bottom Gradient Background */}
-      <div
-        className="absolute inset-x-0 bottom-0 -z-10 transform-gpu overflow-hidden opacity-30 blur-3xl"
-        aria-hidden="true"
-      >
-        <div
-          className="ml-[calc(50%-11rem)] aspect-[1141/1512] w-[72.1875rem] rotate-[30deg] bg-gradient-to-r from-[#ff80b5] to-[#9089fc] opacity-30"
-          style={{
-            clipPath:
-              'polygon(63.1% 70.5%, 88.7% 0%, 27.9% 0%, 0% 100%, 0% 100%, 30.3% 100%)',
-          }}
-        />
-      </div>
-
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-              Key Features
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-gray-600">
-              Discover the powerful features that make our product stand out.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-y-10 mt-10 sm:grid-cols-2 lg:grid-cols-3 gap-x-6">
-            <div className="flex flex-col items-center">
-              <svg
-                className="h-12 w-12 text-indigo-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                {/* Feature Icon SVG */}
-              </svg>
-              <h3 className="mt-6 text-lg font-semibold leading-8 tracking-tight text-gray-900">
-                Feature 1
-              </h3>
-              <p className="mt-2 text-base leading-7 text-gray-600">
-                Describe the first key feature of your product or service.
-              </p>
+        <div className="mt-10">
+          <dl className="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                  <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                  </svg>
+                </div>
+              </div>
+              <div className="ml-4">
+                <dt className="text-lg leading-6 font-medium text-gray-900">
+                  Powerful Integrations
+                </dt>
+                <dd className="mt-2 text-base text-gray-500">
+                  Seamlessly integrate with your existing tools and services for a unified experience.
+                </dd>
+              </div>
             </div>
+
             {/* Add more feature items here */}
-          </div>
+          </dl>
         </div>
       </div>
     </div>
