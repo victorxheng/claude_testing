@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   Authenticated,
   Unauthenticated,
+  AuthLoading,
   useMutation,
   useQuery,
 } from "convex/react";
@@ -13,6 +14,7 @@ import { Link } from "@/components/typography/link";
 import { SignInButton, SignUpButton, UserButton } from "@clerk/clerk-react";
 import { StickyHeader } from "@/components/layout/sticky-header";
 import { Skeleton } from "@/components/ui/skeleton";
+import useStoreUserEffect from "@/lib/useStoreUserEffect";
 
 export default function Home() {
   return (
@@ -27,6 +29,11 @@ export default function Home() {
         <h1 className="text-4xl font-extrabold my-8 text-center">
           Convex + Next.js + Clerk Auth
         </h1>
+        <AuthLoading>
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-full" />
+        </AuthLoading>
         <Authenticated>
           <SignedInContent />
         </Authenticated>
@@ -62,6 +69,8 @@ function SignedInContent() {
       count: 10,
     }) ?? {};
   const addNumber = useMutation(api.myFunctions.addNumber);
+  const userId = useStoreUserEffect();
+
 
   if (viewer === undefined || numbers === undefined) {
     return (

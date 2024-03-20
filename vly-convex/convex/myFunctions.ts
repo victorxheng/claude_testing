@@ -9,7 +9,7 @@ import { Id } from "./_generated/dataModel";
 import { Auth, DocumentByInfo, GenericDatabaseReader, GenericQueryCtx, GenericTableInfo, PaginationOptions, PaginationResult, QueryInitializer } from "convex/server";
 import { useMutation, useQuery } from "convex/react";
 
-
+ 
 // Write your Convex functions in any file inside this directory (`convex`).
 // See https://docs.convex.dev/functions for more.
 
@@ -77,7 +77,11 @@ export const get = query({
   },
 });
 
-export function getMainFeed2() {return useQuery(api.myFunctions.getMainFeed, {})}
+
+// in the front end under lib/functions
+export function getMainFeedFrontEnd() {return useQuery(api.myFunctions.getMainFeed, {})}
+
+// in the back end under convex/myFunctions
 export const getMainFeed = query({
   args: {
 
@@ -87,17 +91,9 @@ export const getMainFeed = query({
     await verify(ctx.auth)
 
     const d = ctx.db
-    return getTweetsAll(d)
+    return getTweets(d).collect()
   },
 });
-
-// TO DO:
-// implement proper auth verification and saving of users in the database
-// implement indexing operations of the database (later)
-// make the ai create schemas
-// develop for create, update, and delete, and actions
-// make the ai create the back end calls
-// make the ai create new back end query calls based on front end needs
 
 async function verify(auth: Auth){
   const identity = await auth.getUserIdentity();
@@ -126,6 +122,14 @@ function getTweetsUnique(db: GenericDatabaseReader<any>, order: "asc" | "desc" =
 function getTweet(db: GenericDatabaseReader<any>, id: string | Id<"tweets">): Promise<DocumentByInfo<GenericTableInfo>[]>{ //returns Promise
   return db.get(id as Id<"tweets">)
 }
+
+// TO DO: REMEMBER TO TRACK LINKS IN THE DOC
+// implement proper auth verification and saving of users in the database
+// implement indexing operations of the database (later)
+// make the ai create schemas
+// develop for create, update, and delete, and actions
+// make the ai create the back end calls
+// make the ai create new back end query calls based on front end needs
 
 
 function getUsers(db: GenericDatabaseReader<any>, fltr: (f: typeof User.doc.type) => Promise<boolean> | boolean): QueryInitializer<any>{ //returns QueryBuilder

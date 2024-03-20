@@ -6,7 +6,7 @@ import { Table } from "convex-helpers/server";
 
 export const Recipes = Table("recipes", {
   name: v.string(),
-  course: v.union(
+  course: v.union( 
     v.literal("appetizer"),
     v.literal("main"),
     v.literal("dessert")
@@ -29,7 +29,7 @@ export const Tweets = Table("tweets",{
   createdAt: v.number(),
 })
 
-export const Follows = Table("follows", {
+export const follows = Table("follows", {
   follower: v.id("users"),
   following: v.id("users"),
 });
@@ -44,24 +44,18 @@ export const Retweets = Table("retweets", {
   tweet: v.id("tweets"),
 });
 
-
+ 
 export default defineSchema(
   {
     ...authTables({
-      user: {
-        email: v.string(),
-        username: v.string(),
-        name: v.string(),
-        bio: v.string(),
-        profileImageUrl: v.string(),
-      },
+      user: User.systemFields,
       session: {},
     }),
     numbers: defineTable({
       value: v.number(),
     }),
     tweets: Tweets.table,
-    follows: Follows.table,
+    follows: follows.table,
     likes: Likes.table,
     retweets: Retweets.table,
   },

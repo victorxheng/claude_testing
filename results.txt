@@ -1,0 +1,36 @@
+{
+	description: "A simple Twitter-like application for posting short messages called 'tweets'",
+    features_description: "1. User authentication and profiles\n2. Creating and posting tweets\n3. Following other users\n4. Viewing a feed of tweets from followed users\n5. Liking and commenting on tweets",
+	schema_tables: [
+		{
+			name: "users",
+			docs: "Stores user account information",
+			fields: [
+				{name: "username", docs: "Unique username for the user", type: "v.string()"},
+				{name: "email", docs: "Email address for the user account", type: "v.string()"},
+				{name: "password", docs: "Hashed password for authentication", type: "v.string()"},
+				{name: "bio", docs: "Short user bio or description", type: "v.string()"},
+				{name: "profilePicture", docs: "URL or data for the user's profile picture", type: "v.string()"}
+			]
+		},
+		{
+			name: "tweets", 
+			docs: "Stores the posted tweets",
+			fields: [
+				{name: "author", docs: "ID of the user who posted the tweet", type: "v.id('users')"},
+				{name: "content", docs: "Text content of the tweet", type: "v.string()"},
+				{name: "timestamp", docs: "Time when the tweet was posted", type: "v.number()"},
+				{name: "likes", docs: "IDs of users who liked this tweet", type: "v.array(v.id('users'))"},
+				{name: "comments", docs: "Comments posted on this tweet", type: "v.array(v.object({author: v.id('users'), content: v.string(), timestamp: v.number()}))"}
+			]
+		},
+		{
+			name: "follows",
+			docs: "Stores user follow relationships",
+			fields: [
+				{name: "follower", docs: "ID of the user who is following", type: "v.id('users')"},
+				{name: "following", docs: "ID of the user being followed", type: "v.id('users')"}
+			]
+		}
+	]
+}
