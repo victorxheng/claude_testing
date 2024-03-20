@@ -134,6 +134,63 @@ You must surround your output with <jsonSchema> tags, for example:
 </jsonSchema>
 """
 
+faker_system = """
+You are a helpful programming expert
+
+Your job is to write a single function that uses faker by filling in argument fields in an internal database function that inserts data into the database based on a schema. We are using convex, which follows a very specific syntax format as outlined below. You must export the const, define an internalMutation, and follow the syntax exactly.
+
+For example:
+
+import { faker } from '@faker-js/faker';
+
+import { internalMutation } from "./_generated/server";
+
+export const createFake = internalMutation(async (ctx) => {
+
+  // Initialize Faker with a random value
+
+  faker.seed();
+
+  for (let i = 0; i < 200; i++) {
+
+    await ctx.db.insert("users", {
+
+      name: faker.person.fullName(),
+
+      company: faker.company.name(),
+
+      avatar: faker.image.avatar(),
+
+    });
+
+    await ctx.db.insert("tweets", {
+
+      content: faker.lorem.sentence(),
+
+    });
+
+  }
+
+});
+
+Up there, you only need to change the faker types for the arguments.
+
+For example, this table with name "users" has fields name, company, and avatar, all of which are string types. It also inserts into the "tweets" table.
+
+To write your own, copy the exact same syntax, but populate different arguments and faker data for all tables and fields in the schema.
+"""
+
+actions_system = """
+"""
+
+writing_actions_system = """
+
+
+Writing args code:
+
+
+"""
+
 
 
 
@@ -141,8 +198,9 @@ You must surround your output with <jsonSchema> tags, for example:
 class Project:
     def __init__(self):
         self.client = anthropic.Anthropic()
-        self.model = "claude-3-sonnet-20240229"
+        # self.model = "claude-3-sonnet-20240229"
         # self.model = "claude-3-opus-20240229"
+        self.model = "claude-3-haiku-20240307"
         # self.structure_maker_tool_user = ToolUser([WritePageFromStructureTool()], model=self.model)
 
     def send_message(self, system: str, messages):
@@ -182,12 +240,42 @@ class Project:
             self.create_user_message(prompt)
         ])
         return message.split("<jsonSchema>")[1].split("</jsonSchema>")[0]
+    
+
 
 schema_boilerplate_imports = """
 import { Table } from "convex-helpers/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+"""
+
+crud_boilerplate_imports = """
+import { v } from "convex/values";
+import { mutation, action, query, internalQuery } from "./_generated/server";
+import { api } from "./_generated/api";
+import { filter } from "convex-helpers/server/filter";
+import { Id } from "./_generated/dataModel";
+import { Auth, DocumentByInfo, GenericDatabaseReader, GenericDatabaseWriter, GenericQueryCtx, GenericTableInfo, PaginationOptions, PaginationResult, QueryInitializer } from "convex/server";
+import { useMutation, useQuery } from "convex/react";
+"""
+
+verify_function = """
+async function verify(ctx: GenericQueryCtx<any>){
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Unauthenticated call to mutation");
+    }
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier),
+      )
+      .unique();
+    if (!user) {
+      throw new Error("Unauthenticated call");
+    }
+}
 """
 
          
@@ -205,7 +293,7 @@ class Compiler:
             page += f"\nexport const {str(table['name']).capitalize()} = Table(\"{table['name']}\", "
             page += "{"
             for field in table['fields']:
-                page += f"\n\t{field['name']}: v.optional({field['type']}), //{field['docs']}"
+                page += f"\n\t{field['name']}: {field['type']}, //{field['docs']}"
             if table['name'] == "users":
                 page +=  "\n\ttokenIdentifier: v.string(),"
   
@@ -216,17 +304,65 @@ class Compiler:
         page_back += "\n  },\n  { schemaValidation: true }\n);"""
         with open(path, 'w') as f:
             f.write(page + "\n\n" + page_back)
+        
+        return page + "\n\n" + page_back
 
     def create_crud(self, schema, path):
+        schema_imports = [] # import schema, { Tweets, User } from "./schema";
         creates = []
         reads = []
         updates = []
         deletes = []
 
         # start with reads
+        tables = schema['schema_tables']
+        for table in tables:
+            # NEED TO ADD BETTER COMMENTS
+            # would be more ideal to generate a json of these functions and pass it into the AI. for now, just pass in all the code.
+            schema_imports.append(str(table['name']).capitalize())
+            reads.append(f'\n//returns a full table scan query based on an optional filter\nfunction getMany{str(table["name"]).capitalize()}(db: GenericDatabaseReader<any>, fltr?: (f: typeof {str(table["name"]).capitalize()}.doc.type) => Promise<boolean> | boolean): QueryInitializer<any>{"{"}return filter(db.query("{table["name"]}"), fltr ? fltr : () => true){"}"}\n')
+            reads.append(f'\n//returns one document based on an id\nasync function getOne{str(table["name"]).capitalize()}(db: GenericDatabaseReader<any>, id: string | Id<"{table["name"]}">):  Promise<DocumentByInfo<GenericTableInfo>[]>{"{"}return await db.get(id as Id<"{table["name"]}">){"}"}\n')
+            creates.append(f'\n//creates one document based on data object, returns the resulting document id\nasync function createOne{str(table["name"]).capitalize()}(db: GenericDatabaseWriter<any>, data: {"{"}[x: string]: any;{"}"}){"{"}return await db.insert("{table["name"]}", data);{"}"}\n')
+            updates.append(f'\n//updates one document based on an id and a partial data object, returns nothing\nasync function updateOne{str(table["name"]).capitalize()}(db: GenericDatabaseWriter<any>, id: Id<"{table["name"]}">, data: Partial<any>){"{"}await db.patch(id, data);{"}"}\n')
+            deletes.append(f'\n//deletes one document based on an id, returns nothing\nasync function deleteOne{str(table["name"]).capitalize()}(db: GenericDatabaseWriter<any>, id: Id<"{table["name"]}">){"{"}await db.delete(id);{"}"}\n')
 
+        page_imports = crud_boilerplate_imports
+        page_imports += '\nimport schema, { '+ str(schema_imports).replace('[','').replace(']','').replace("'", "") +' } from "./schema";\n\n'
+        page = verify_function
         
+        for read in reads:
+            page += read
+        for create in creates:
+            page += create
+        for update in updates:
+            page += update
+        for delete in deletes:
+            page += delete
+        
+        with open(path, 'w') as f:
+            f.write(page_imports + page)
 
+        return page_imports + page
+
+        # for now, all in one file LOL
+    
+    def create_faker_data_code(self, schema, path): # UNTESTED
+        p = Project()
+        result = p.send_message(faker_system, p.create_user_message("Here are the schemas you should be making fake data for: \n" + schema))
+        with open(path, 'w') as f:
+            f.write(result)
+        return result
+    
+    def create_actions_boilerplate(self, schema, actions, path):
+        return
+
+    
+    def create_actions_code(self, actions, schema_page, database_page):
+        # no actions, only queries and mutations
+        # system message contains all the available convex formatting, operations and options for getting and setting data
+        # loop through each action, giving it the json, and asking it to produce the middle basic code
+        # stitch together, with args alr defined in initial json
+        return
 
 
 newline = '\n'
@@ -239,43 +375,45 @@ schema_path = f'generated/schema.json'
 #p.write_to_file(structure, schema_path)
 # schema = json.load(structure)
 schema = json.loads(r"""
-{ 
-	"description": "A simple Twitter-like application that allows users to post tweets, follow other users, and view a timeline of tweets from followed users.",
-	"features_description": "- User registration and login\n- Posting tweets\n- Following other users\n- Timeline view of tweets from followed users\n- User profile pages\n- Searching for users and tweets",
-	"schema_tables": [
-		{
-			"name": "users",
-			"docs": "Stores user account information",
-			"fields": [
-				{"name": "username", "docs": "The username of the user", "type": "v.string()"},
-				{"name": "email", "docs": "The email of the user", "type": "v.string()"},
-				{"name": "name", "docs": "The display name of the user", "type": "v.string()"},
-				{"name": "bio", "docs": "A short user bio", "type": "v.string()"}
-			]
-		},
-		{
-			"name": "tweets",
-			"docs": "Stores individual tweets posted by users",
-			"fields": [
-				{"name": "userId", "docs": "ID of the user who posted the tweet", "type": "v.id('users')"},
-				{"name": "text", "docs": "The text content of the tweet", "type": "v.string()"}
-			]
-		},
-		{
-			"name": "follows",
-			"docs": "Stores follow relationships between users",
-			"fields": [
-				{"name": "followerId", "docs": "ID of the user doing the following", "type": "v.id('users')"},
-				{"name": "followedId", "docs": "ID of the user being followed", "type": "v.id('users')"}
-			]
-		}
-	]
-}
-""", strict=False)
+    { 
+        "description": "A simple Twitter-like application that allows users to post tweets, follow other users, and view a timeline of tweets from followed users.",
+        "features_description": "- User registration and login\n- Posting tweets\n- Following other users\n- Timeline view of tweets from followed users\n- User profile pages\n- Searching for users and tweets",
+        "schema_tables": [
+            {
+                "name": "users",
+                "docs": "Stores user account information",
+                "fields": [
+                    {"name": "username", "docs": "The username of the user", "type": "v.string()"},
+                    {"name": "email", "docs": "The email of the user", "type": "v.string()"},
+                    {"name": "name", "docs": "The display name of the user", "type": "v.string()"},
+                    {"name": "bio", "docs": "A short user bio", "type": "v.string()"}
+                ]
+            },
+            {
+                "name": "tweets",
+                "docs": "Stores individual tweets posted by users",
+                "fields": [
+                    {"name": "userId", "docs": "ID of the user who posted the tweet", "type": "v.id('users')"},
+                    {"name": "text", "docs": "The text content of the tweet", "type": "v.string()"}
+                ]
+            },
+            {
+                "name": "follows",
+                "docs": "Stores follow relationships between users",
+                "fields": [
+                    {"name": "followerId", "docs": "ID of the user doing the following", "type": "v.id('users')"},
+                    {"name": "followedId", "docs": "ID of the user being followed", "type": "v.id('users')"}
+                ]
+            }
+        ]
+    }
+    """, strict=False)
 
 
 c = Compiler()
-c.create_schema(schema, f'generated/schema.ts')
+schema_page = c.create_schema(schema, f'generated/schema.ts')
+database_page = c.create_crud(schema, f'generated/call.ts')
+faker_data = c.create_faker_data_code(schema, 'generated/faker.ts')
 
 
 

@@ -1,11 +1,10 @@
 import { v } from "convex/values";
 import { mutation, action, query, internalQuery } from "./_generated/server";
 import { api } from "./_generated/api";
-import { crud } from "convex-helpers/server";
 import schema, { Tweets, User } from "./schema";
-import { Predicate, filter } from "convex-helpers/server/filter";
+import { filter } from "convex-helpers/server/filter";
 import { Id } from "./_generated/dataModel";
-import { Auth, DocumentByInfo, GenericDatabaseReader, GenericQueryCtx, GenericTableInfo, PaginationOptions, PaginationResult, QueryInitializer } from "convex/server";
+import { Auth, DocumentByInfo, GenericDatabaseReader, GenericDatabaseWriter, GenericQueryCtx, GenericTableInfo, PaginationOptions, PaginationResult, QueryInitializer } from "convex/server";
 import { useMutation, useQuery } from "convex/react";
 
 
@@ -23,19 +22,30 @@ export const getMainFeed = query({
     await verify(ctx)
 
     const d = ctx.db
-    return getTweets(d).collect()
+    const tweets = await getTweets(d).collect()
+    return tweets
   },
 });
+
+export const postTweet = mutation({
+  args: {tweet: Tweets.doc},
+  handler: async (ctx, args): Promise<Id<"tweets">> => {
+    //security 
+    await verify(ctx)
+
+    const d = ctx.db
+    const tweetId = await createTweet(d, args.tweet)
+    return tweetId
+  },
+});
+
+//no actions
 
 async function verify(ctx: GenericQueryCtx<any>){
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
       throw new Error("Unauthenticated call to mutation");
     }
-    // Note: If you don't want to define an index right away, you can use
-    // ctx.db.query("users")
-    //  .filter(q => q.eq(q.field("tokenIdentifier"), identity.tokenIdentifier))
-    //  .unique();
     const user = await ctx.db
       .query("users")
       .withIndex("by_token", (q) =>
@@ -43,10 +53,13 @@ async function verify(ctx: GenericQueryCtx<any>){
       )
       .unique();
     if (!user) {
-      throw new Error("Unauthenticated call to mutation");
+      throw new Error("Unauthenticated call");
     }
 }
 
 function getTweets(db: GenericDatabaseReader<any>, fltr?: (f: typeof Tweets.doc.type) => Promise<boolean> | boolean): QueryInitializer<any>{
   return filter(db.query("tweets"), fltr ? fltr : () => true)
 }
+async function createTweet(db: GenericDatabaseWriter<any>, data: {[x: string]: any;}){return await db.insert("tweets", data);}
+async function updateTweet(db: GenericDatabaseWriter<any>, id: Id<"tweets">, data: Partial<any>){return await db.patch(id, data);}
+async function deleteTweet(db: GenericDatabaseWriter<any>, id: Id<"tweets">){return await db.delete(id);}

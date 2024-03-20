@@ -119,8 +119,8 @@ function getTweetsAmount(db: GenericDatabaseReader<any>, order: "asc" | "desc" =
 function getTweetsUnique(db: GenericDatabaseReader<any>, order: "asc" | "desc" = "asc",  fltr?: (f: typeof Tweets.doc.type) => Promise<boolean> | boolean): Promise<DocumentByInfo<GenericTableInfo>[]>{
   return filter(db.query("tweets"), fltr ? fltr : () => true).order(order).unique()
 }
-function getTweet(db: GenericDatabaseReader<any>, id: string | Id<"tweets">): Promise<DocumentByInfo<GenericTableInfo>[]>{ //returns Promise
-  return db.get(id as Id<"tweets">)
+async function getTweet(db: GenericDatabaseReader<any>, id: string | Id<"tweets">): Promise<DocumentByInfo<GenericTableInfo>[]>{ //returns Promise
+  return await db.get(id as Id<"tweets">)
 }
 
 // TO DO: REMEMBER TO TRACK LINKS IN THE DOC

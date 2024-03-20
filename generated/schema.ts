@@ -16,21 +16,21 @@ import { v } from "convex/values";
 
 
 export const Users = Table("users", {
-	username: v.optional(v.string()), //The username of the user
-	email: v.optional(v.string()), //The email of the user
-	name: v.optional(v.string()), //The display name of the user
-	bio: v.optional(v.string()), //A short user bio
+	username: v.string(), //The username of the user
+	email: v.string(), //The email of the user
+	name: v.string(), //The display name of the user
+	bio: v.string(), //A short user bio
 	tokenIdentifier: v.string(),
 });
 
 export const Tweets = Table("tweets", {
-	userId: v.optional(v.id('users')), //ID of the user who posted the tweet
-	text: v.optional(v.string()), //The text content of the tweet
+	userId: v.id('users'), //ID of the user who posted the tweet
+	text: v.string(), //The text content of the tweet
 });
 
 export const Follows = Table("follows", {
-	followerId: v.optional(v.id('users')), //ID of the user doing the following
-	followedId: v.optional(v.id('users')), //ID of the user being followed
+	followerId: v.id('users'), //ID of the user doing the following
+	followedId: v.id('users'), //ID of the user being followed
 });
 
 

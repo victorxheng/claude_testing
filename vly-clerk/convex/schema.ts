@@ -32,6 +32,7 @@ export default defineSchema(
       value: v.number(),
     }),
     users: User.table.index("by_token", ["tokenIdentifier"]),
+    tweets: Tweets.table
   },
 
   { schemaValidation: true }
