@@ -28,7 +28,8 @@ export const getMainFeed = query({
 });
 
 export const postTweet = mutation({
-  args: {tweet: Tweets.doc},
+  args: {tweet: Tweets.doc, tweets: v.string()
+  },
   handler: async (ctx, args): Promise<Id<"tweets">> => {
     //security 
     await verify(ctx)

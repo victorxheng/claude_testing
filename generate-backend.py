@@ -61,7 +61,7 @@ v.number(): For all numbers, including floating point precision
 v.boolean(): for true false
 v.string(): for strings
 v.bytes(): for bytestrings
-v.array(values): an array of values of another type, ie v.array(v.boolean())
+v.array(values): an array of values of another type, ie v.array(v.boolean()). Limited to 8192 values; use only for small limited sizes
 v.object({property: value}): an object with properties, ie v.object({ weather: "clear"})
 </fieldTypes>
 
@@ -108,6 +108,8 @@ v.optional(v.string()),
 v.optional(v.number()),
 
 This corresponds to marking fields as optional with ? in TypeScript.
+
+
 
 
 <DoNotInclude>
@@ -180,18 +182,183 @@ For example, this table with name "users" has fields name, company, and avatar, 
 To write your own, copy the exact same syntax, but populate different arguments and faker data for all tables and fields in the schema.
 """
 
-actions_system = """
+"""
+indexes:[{index_fields: [{name: string name of field to be indexed, reference indexing below}]}]
+
+<IndexingByFields>
+
+The size limit of an array is 8192. So in order to efficiently store and group data, you'll need to index by certain fields or certain combination of fields for easy retrieval later on.
+
+Indexes allow for instant retrieval of documents based on the indexed field.
+
+For example, to instantly retrieve all books written by an author in a table of books, we can index by auth, and then instantly get the list of books the author is written.
+
+Thus, we wouldn't need an array to store the books written by the author; we can instead use the author index to obtain them.
+
+</IndexingByFields>
 """
 
-writing_actions_system = """
+# Possibly rename get functions to omit the s at the end of each table name
+
+def actions_system(crud_page, schema_page):
+    return f"""
+You are an expert back end designer who can build back end actions for querying and mutating database data from a couple of instructions.
+
+You are to write only the code that uses a unique backend library called Convex for formatting your calls. You must conform to the format.
+
+You must code in typescript. You are writing the contents of a function and are not to write any of the function syntax, just the content and the return statement.
 
 
-Writing args code:
+<DatabaseSchema>
+{schema_page}
+</DatabaseSchema>
 
+<AvailableCRUDFunctions>
+Here are the functions currently available for you to perform create, read, update, and deletion operations. This is also the file your function contents will go:
+
+{crud_page}
+
+As each function above is async, it requires an await beforehand.
+</AvailableCRUDFunctions>
+
+<DbParameter>
+Generally, every function requires you to pass down the databaseReader as a first argument. This is simply making the letter d as the first argument. 
+
+For example, you could do the following, requiring the letter "d" as the first parameter for each function:
+const data = await getManyData(d) //gets the entire
+const oneData = await getOneData(d, data_id)
+const dataId = await createOneData(d, parameters)
+await deleteData(d, data_id)
+await updateData(d, data_id, partial)
+
+</DbParameter>
+
+<Arguments>
+Arguments are passed down with a name and a type in the arguments list. Their name is the variable, and to use it, you must write args.name, such as args.userId if the argument is userId.
+
+Arguments also have types for proper validation. Here is a list:
+
+v.id("tableName"): For referencing other tables, with a string argument for the table name.
+v.null(): JavaScript's undefined is not a valid Convex value. Use null instead.
+v.int64(): For BigInt type of numbers
+v.number(): For all numbers, including floating point precision
+v.boolean(): for true false
+v.string(): for strings
+v.bytes(): for bytestrings
+v.array(values): an array of values of another type, ie v.array(v.boolean()). Limited to 8192 values; use only for small limited sizes
+v.object({"{"}property: value{"}"}): an object with properties, ie v.object({"{"} weather: "clear"{"}"})
+
+
+You then can use them later on for the code, always referencing arguments using args.name.
+</Arguments>
+
+<UsingReadMany>
+When using a getMany function such as getManyData, you can pass in a filter function (optional), and you must append dot functions after to format the data in the way that's required.
+
+
+<Filtering>
+Get many can be used in the following way:
+
+data = getManyData(d, (data) => data.body == args.body).collect()
+
+In this case, the parameter of the lambda function is the single document itself. The lambda then checks this document for a condition, such as if its data.tags field includes an argument field
+
+The lambda can be any complex operation that returns a boolean based on whether the document should be included or not based on certain conditions.
+
+The .collect() after is required to collect all the data. You can use other functions after as well listed in the Collecting section.
+
+<Examples>
+const longTweets = await getManyTweets(d, (tweet) => tweet.body.length >= 50).collect()
+const complexFilter = await getManyData(d, (data) => data.rank >=  5 && data.content.includes(args.keyword) || data.force == true).collect()
+const tagged_posts = await getManyPosts(d, (post) => post.tags.includes(args.tag)).collect()
+</Examples>
+
+</Filtering>
+
+<Collecting>
+Every getMany must have a .collect() in order to carry out the actual database read to return an array of the read documents.
+
+There are different ways to specify the output of a filtering operation. By default Convex always returns documents ordered by _creationTime.
+
+1. Sorting and Ordering
+
+You can use .order("asc" | "desc") to pick whether the order is ascending or descending. If the order isn't specified, it defaults to ascending.
+
+const data = await getManyData(d).order("asc").collect();
+const reverse_data = await getManyData(d).order("desc").collect();
+
+If you need to sort on a field other than _creationTime and your document query returns a small number of documents (on the order of hundreds rather than thousands of documents), consider sorting in Javascript:
+
+const sorted_data = await getManyData(d).collect().sort((a, b) => b.points - a.points).slice(0, 10) // gets top ten documents with most points
+
+2. Replacing .collect()
+
+Instead of using .collect(), which returns the entire filtered table, you can use the following:
+
+.take(n) selects only the first n results that match your query.
+
+const data = await getManyData(d).order("asc").take(5); // takes 5 data points
+
+.first() selects the first document that matches your query and returns null if no documents were found.
+
+const data = await getManyData(d).first(); // gets only the first
+
+.unique() selects the single document from your query or returns null if no documents were found. If there are multiple results it will throw an exception.
+
+const findData = await getManyData(d, (data) => data.name == args.name).unique();
+
+Remember, using getMany returns a Query class, which you cannot perform operations on. Each call from getMany must end with a .collect(), .take(n), .first(), or .unique() before a Promise<any[]> array object is returned for operations to be performed. Thus, collection is required before any sort of mapping or other operations.
+</Collecting>
+
+If documents scale too much, indicate areas where an index should be used instead for filtering and sorting. Using indexes will help with slow full table scans and eliminate the need for filtering and sorting at scale. Indicate through comments where in the code they should be included.
+
+</UsingReadMany>
+
+<Returning>
+Remember to return the correct data based on what the instructions are. You should be saving data in variables and then returning the correct variable.
+</Returning>
+
+<QueryExample>
+const data = await getOneData(d, args.id)
+return data
+</QueryExample>
+
+<QueryExample>
+const data = await getManyData(d, (data) => data.tag == args.tag).order("desc").collect()
+return data
+</QueryExample>
+
+
+<QueryExample>
+const data = await getManyData(d, (data) => data.username == await getManyUsers(d, (user) => user.username == data.username).unique()).order("desc").collect()
+return data
+</QueryExample>
+
+
+<MutationExamples>
+const tweetId = await createOneTweet(d, args.tweet)
+return tweetId
+</MutationExamples>
+
+
+<MutationExamples>
+await deleteOneData(d, args.id)
+</MutationExamples>
+
+
+<MutationExamples>
+const data = await getOneData(d, args.id)
+const widgetId = await createOneWidget(d, {"{"} field1: data.test1, field2: data.test2 {"}"})
+return widgetId
+</MutationExamples>
+
+<DoNotInclude>
+Make sure not to include anything to do with security. Do not call await verify; it is handled for you. You should only focus on the database operations and not auth verification.
+</DoNotInclude>
 
 """
 
-
+# IMPORTANT: ADD IN SORTING AND FILTERING BY INDEXES
 
 
 
@@ -199,8 +366,8 @@ class Project:
     def __init__(self):
         self.client = anthropic.Anthropic()
         # self.model = "claude-3-sonnet-20240229"
-        # self.model = "claude-3-opus-20240229"
-        self.model = "claude-3-haiku-20240307"
+        self.model = "claude-3-opus-20240229"
+        # self.model = "claude-3-haiku-20240307"
         # self.structure_maker_tool_user = ToolUser([WritePageFromStructureTool()], model=self.model)
 
     def send_message(self, system: str, messages):
@@ -278,6 +445,20 @@ async function verify(ctx: GenericQueryCtx<any>){
 }
 """
 
+def create_action(action_type, action_name, args_code, security, docs, code):
+        return f"""
+//{docs}
+export const {action_name} = {action_type}({"{"}
+  args: {"{"}
+    {args_code}
+  {"}"},
+  handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {"{"}{security}
+    d = ctx.db
+    {code}
+  {"}"},
+{"}"});
+"""
+
          
 class Compiler:
     def __init__(self) -> None:
@@ -349,20 +530,40 @@ class Compiler:
     def create_faker_data_code(self, schema, path): # UNTESTED
         p = Project()
         result = p.send_message(faker_system, p.create_user_message("Here are the schemas you should be making fake data for: \n" + schema))
+        
         with open(path, 'w') as f:
             f.write(result)
         return result
     
-    def create_actions_boilerplate(self, schema, actions, path):
-        return
+    def create_actions_code(self, actions, schema_page, crud_page, path):
+        # no actions, only queries and mutations
+        p = Project()
+        result = p.send_message(actions_system(crud_page, schema_page), messages=[p.create_user_message("Here are the actions to create mutation and query functions for: \n<Actions>\n" + str(actions) + "\n</Actions>\n\nYou must output the code in a json schema format that is a dictionary, with the action name as the key/field and the code as the string value. This must be in the same order as it is being processed. Your output must be surrounded by <jsonSchema></jsonSchema> xml tags")])
+        result = result.split("<jsonSchema>")[1].split("</jsonSchema>")[0]
+        with open(path, 'w') as f:
+            f.write(result)
+        return result
+    
+    # MAKE MORE DETAILED DOCS LATER
+
+
+    def create_actions_page(self, actions, code, crud_page, path):
+        page = crud_page + "\n"
+        queries = actions["query_actions"]
+        mutations = actions["mutation_actions"]
+
+        for query in queries:
+            args=""
+            for arg in query["arguments"]:
+                args += f'{arg["name"]}: {arg["type"]}, //{arg["docs"]}\n'
+
+            page += create_action("query", query["name"], args, "\n\t\tawait verify(ctx) //security\n" if query["requires_auth"] else "", query["docs"], str(code[query["name"]]).replace('\n', '\n\t\t'))
+        
+        with open(path, 'w') as f:
+            f.write(page) # need it to write to same file
+        return page 
 
     
-    def create_actions_code(self, actions, schema_page, database_page):
-        # no actions, only queries and mutations
-        # system message contains all the available convex formatting, operations and options for getting and setting data
-        # loop through each action, giving it the json, and asking it to produce the middle basic code
-        # stitch together, with args alr defined in initial json
-        return
 
 
 newline = '\n'
@@ -409,14 +610,198 @@ schema = json.loads(r"""
     }
     """, strict=False)
 
+actions = json.loads(r"""
+{
+  "actions_description": "The actions for this Twitter-like application will involve creating, retrieving and searching for users, posting and retrieving tweets, and managing user follow relationships.",
+
+  "query_actions_required": "Query actions are needed to get user profiles, retrieve tweets for a user's timeline, and search for users and tweets.",
+  
+  "query_actions": [
+    {
+      "name": "getUserProfile",
+      "where_used": "Used in user profile pages to retrieve user details.",
+      "docs": "Retrieves the profile details for a given user ID.",
+      "requires_auth": false,
+      "arguments": [
+        {
+          "name": "userId",
+          "docs": "The ID of the user to retrieve the profile for.",
+          "type": "v.id(\"users\")"
+        }
+      ],
+      "returns": "The user profile object containing username, email, name and bio fields.",
+      "return_type": "User object",
+      "workflow_steps": [
+        {
+          "step": "Retrieve the user document with the given userId from the users table."
+        }
+      ]
+    },
+    {
+      "name": "getTimelineTweets",
+      "where_used": "Used to populate the timeline view for a logged in user.",
+      "docs": "Retrieves tweet IDs for the given user's timeline based on who they follow.",
+      "requires_auth": true,
+      "arguments": [
+        {
+          "name": "userId",
+          "docs": "The ID of the user to retrieve the timeline tweets for.",
+          "type": "v.id(\"users\")"
+        }
+      ],
+      "returns": "An array of tweet IDs for the user's timeline.",
+      "return_type": "Array of tweet ID strings",
+      "workflow_steps": [
+        {
+          "step": "Retrieve IDs of users that the given user is following from the follows table."
+        },
+        {
+          "step": "Retrieve tweet IDs posted by the followed users from the tweets table."
+        },
+        {
+          "step": "Sort the tweet IDs by timestamp in descending order."
+        }
+      ]
+    },
+    {
+      "name": "searchUsers",
+      "where_used": "Used for the user search feature.",
+      "docs": "Searches for users based on a search query string.",
+      "requires_auth": false,
+      "arguments": [
+        {
+          "name": "query",
+          "docs": "The search query string to match against usernames and names.",
+          "type": "v.string()"
+        }
+      ],
+      "returns": "An array of user objects that match the search query.",
+      "return_type": "Array of user objects",
+      "workflow_steps": [
+        {
+          "step": "Perform a text search on the username and name fields in the users table using the query string."
+        },
+        {
+          "step": "Return the matching user documents."
+        }
+      ]
+    },
+    {
+      "name": "searchTweets",
+      "where_used": "Used for the tweet search feature.",
+      "docs": "Searches for tweets based on a search query string.",
+      "requires_auth": false,
+      "arguments": [
+        {
+          "name": "query",
+          "docs": "The search query string to match against tweet text.",
+          "type": "v.string()"
+        }
+      ],
+      "returns": "An array of tweet objects that match the search query.",
+      "return_type": "Array of tweet objects",
+      "workflow_steps": [
+        {
+          "step": "Perform a text search on the text field in the tweets table using the query string."
+        },
+        {
+          "step": "Return the matching tweet documents."
+        }
+      ]
+    }
+  ],
+
+  "mutation_actions_required": "Mutation actions are needed for user signup, posting tweets, and following/unfollowing users.",
+  
+  "mutation_actions": [
+    {
+      "name": "postTweet",
+      "where_used": "Used when a user posts a new tweet.",
+      "docs": "Creates a new tweet posted by the given user.",
+      "requires_auth": true,
+      "arguments": [
+        {
+          "name": "userId",
+          "docs": "The ID of the user posting the tweet.",
+          "type": "v.id(\"users\")"
+        },
+        {
+          "name": "text",
+          "docs": "The text content of the new tweet.",
+          "type": "v.string()"
+        }
+      ],
+      "returns": "The newly created tweet object.",
+      "return_type": "Tweet object",
+      "workflow_steps": [
+        {
+          "step": "Create a new tweet document in the tweets table with the given userId and text."
+        }
+      ]
+    },
+    {
+      "name": "followUser",
+      "where_used": "Used when a user follows another user.",
+      "docs": "Creates a new follow relationship between two users.",
+      "requires_auth": true,
+      "arguments": [
+        {
+          "name": "followerId",
+          "docs": "The ID of the user doing the following.",
+          "type": "v.id(\"users\")"
+        },
+        {
+          "name": "followedId",
+          "docs": "The ID of the user being followed.",
+          "type": "v.id(\"users\")"
+        }
+      ],
+      "returns": "The newly created follow relationship object.",
+      "return_type": "Follow object",
+      "workflow_steps": [
+        {
+          "step": "Create a new follow document in the follows table with the given followerId and followedId."
+        }
+      ]
+    },
+    {
+      "name": "unfollowUser",
+      "where_used": "Used when a user unfollows another user.",
+      "docs": "Removes an existing follow relationship between two users.",
+      "requires_auth": true, 
+      "arguments": [
+        {
+          "name": "followerId",
+          "docs": "The ID of the user doing the unfollowing.",
+          "type": "v.id(\"users\")"
+        },
+        {
+          "name": "followedId",
+          "docs": "The ID of the user being unfollowed.",
+          "type": "v.id(\"users\")"  
+        }
+      ],
+      "returns": "Null on successful unfollow.",
+      "return_type": "Null",
+      "workflow_steps": [
+        {
+          "step": "Delete the follow document from the follows table matching the given followerId and followedId."
+        }
+      ]
+    }
+  ],
+  
+  "actions_required": "No additional standalone actions are required for this application.",
+  "actions": []
+}
+""", strict = False)
 
 c = Compiler()
 schema_page = c.create_schema(schema, f'generated/schema.ts')
-database_page = c.create_crud(schema, f'generated/call.ts')
-faker_data = c.create_faker_data_code(schema, 'generated/faker.ts')
-
-
-
+crud_page = c.create_crud(schema, f'generated/call.ts')
+# faker_data = c.create_faker_data_code(schema, 'generated/faker.ts')
+actions_code = c.create_actions_code(actions, schema_page, crud_page, f'generated/backend.json')
+final = c.create_actions_page(actions, json.loads(actions_code, strict = False), crud_page, 'generated/backend.ts')
 
 # # components = project.create_page_structure(prompt)
 # components = json.loads('''[

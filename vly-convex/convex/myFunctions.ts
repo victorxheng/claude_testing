@@ -101,11 +101,16 @@ async function verify(auth: Auth){
     throw new Error("Unauthenticated call");
   }
 }
-function getTweets(db: GenericDatabaseReader<any>, fltr?: (f: typeof Tweets.doc.type) => Promise<boolean> | boolean): QueryInitializer<any>{
-  return filter(db.query("tweets"), fltr ? fltr : () => true)
+
+
+function getTweetsByIndex(db: GenericDatabaseReader<any>, fltr?: (f: typeof Tweets.doc.type) => Promise<boolean> | boolean, index_field?: string, index_value?: any): QueryInitializer<any>{
+  if(index_field == null) return filter(db.query("tweets"), fltr ? fltr : () => true)
+  return filter(db.query("tweets").withIndex("by_" + index_field, (q) => q.eq(index_field, index_value)), fltr ? fltr : () => true)
 }
-function getTweetsAll(db: GenericDatabaseReader<any>, order: "asc" | "desc" = "asc",  fltr?: (f: typeof Tweets.doc.type) => Promise<boolean> | boolean): Promise<DocumentByInfo<GenericTableInfo>[]>{
-  return filter(db.query("tweets"), fltr ? fltr : () => true).order(order).collect()
+
+
+function getTweetsAll(db: GenericDatabaseReader<any>,  fltr?: (f: typeof Tweets.doc.type) => Promise<boolean> | boolean): QueryInitializer<any>{
+  return filter(db.query("tweets"), fltr ? fltr : () => true)
 }
 function getTweetsFirst(db: GenericDatabaseReader<any>, order: "asc" | "desc" = "asc",  fltr?: (f: typeof Tweets.doc.type) => Promise<boolean> | boolean): Promise<DocumentByInfo<GenericTableInfo>[]>{
   return filter(db.query("tweets"), fltr ? fltr : () => true).order(order).first()
