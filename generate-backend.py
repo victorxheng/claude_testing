@@ -413,7 +413,7 @@ schema = json.loads(r"""
 c = Compiler()
 schema_page = c.create_schema(schema, f'generated/schema.ts')
 database_page = c.create_crud(schema, f'generated/call.ts')
-faker_data = c.create_faker_data_code(schema, 'generated/faker.ts')
+# faker_data = c.create_faker_data_code(schema, 'generated/faker.ts')
 
 
 

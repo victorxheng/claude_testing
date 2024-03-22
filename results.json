@@ -30,8 +30,6 @@
 		}
 	],
 
-  "actions_description": "The actions for this Twitter-like application will involve creating, retrieving and searching for users, posting and retrieving tweets, and managing user follow relationships.",
-
   "query_actions_required": "Query actions are needed to get user profiles, retrieve tweets for a user's timeline, and search for users and tweets.",
   
   "query_actions": [
@@ -245,8 +243,5 @@
         }
       ]
     }
-  ],
-  
-  "actions_required": "No additional standalone actions are required for this application.",
-  "actions": []
+  ]
 }

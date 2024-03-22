@@ -100,6 +100,7 @@ If you are not sure or cannot generate something for any possible reason, return
         ])
         return json.loads(message)
     '''using the provided reference image to help style the component. Do not copy any text in the reference image, just use it for inspiration while styling. Use the following breakdown of the reference image as well:'''
+    
     def write_component_code_from_description(self, prompt, reference_media_type, reference_data, components, component_index):
         system = '''You are writing landing pages with React and Tailwind. You will be given a breakdown of how the landing page should be separated into components. Use Tailwind for styling, basing the design off the reference image and reference breakdown, and write only the code for the component being written. Do not leave anything blank, or to be filled in later. If you need to do some copywriting then do so. Do not leave unfinished sections, for example, do not write "Add more feature items here". Make sure to adhere to the prompt, which will be supplied by the user. Write ONLY code, do not explain the code.'''
         messages=[

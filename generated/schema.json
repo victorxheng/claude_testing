@@ -1,4 +1,3 @@
-
 {
 	"description": "A simple Twitter clone application allowing users to create accounts, post tweets, follow other users, and view their feeds.",
 	"features_description": "- User authentication (signup, login)\n- Create and post tweets (text only)\n- Follow/unfollow other users\n- View a feed of tweets from users you follow\n- View profiles of other users and their tweets",

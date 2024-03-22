@@ -3,3 +3,5 @@
 tool_use_package/
 node_modules/
 __pycache__
+.DS_Store
+vly-frontend/
