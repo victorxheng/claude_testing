@@ -9,6 +9,14 @@ dotenv.load_dotenv()
 
 
 
+# TODO: 
+# 1. Indexing
+# 2. Testing
+# 3. Multipass
+# 4. Row Level Security
+
+
+
 schema_system = """
 You are an expert full-stack web application designer who can create scalable, clean, and efficient web infrastructure and architectures, and design software that scales, both in the back end and the front end.
 
@@ -181,6 +189,9 @@ For example, this table with name "users" has fields name, company, and avatar, 
 
 To write your own, copy the exact same syntax, but populate different arguments and faker data for all tables and fields in the schema.
 """
+
+
+# For indexing:
 
 """
 indexes:[{index_fields: [{name: string name of field to be indexed, reference indexing below}]}]
@@ -559,9 +570,19 @@ class Compiler:
 
             page += create_action("query", query["name"], args, "\n\t\tawait verify(ctx) //security\n" if query["requires_auth"] else "", query["docs"], str(code[query["name"]]).replace('\n', '\n\t\t'))
         
+
+        for mutation in mutations:
+            args=""
+            for arg in mutation["arguments"]:
+                args += f'{arg["name"]}: {arg["type"]}, //{arg["docs"]}\n'
+
+            page += create_action("mutation", mutation["name"], args, "\n\t\tawait verify(ctx) //security\n" if mutation["requires_auth"] else "", mutation["docs"], str(code[mutation["name"]]).replace('\n', '\n\t\t'))
+        
+
         with open(path, 'w') as f:
             f.write(page) # need it to write to same file
         return page 
+
 
     
 

@@ -15,7 +15,7 @@ import { SignInButton, SignUpButton, UserButton } from "@clerk/clerk-react";
 import { StickyHeader } from "@/components/layout/sticky-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import useStoreUserEffect from "@/lib/useStoreUserEffect";
-
+ 
 export default function Home() {
   return (
     <>
