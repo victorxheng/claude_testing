@@ -386,8 +386,8 @@ class Project:
         with self.client.messages.stream(
             model=self.model,
             max_tokens=4096,
-            temperature=1.0,
-            # temperature=0.0,
+            # temperature=1.0,
+            temperature=0.0,
             system=system,
             messages=messages) as stream:
                 for text in stream.text_stream:
