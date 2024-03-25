@@ -40,10 +40,10 @@ export const store = mutation({
       return await ctx.db.insert("users", {
         name: identity.name!,
         tokenIdentifier: identity.tokenIdentifier,
-        email: "",
-        username: "",
+        email: identity.email ?? "",
+        username: identity.nickname ?? "",
         bio: "",
-        profileImageUrl: ""
+        profileImageUrl: identity.pictureUrl ?? ""
       });
     },
   });
