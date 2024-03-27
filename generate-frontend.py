@@ -8,7 +8,7 @@ import base64
 dotenv.load_dotenv()
 
 client = anthropic.Anthropic()
-model = "claude-3-haiku-20240307"
+model = "claude-3-sonnet-20240229"
 
 def send_message(system, messages):
     reply = ''
@@ -72,12 +72,12 @@ In order to use a query or mutation, import the api object from convex and use t
 ```jsx
 "use client";
 import { useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
-import useStoreUserEffect from "../useStoreUserEffect";
+import { api } from "@/convex/_generated/api";
+import useStoreUserEffect from "@/useStoreUserEffect";
 
 export default function Home() {
   const userId = useStoreUserEffect();
-  const tasks = useQuery(api.backend.get, { userId: userId! });
+  const tasks = useQuery(api.backend.get, userId ? { userId }: 'skip');
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       {tasks?.map(({ _id, text }) => <div key={_id}>{text}</div>)}
@@ -87,7 +87,7 @@ export default function Home() {
 ```
 ```jsx
 import { useMutation } from "convex/react";
-import { api } from "../convex/_generated/api";
+import { api } from "@/convex/_generated/api";
 
 export function MyApp() {
   const mutateSomething = useMutation(api.backend.mutateSomething);
@@ -100,10 +100,10 @@ export function MyApp() {
 ```
 All available queries and mutations are in the api.backend object.
 
-In order to get the current user, use the useUser function from Clerk. To get the current userId, which can be used in mutations and queries, use the useStoreUserEffect function. the returned userId can be null, so use the non-null assertion operator in TypeScript where needed.
+In order to get the current user, use the useUser function from Clerk. To get the current userId, which can be used in mutations and queries, use the useStoreUserEffect function. the returned userId can be null, so use the non-null assertion operator, or pass 'skip' into useQuery instead of args where needed.
 ```jsx
 "use client";
-import useStoreUserEffect from "../useStoreUserEffect";
+import useStoreUserEffect from "@/useStoreUserEffect";
 import { useUser } from "@clerk/clerk-react";
 
 export default function UserInfo() {
@@ -422,7 +422,7 @@ pages = [
                 "name": "UserProfile",
                 "description": "The profile information of the user to be followed"
             },
-            {
+            {   
                 "name": "FollowButton",
                 "description": "The button for following or unfollowing the user"
             }

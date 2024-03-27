@@ -62,7 +62,7 @@ function getManyUsers(db: GenericDatabaseReader<any>, fltr?: (f: typeof Users.do
 async function getOneUsers(db: GenericDatabaseReader<any>, id: string | Id<"users">):  Promise<DocumentByInfo<GenericTableInfo>[]>{return await db.get(id as Id<"users">)}
 
 //returns a full table scan query based on an optional filter
-function getManyTweets(db: GenericDatabaseReader<any>, fltr?: (f: typeof Tweets.doc.type) => Promise<boolean> | boolean): QueryInitializer<any>{return filter(db.query("tweets"), fltr ? fltr : () => true)}
+function getManyTweets(db: GenericDatabaseReader<any>, fltr?: (f: typeof Tweets.doc.type) => Promise<boolean> | boolean) {return filter(db.query("tweets"), fltr ? fltr : () => true)}
 
 //returns one document based on an id
 async function getOneTweets(db: GenericDatabaseReader<any>, id: string | Id<"tweets">):  Promise<DocumentByInfo<GenericTableInfo>[]>{return await db.get(id as Id<"tweets">)}

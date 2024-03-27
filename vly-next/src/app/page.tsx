@@ -5,7 +5,6 @@ import useStoreUserEffect from "./useStoreUserEffect";
 import { useConvexAuth } from "convex/react";
 
 export default function Home() {
-  useStoreUserEffect();
   const { isAuthenticated } = useConvexAuth();
 
   return (

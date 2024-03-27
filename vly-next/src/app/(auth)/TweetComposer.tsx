@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
-import useStoreUserEffect from "../useStoreUserEffect";
+import { api } from "@/convex/_generated/api";
+import useStoreUserEffect from "@/useStoreUserEffect";
 
 export default function TweetComposer() {
   const userId = useStoreUserEffect();

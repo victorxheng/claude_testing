@@ -1,8 +1,11 @@
 "use client"
 
+import TweetComposer from "../TweetComposer";
 import TweetFeed from "../TweetFeed";
 
 export default function Tweets() {
     // return "help";
-    return <TweetFeed></TweetFeed>
+    return <>
+    <TweetComposer />
+    <TweetFeed></TweetFeed></>
 }
