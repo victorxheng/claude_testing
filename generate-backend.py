@@ -461,8 +461,7 @@ def create_action(action_type, action_name, args_code, security, docs, code):
 //{docs}
 export const {action_name} = {action_type}({"{"}
   args: {"{"}
-    {args_code}
-  {"}"},
+    {args_code}  {"}"},
   handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {"{"}{security}
     d = ctx.db
     {code}

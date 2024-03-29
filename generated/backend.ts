@@ -76,12 +76,11 @@ async function deleteOneFollows(db: GenericDatabaseWriter<any>, id: Id<"follows"
 export const getUserProfile = query({
   args: {
     userId: v.id("users"), //The ID of the user to retrieve the profile for.
-
   },
   handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {
     d = ctx.db
-    const user = await getOneUsers(d, args.userId)
-		return user
+    const user = await getOneUsers(d, args.userId);
+		return user;
   },
 });
 
@@ -89,16 +88,15 @@ export const getUserProfile = query({
 export const getTimelineTweets = query({
   args: {
     userId: v.id("users"), //The ID of the user to retrieve the timeline tweets for.
-
   },
   handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {
 		await verify(ctx) //security
 
     d = ctx.db
-    const follows = await getManyFollows(d, (follow) => follow.followerId == args.userId).collect()
-		const followedUserIds = follows.map((follow) => follow.followedId)
-		const timelineTweets = await getManyTweets(d, (tweet) => followedUserIds.includes(tweet.userId)).order("desc").collect()
-		return timelineTweets.map((tweet) => tweet._id.toString())
+    const follows = await getManyFollows(d, (follow) => follow.followerId == args.userId).collect();
+		const followedUserIds = follows.map(follow => follow.followedId);
+		const timelineTweets = await getManyTweets(d, (tweet) => followedUserIds.includes(tweet.userId)).order("desc").collect();
+		return timelineTweets.map(tweet => tweet._id.toString());
   },
 });
 
@@ -106,12 +104,11 @@ export const getTimelineTweets = query({
 export const searchUsers = query({
   args: {
     query: v.string(), //The search query string to match against usernames and names.
-
   },
   handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {
     d = ctx.db
-    const users = await getManyUsers(d, (user) => user.username.toLowerCase().includes(args.query.toLowerCase()) || user.name.toLowerCase().includes(args.query.toLowerCase())).collect()
-		return users
+    const users = await getManyUsers(d, (user) => user.username.includes(args.query) || user.name.includes(args.query)).collect();
+		return users;
   },
 });
 
@@ -119,11 +116,64 @@ export const searchUsers = query({
 export const searchTweets = query({
   args: {
     query: v.string(), //The search query string to match against tweet text.
-
   },
   handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {
     d = ctx.db
-    const tweets = await getManyTweets(d, (tweet) => tweet.text.toLowerCase().includes(args.query.toLowerCase())).collect()
-		return tweets
+    const tweets = await getManyTweets(d, (tweet) => tweet.text.includes(args.query)).collect();  
+		return tweets;
+  },
+});
+
+//Creates a new tweet posted by the given user.
+export const postTweet = mutation({
+  args: {
+    userId: v.id("users"), //The ID of the user posting the tweet.
+text: v.string(), //The text content of the new tweet.
+  },
+  handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {
+		await verify(ctx) //security
+
+    d = ctx.db
+    const tweetId = await createOneTweets(d, {
+		  userId: args.userId,
+		  text: args.text
+		});
+		return await getOneTweets(d, tweetId);
+  },
+});
+
+//Creates a new follow relationship between two users.
+export const followUser = mutation({
+  args: {
+    followerId: v.id("users"), //The ID of the user doing the following.
+followedId: v.id("users"), //The ID of the user being followed.
+  },
+  handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {
+		await verify(ctx) //security
+
+    d = ctx.db
+    const followId = await createOneFollows(d, {
+		  followerId: args.followerId, 
+		  followedId: args.followedId
+		});
+		return await getOneFollows(d, followId);
+  },
+});
+
+//Removes an existing follow relationship between two users.
+export const unfollowUser = mutation({
+  args: {
+    followerId: v.id("users"), //The ID of the user doing the unfollowing.
+followedId: v.id("users"), //The ID of the user being unfollowed.
+  },
+  handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {
+		await verify(ctx) //security
+
+    d = ctx.db
+    const follow = await getManyFollows(d, (follow) => follow.followerId == args.followerId && follow.followedId == args.followedId).unique();
+		if (follow) {
+		  await deleteOneFollows(d, follow._id);
+		}
+		return null;
   },
 });

@@ -1,10 +1,34 @@
 
 {
-  "getUserProfile": "const user = await getOneUsers(d, args.userId)\nreturn user",
-  "getTimelineTweets": "const follows = await getManyFollows(d, (follow) => follow.followerId == args.userId).collect()\nconst followedUserIds = follows.map((follow) => follow.followedId)\nconst timelineTweets = await getManyTweets(d, (tweet) => followedUserIds.includes(tweet.userId)).order(\"desc\").collect()\nreturn timelineTweets.map((tweet) => tweet._id.toString())",
-  "searchUsers": "const users = await getManyUsers(d, (user) => user.username.toLowerCase().includes(args.query.toLowerCase()) || user.name.toLowerCase().includes(args.query.toLowerCase())).collect()\nreturn users",
-  "searchTweets": "const tweets = await getManyTweets(d, (tweet) => tweet.text.toLowerCase().includes(args.query.toLowerCase())).collect()\nreturn tweets",
-  "postTweet": "const tweetId = await createOneTweets(d, {userId: args.userId, text: args.text})\nreturn tweetId.toString()",
-  "followUser": "const followId = await createOneFollows(d, {followerId: args.followerId, followedId: args.followedId})\nreturn followId.toString()",
-  "unfollowUser": "const follow = await getManyFollows(d, (follow) => follow.followerId == args.followerId && follow.followedId == args.followedId).unique()\nif(follow){\n  await deleteOneFollows(d, follow._id)\n}\nreturn null"
+  "getUserProfile": "const user = await getOneUsers(d, args.userId);
+return user;",
+
+  "getTimelineTweets": "const follows = await getManyFollows(d, (follow) => follow.followerId == args.userId).collect();
+const followedUserIds = follows.map(follow => follow.followedId);
+const timelineTweets = await getManyTweets(d, (tweet) => followedUserIds.includes(tweet.userId)).order(\"desc\").collect();
+return timelineTweets.map(tweet => tweet._id.toString());",
+
+  "searchUsers": "const users = await getManyUsers(d, (user) => user.username.includes(args.query) || user.name.includes(args.query)).collect();
+return users;",
+
+  "searchTweets": "const tweets = await getManyTweets(d, (tweet) => tweet.text.includes(args.query)).collect();  
+return tweets;",
+
+  "postTweet": "const tweetId = await createOneTweets(d, {
+  userId: args.userId,
+  text: args.text
+});
+return await getOneTweets(d, tweetId);",
+
+  "followUser": "const followId = await createOneFollows(d, {
+  followerId: args.followerId, 
+  followedId: args.followedId
+});
+return await getOneFollows(d, followId);",
+
+  "unfollowUser": "const follow = await getManyFollows(d, (follow) => follow.followerId == args.followerId && follow.followedId == args.followedId).unique();
+if (follow) {
+  await deleteOneFollows(d, follow._id);
+}
+return null;"
 }
