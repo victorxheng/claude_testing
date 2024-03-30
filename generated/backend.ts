@@ -79,8 +79,8 @@ export const getUserProfile = query({
   },
   handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {
     d = ctx.db
-    const user = await getOneUsers(d, args.userId);
-		return user;
+    const user = await getOneUsers(d, args.userId)
+		return user
   },
 });
 
@@ -93,10 +93,10 @@ export const getTimelineTweets = query({
 		await verify(ctx) //security
 
     d = ctx.db
-    const follows = await getManyFollows(d, (follow) => follow.followerId == args.userId).collect();
-		const followedUserIds = follows.map(follow => follow.followedId);
-		const timelineTweets = await getManyTweets(d, (tweet) => followedUserIds.includes(tweet.userId)).order("desc").collect();
-		return timelineTweets.map(tweet => tweet._id.toString());
+    const follows = await getManyFollows(d, (follow) => follow.followerId == args.userId).collect()
+		const followedUserIds = follows.map(follow => follow.followedId)
+		const timelineTweets = await getManyTweets(d, (tweet) => followedUserIds.includes(tweet.userId)).order("desc").collect()
+		return timelineTweets.map(tweet => tweet._id)
   },
 });
 
@@ -107,8 +107,8 @@ export const searchUsers = query({
   },
   handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {
     d = ctx.db
-    const users = await getManyUsers(d, (user) => user.username.includes(args.query) || user.name.includes(args.query)).collect();
-		return users;
+    const users = await getManyUsers(d, (user) => user.username.includes(args.query) || user.name.includes(args.query)).collect()
+		return users
   },
 });
 
@@ -119,8 +119,8 @@ export const searchTweets = query({
   },
   handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {
     d = ctx.db
-    const tweets = await getManyTweets(d, (tweet) => tweet.text.includes(args.query)).collect();  
-		return tweets;
+    const tweets = await getManyTweets(d, (tweet) => tweet.text.includes(args.query)).collect()
+		return tweets
   },
 });
 
@@ -134,11 +134,8 @@ text: v.string(), //The text content of the new tweet.
 		await verify(ctx) //security
 
     d = ctx.db
-    const tweetId = await createOneTweets(d, {
-		  userId: args.userId,
-		  text: args.text
-		});
-		return await getOneTweets(d, tweetId);
+    const tweetId = await createOneTweets(d, {userId: args.userId, text: args.text})
+		return await getOneTweets(d, tweetId)
   },
 });
 
@@ -152,11 +149,8 @@ followedId: v.id("users"), //The ID of the user being followed.
 		await verify(ctx) //security
 
     d = ctx.db
-    const followId = await createOneFollows(d, {
-		  followerId: args.followerId, 
-		  followedId: args.followedId
-		});
-		return await getOneFollows(d, followId);
+    const followId = await createOneFollows(d, {followerId: args.followerId, followedId: args.followedId})
+		return await getOneFollows(d, followId)
   },
 });
 
@@ -170,10 +164,7 @@ followedId: v.id("users"), //The ID of the user being unfollowed.
 		await verify(ctx) //security
 
     d = ctx.db
-    const follow = await getManyFollows(d, (follow) => follow.followerId == args.followerId && follow.followedId == args.followedId).unique();
-		if (follow) {
-		  await deleteOneFollows(d, follow._id);
-		}
-		return null;
+    const follow = await getManyFollows(d, (follow) => follow.followerId == args.followerId && follow.followedId == args.followedId).unique()
+		await deleteOneFollows(d, follow._id)
   },
 });

@@ -372,6 +372,17 @@ Make sure not to include anything to do with security. Do not call await verify;
 # IMPORTANT: ADD IN SORTING AND FILTERING BY INDEXES
 
 
+def page_schema_system(schema_json, actions_json):
+    return f"""
+You are an expert web developer who can build clean, simple, and well-structured straightforward web applications. 
+
+
+
+
+
+"""
+    
+
 
 class Project:
     def __init__(self):
@@ -418,6 +429,15 @@ class Project:
             self.create_user_message(prompt)
         ])
         return message.split("<jsonSchema>")[1].split("</jsonSchema>")[0]
+    
+    def create_page_structure(self, prompt: str):
+        system = schema_system
+        message = self.send_message(system, messages=[
+            self.create_user_message(prompt)
+        ])
+        return message.split("<jsonSchema>")[1].split("</jsonSchema>")[0]
+    
+        
     
 
 
@@ -548,7 +568,7 @@ class Compiler:
     def create_actions_code(self, actions, schema_page, crud_page, path):
         # no actions, only queries and mutations
         p = Project()
-        result = p.send_message(actions_system(crud_page, schema_page), messages=[p.create_user_message("Here are the actions to create mutation and query functions for: \n<Actions>\n" + str(actions) + "\n</Actions>\n\nYou must output the code in a json schema format that is a dictionary, with the action name as the key/field and the code as the string value. This must be in the same order as it is being processed. Your output must be surrounded by <jsonSchema></jsonSchema> xml tags")])
+        result = p.send_message(actions_system(crud_page, schema_page), messages=[p.create_user_message("Here are the actions to create mutation and query functions for: \n<Actions>\n" + str(actions) + "\n</Actions>\n\nYou must output the code in a json schema format that is a dictionary, with the action name as the key/field and the code as the string value. This must be in the same order as it is being processed. Your output must be surrounded by <jsonSchema></jsonSchema> xml tags. The json must be correctly formatted and parsable with strings all on one line.")])
         result = result.split("<jsonSchema>")[1].split("</jsonSchema>")[0]
         with open(path, 'w') as f:
             f.write(result)
@@ -822,6 +842,11 @@ crud_page = c.create_crud(schema, f'generated/call.ts')
 # faker_data = c.create_faker_data_code(schema, 'generated/faker.ts')
 actions_code = c.create_actions_code(actions, schema_page, crud_page, f'generated/backend.json')
 final = c.create_actions_page(actions, json.loads(actions_code, strict = False), crud_page, 'generated/backend.ts')
+
+
+
+
+
 
 # # components = project.create_page_structure(prompt)
 # components = json.loads('''[

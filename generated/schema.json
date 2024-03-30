@@ -1,24 +1,31 @@
-
-{
-	"description": "A simple Twitter clone application allowing users to create accounts, post tweets, follow other users, and view their feeds.",
-	"features_description": "- User authentication (signup, login)\n- Create and post tweets (text only)\n- Follow/unfollow other users\n- View a feed of tweets from users you follow\n- View profiles of other users and their tweets",
+{ 
+	"description": "A simple Twitter-like application that allows users to post tweets, follow other users, and view a timeline of tweets from followed users.",
+	"features_description": "- User registration and login\n- Posting tweets\n- Following other users\n- Timeline view of tweets from followed users\n- User profile pages\n- Searching for users and tweets",
 	"schema_tables": [
 		{
 			"name": "users",
 			"docs": "Stores user account information",
 			"fields": [
-				{"name": "email", "docs": "The user's email address used for login", "type": "v.string()"},
-				{"name": "name", "docs": "The user's display name", "type": "v.string()"},
-				{"name": "bio", "docs": "A short user bio", "type": "v.optional(v.string())"},
-				{"name": "following", "docs": "List of user IDs that this user is following", "type": "v.array(v.id('users'))"}
+				{"name": "username", "docs": "The username of the user", "type": "v.string()"},
+				{"name": "email", "docs": "The email of the user", "type": "v.string()"},
+				{"name": "name", "docs": "The display name of the user", "type": "v.string()"},
+				{"name": "bio", "docs": "A short user bio", "type": "v.string()"}
 			]
 		},
 		{
 			"name": "tweets",
-			"docs": "Stores all tweets posted by users",
+			"docs": "Stores individual tweets posted by users",
 			"fields": [
-				{"name": "author", "docs": "The ID of the user who posted this tweet", "type": "v.id('users')"},
+				{"name": "userId", "docs": "ID of the user who posted the tweet", "type": "v.id('users')"},
 				{"name": "text", "docs": "The text content of the tweet", "type": "v.string()"}
+			]
+		},
+		{
+			"name": "follows",
+			"docs": "Stores follow relationships between users",
+			"fields": [
+				{"name": "followerId", "docs": "ID of the user doing the following", "type": "v.id('users')"},
+				{"name": "followedId", "docs": "ID of the user being followed", "type": "v.id('users')"}
 			]
 		}
 	]
