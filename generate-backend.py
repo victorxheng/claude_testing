@@ -427,6 +427,52 @@ This is where you put the components together. Describe the lay out, how the com
 
 </Layout>
 
+<OtherNotes>
+
+<Authentication>
+
+You do not need a sign in or sign up page, an account page (for changing password, etc), or need to worry about user authentication.
+
+Instead, this is achieved through a library called Clerk. It handles all the UI for signing in.
+
+The only thing needed is a <SignInButton/> button to be rendered somewhere for the user to sign in or sign up, which can be put in a ui component such as a hero or nav bar.
+
+You also only need the <UserButton/> to render a button for the user to click on to take them to their account. All of that is handled.
+
+</Authentication>
+
+<RealtimeData>
+
+You do not need to refetch query data for data calls. Every query is a subscription to a real time database, so you never need to refresh, re-fetch, or get the data. Any variable defined in the data call section will always have the latest most up to data information.
+
+Thus, in workflows, if there is a refresh to get the latest data, you do not need to do that. If it is a different reason, such as going to a different page with new data, or changing what the data is pointing to, such as the arguments, then that is still required.
+
+</RealtimeData>
+
+<Navigation>
+
+Every page should have some form of navigation on it, which includes the footer and the nav bar. You do not need to ever describe this component, but you should include it in your descriptions of the lay out because it is required in the format.
+
+These components will be handled seperately.
+
+</Navigation>
+
+<States>
+
+The state of the app is using the react state, such as:
+  const [answer, setAnswer] = useState('');
+  const [error, setError] = useState(null);
+  const [status, setStatus] = useState('typing');
+
+However, you only need to provide the name, such as "answer", "error", or "status", as well as the the initial state. the setAnswer or setState will be handled for you.
+
+Describe the states afterward everything is made, outlining what is required by the states and what they should control or how they are used.
+
+</States>
+
+
+</OtherNotes>
+
 
 <jsonSchema>
 {
@@ -446,14 +492,14 @@ This is where you put the components together. Describe the lay out, how the com
     "workflows": [{
       "workflow_name": "name of workflow",
       "docs": "purpose and documentation of the workflow",
-      "where_called": "where the workflow is called from",
+      "where_called": "where the workflow is called from, such as a button press, on page load, or from a condition",
       "actions_used": [{
         "action_name": "name of the action available from the backend being called",
         "arguments": [{
             "argument_name": "argument to use", "type": "argument type", "value_description": "description of what is being entered"
         }]
       }]
-      "workflow": [{"step": "string description of what to do at this step, such as calling an action and passing arguments, or modifying the front end, showing/hiding, etc"}]
+      "workflow": [{"step": "string description of what to do at this step, such as calling an action and passing arguments, redirecting to a different page, or modifying the front end, showing/hiding, etc"}]
     }],
 		"components":[{
         "name": "component name", "docs": "component description and what it does", 
@@ -473,42 +519,123 @@ The output must be surrounded by the <jsonSchema> </jsonSchema> tags.
 # THINGS TO ADD:
 # Handling user authentication with clerk
 # The real time database and not needing to fetch anything
-# include nav bar and footer requirements, or some sort of navigation process
+# include nav bar and footer requirements, or some sort of navigation process. integrate shared
 # integration of page state
 
 # need to eventually make it multi pass to scale it properly across larger projects
 
 def ui_generation_system():
     return """
-You are an expert web developer who can write very clean looking UIs.
+You are an expert web developer who can write very clean looking UIs. Your goal is to produce code in react typescript (tsx) that can build out the application you are writing.
 
 
+Here are some points to follow:
+
+<DataCalls>
+
+Data calls are calls that are made to the back end to query for data, and are saved into a variable to be renderable in the code. They must be one of the available query_actions defined in the backend schema.
+
+You must also specify what to fill the arguments with, which could be from the dynamic route (which is something like router.id or router.slug based on the name of the dynamic route) or information from the current user or other variable.
+
+To get information from dynamic routes, you simply type "router.id" to get the [id] from the route, or "router.slug" to get [slug] from something like pages/blog/[slug].
+
+</DataCalls>
+
+<Workflows>
+
+Workflows are a series of steps to be run as actions, such as when a button is clicked, the page is loaded, or some state changes. They are called in order to execute a script, such as writing to the database, triggering a UI event, or modifying some thing.
+
+Your job is to write these out into code and use it to change state, execute backend functions, etc. To execute a backend workflow, simply write in your workflow: nameOfMutation({arg1: value, arg2: value});
+
+You only need to write the name of the mutation and fill in the desconstructed arguments.
+
+</Workflows>
+
+<Components>
+These are UI components. It helps break down the UI of the page into pieces. They typically take in properties to render, and do not inherently require data calls, but can call workflows through buttons or other states.
+
+Components that take in properties typically takes in a object (refer to the database schemas). They can also take in other values as well. They can even take in states.
+
+Components will be written purely using default react components and tailwind css.
+
+Use the description of the component to correctly generate the code, including the desconstructed props being passed and include how they are rendered in the code.
+
+</Components>
+
+
+<OtherNotes>
+
+<Authentication>
+
+You do not need a sign in or sign up page, an account page (for changing password, etc), or need to worry about user authentication.
+
+Instead, this is achieved through a library called Clerk. It handles all the UI for signing in.
+
+The only thing needed is a <SignInButton/> button to be rendered somewhere for the user to sign in or sign up, which can be put in a ui component such as a hero or nav bar.
+
+You also only need the <UserButton/> to render a button for the user to click on to take them to their account. All of that is handled.
+
+</Authentication>
+
+<RealtimeData>
+
+You do not need to refetch query data for data calls. Every query is a subscription to a real time database, so you never need to refresh, re-fetch, or get the data. Any variable defined in the data call section will always have the latest most up to data information.
+
+Thus, in workflows, if there is a refresh to get the latest data, you do not need to do that. If it is a different reason, such as going to a different page with new data, or changing what the data is pointing to, such as the arguments, then that is still required.
+
+To query something, simply write something like:  const data = nameOfQuery({ arg1: value1, arg2: value2 });
+
+This will subscribe the variable data to the backend query. You can then perform modications then use the object later on in the code, such as passing it as a prop, rendering it, or passing it as arguments into a workflow.
+
+Remember to correctly fill out arguments, and that you can get dynamic route values through router.id, and to get the user id, simply write in user.id. You can also obtain other user information through the user object, such as user.email, or whatever fields are available in the user database schema.
+
+</RealtimeData>
+
+<States>
+
+The state of the app is using the react state, such as:
+const [answer, setAnswer] = useState('');
+const [error, setError] = useState(null);
+const [status, setStatus] = useState('typing');
+
+However, you only need to provide the name, such as "answer", "error", or "status", as well as the the initial state. the setAnswer or setState will be handled for you.
+
+</States>
+
+
+</OtherNotes>
+
+
+You must strictly follow the schema below:
 
 <jsonSchema>
 {
-	"route_name": "corresponding page route",
-  "states": [{
-    "state_name": "name of the state. this is a react state using useState('initial_state')",
-    "docs": "what the state does and what uses the state",
-    "initial_state": "what the initial state it. can be empty or not."
+  pages: [{
+      "route_name": "corresponding page route",
+      "states": [{
+        "state_name": "name of the state. this is a react state using useState('initial_state')",
+        "docs": "what the state does and what uses the state",
+        "initial_state": "what the initial state it. can be empty or not."
+      }]
+      "data_calls": [{
+        "query_name": "string name of the query to call from the back end",
+        "code": "the code implementing the query, such as saving to a state or performing modifications."
+      }],
+      "workflows": [{
+        "workflow_name": "name of workflow",
+        "code": "the code implementing the workflow steps and using the arguments"
+      }],
+      "components":[{
+          "name": "component name",
+          "code": "the code implementation of the component in react and tailwind"
+      }],
+      "layout": "the code implementation of the layout using the components and passing the correct parameters, or writing directly using react and tailwind"
+    }
   }]
-  "data_calls": [{
-    "query_name": "string name of the query to call from the back end",
-    "code": "the code implementing the query, such as saving to a state or performing modifications."
-  }],
-  "workflows": [{
-    "workflow_name": "name of workflow",
-    "code": "the code implementing the workflow steps and using the arguments"
-  }],
-  "components":[{
-      "name": "component name",
-      "code": "the code implementation of the component in react and tailwind"
-  }],
-  "layout": "the code implementation of the layout using the components and passing the correct parameters, or writing directly using react and tailwind"
 }
 </jsonSchema>
 
-
+The output must be surrounded by the <jsonSchema> </jsonSchema> tags.
 
 """
 
@@ -567,6 +694,12 @@ class Project:
         ])
         return message.split("<jsonSchema>")[1].split("</jsonSchema>")[0]
     
+    def create_frontend(self, prompt: str):
+        system = ui_generation_system()
+        message = self.send_message(system, messages=[
+            self.create_user_message(prompt)
+        ])
+        return message.split("<jsonSchema>")[1].split("</jsonSchema>")[0]
         
     
 
@@ -977,10 +1110,16 @@ actions_code = c.create_actions_code(actions, schema_page, crud_page, f'generate
 final = c.create_actions_page(actions, json.loads(actions_code, strict = False), crud_page, 'generated/backend.ts')
 """
 
-pages = p.create_page_structure("Task: " + initial_prompt + "\n\nHere is the database schema for the avaiable database objects you are to use: \n<Schemas>\n" + str(schema) + "\n</Schemas>\n\n Here are the backend queries and mutations that you can call: \n<backend>" + str(actions) + "\n</backend>\n\nNow, generate the page layout strictly in the json format described above." )
-p.write_to_file(pages, 'generated/page_schema.json')
+#pages = p.create_page_structure("Task: " + initial_prompt + "\n\nHere is the database schema for the avaiable database objects you are to use: \n<Schemas>\n" + str(schema) + "\n</Schemas>\n\n Here are the backend queries and mutations that you can call: \n<backend>" + str(actions) + "\n</backend>\n\nNow, generate the page layout strictly in the json format described above." )
+#p.write_to_file(pages, 'generated/page_schema.json')
 
+page_schema = ''
 
+with open('generated/page_schema.json', 'r') as file:
+    page_schema = file.read()
+
+frontend = p.create_frontend("Task: " + initial_prompt + "\n\nHere is the database schema code for the avaiable database objects you are to use in your code: \n<Schemas>\n" + str(schema) + "\n</Schemas>\n\n Here are the backend queries and mutations that you can call: \n<backend>" + str(actions) + "\n</backend>\n\nNow, generate the page layout strictly in the json format described above.\n\nHere are the pages to generate code for:\n<pages>" + page_schema + "\n</pages>\n\nGo page by page and generate the corresponding code in react and tailwind." )
+p.write_to_file(frontend, 'generated/frontend.json')
 
 # # components = project.create_page_structure(prompt)
 # components = json.loads('''[
