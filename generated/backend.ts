@@ -84,7 +84,7 @@ export const getUserProfile = query({
   },
 });
 
-//Retrieves tweet IDs for the given user's timeline based on who they follow.
+//Retrieves tweet objects for the given user's timeline based on who they follow.
 export const getTimelineTweets = query({
   args: {
     userId: v.id("users"), //The ID of the user to retrieve the timeline tweets for.
@@ -96,7 +96,7 @@ export const getTimelineTweets = query({
     const follows = await getManyFollows(d, (follow) => follow.followerId == args.userId).collect()
 		const followedUserIds = follows.map(follow => follow.followedId)
 		const timelineTweets = await getManyTweets(d, (tweet) => followedUserIds.includes(tweet.userId)).order("desc").collect()
-		return timelineTweets.map(tweet => tweet._id)
+		return timelineTweets
   },
 });
 
@@ -135,7 +135,8 @@ text: v.string(), //The text content of the new tweet.
 
     d = ctx.db
     const tweetId = await createOneTweets(d, {userId: args.userId, text: args.text})
-		return await getOneTweets(d, tweetId)
+		const tweet = await getOneTweets(d, tweetId)
+		return tweet
   },
 });
 
@@ -150,7 +151,8 @@ followedId: v.id("users"), //The ID of the user being followed.
 
     d = ctx.db
     const followId = await createOneFollows(d, {followerId: args.followerId, followedId: args.followedId})
-		return await getOneFollows(d, followId)
+		const follow = await getOneFollows(d, followId)
+		return follow
   },
 });
 

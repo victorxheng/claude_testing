@@ -1,0 +1,315 @@
+{
+    "description": "This is a simple Twitter-like application that allows users to post tweets, follow other users, and view a timeline of tweets from followed users. The application consists of several key pages including the home timeline, user profile, user search, and tweet search pages.",
+    "features_description": "The key features are located in the following places in the layout:\n- User registration and login: Handled in the root layout component\n- Posting tweets: Done from the home timeline page\n- Following users: Done from user profile pages\n- Timeline of followed tweets: On the home timeline page\n- User profiles: On dedicated user profile pages\n- User and tweet search: On the user search and tweet search pages respectively",
+    "pages": [
+      {
+        "route_name": "home",
+        "docs": "The home page displays the timeline of tweets from followed users and allows posting new tweets.",
+        "page_title": "Home Timeline",
+        "description": "View tweets from users you follow and post new tweets.",
+        "data_calls": [
+          {
+            "query_name": "getTimelineTweets",
+            "purpose": "Retrieves the tweets to display in the timeline",
+            "arguments": [
+              {
+                "argument_name": "userId",
+                "type": "v.id('users')",
+                "value_description": "The ID of the currently logged in user"
+              }
+            ]
+          }
+        ],
+        "workflows": [
+          {
+            "workflow_name": "postTweet",
+            "docs": "Handles posting a new tweet",
+            "where_called": "Called when the user submits the new tweet form",
+            "actions_used": [
+              {
+                "action_name": "postTweet",
+                "arguments": [
+                  {
+                    "argument_name": "userId",
+                    "type": "v.id('users')",
+                    "value_description": "The ID of the currently logged in user"
+                  },
+                  {
+                    "argument_name": "text",
+                    "type": "v.string()",
+                    "value_description": "The text content entered in the new tweet form"
+                  }
+                ]
+              }
+            ],
+            "workflow": [
+              {
+                "step": "Call the postTweet action with the user ID and text content"
+              },
+              {
+                "step": "Refetch the timeline tweets to display the newly posted tweet"
+              },
+              {
+                "step": "Clear the text input field"
+              }
+            ]
+          }
+        ],
+        "components": [
+          {
+            "name": "Timeline",
+            "docs": "Displays the timeline of tweets",
+            "props": [
+              {
+                "property_name": "tweets",
+                "property_type": "Array of tweet objects",
+                "docs": "The tweet objects to display in the timeline"
+              }
+            ],
+            "layout": "The Timeline component displays a vertical list of tweets. Each tweet shows the user's name, username, avatar, and the tweet text. The tweets are ordered chronologically with the newest at the top."
+          },
+          {
+            "name": "NewTweetForm", 
+            "docs": "Form for posting a new tweet",
+            "props": [],
+            "layout": "The NewTweetForm component displays a text input field for entering the tweet content and a submit button. When the form is submitted, it triggers the postTweet workflow."
+          }
+        ],
+        "layout": "The home page layout displays the NewTweetForm component at the top of the page for posting new tweets. Below that, it displays the Timeline component which renders the list of tweets from the getTimelineTweets data call. The page uses a responsive layout that adjusts to different screen sizes."
+      },
+      {
+        "route_name": "user/[username]",
+        "docs": "Profile page for a specific user, displaying their tweets and allowing following/unfollowing.",
+        "page_title": "User Profile",
+        "description": "View a user's profile, their tweets, and follow or unfollow them.",
+        "data_calls": [
+          {
+            "query_name": "getUserProfile",
+            "purpose": "Retrieves the user's profile details",
+            "arguments": [
+              {
+                "argument_name": "userId",
+                "type": "v.id('users')",
+                "value_description": "The ID of the user, obtained from the [username] route parameter"
+              }
+            ]
+          },
+          {
+            "query_name": "getTimelineTweets",
+            "purpose": "Retrieves the user's tweets to display on their profile",
+            "arguments": [
+              {
+                "argument_name": "userId",
+                "type": "v.id('users')",
+                "value_description": "The ID of the user, obtained from the [username] route parameter"  
+              }
+            ]
+          }
+        ],
+        "workflows": [
+          {
+            "workflow_name": "followUser",
+            "docs": "Handles following the user",
+            "where_called": "Called when the 'Follow' button is clicked",
+            "actions_used": [
+              {
+                "action_name": "followUser",
+                "arguments": [
+                  {
+                    "argument_name": "followerId",
+                    "type": "v.id('users')",
+                    "value_description": "The ID of the currently logged in user"
+                  },
+                  {
+                    "argument_name": "followedId",  
+                    "type": "v.id('users')",
+                    "value_description": "The ID of the user being followed"
+                  }
+                ]
+              }
+            ],
+            "workflow": [
+              {
+                "step": "Call the followUser action with the current user's ID and the profile user's ID"
+              },
+              {
+                "step": "Update the UI to reflect that the user is now being followed"  
+              }
+            ]
+          },
+          {
+            "workflow_name": "unfollowUser",
+            "docs": "Handles unfollowing the user", 
+            "where_called": "Called when the 'Unfollow' button is clicked",
+            "actions_used": [
+              {
+                "action_name": "unfollowUser",
+                "arguments": [
+                  {
+                    "argument_name": "followerId",
+                    "type": "v.id('users')",
+                    "value_description": "The ID of the currently logged in user"
+                  },
+                  {
+                    "argument_name": "followedId",
+                    "type": "v.id('users')",
+                    "value_description": "The ID of the user being unfollowed"
+                  }
+                ]
+              }
+            ],
+            "workflow": [
+              {
+                "step": "Call the unfollowUser action with the current user's ID and the profile user's ID" 
+              },
+              {
+                "step": "Update the UI to reflect that the user is no longer being followed"
+              }
+            ]
+          }
+        ],
+        "components": [
+          {
+            "name": "ProfileHeader",
+            "docs": "Displays the user's profile details and follow/unfollow button",
+            "props": [
+              {
+                "property_name": "user",
+                "property_type": "User object",
+                "docs": "The user object containing the profile details"
+              },
+              {
+                "property_name": "isFollowing",
+                "property_type": "boolean",
+                "docs": "Whether the current user is following this profile user"
+              }
+            ],
+            "layout": "The ProfileHeader component displays the user's name, username, avatar, bio, and a follow/unfollow button. The button displays 'Follow' if isFollowing is false, and 'Unfollow' if isFollowing is true. Clicking the button triggers the appropriate workflow."
+          },
+          {
+            "name": "Timeline",
+            "docs": "Displays the user's tweets",
+            "props": [
+              {
+                "property_name": "tweets",
+                "property_type": "Array of tweet objects",
+                "docs": "The tweet objects to display in the timeline"
+              }
+            ],
+            "layout": "The Timeline component displays a vertical list of the user's tweets. Each tweet shows the tweet text and timestamp. The tweets are ordered chronologically with the newest at the top."
+          } 
+        ],
+        "layout": "The user profile page layout displays the ProfileHeader component at the top, passing in the user prop from the getUserProfile data call and the isFollowing state. Below the header, it displays the Timeline component, passing in the tweets prop from the getTimelineTweets data call. The page uses a responsive layout that adjusts to different screen sizes."
+      },
+      {
+        "route_name": "search/users",
+        "docs": "Page for searching for users by username or name.",
+        "page_title": "User Search",
+        "description": "Search for users by username or name.",
+        "data_calls": [],
+        "workflows": [
+          {
+            "workflow_name": "searchUsers",
+            "docs": "Handles searching for users",
+            "where_called": "Called when the search form is submitted",
+            "actions_used": [
+              {
+                "action_name": "searchUsers",
+                "arguments": [
+                  {
+                    "argument_name": "query",
+                    "type": "v.string()",
+                    "value_description": "The search query entered by the user"
+                  }
+                ]
+              }
+            ],
+            "workflow": [
+              {
+                "step": "Call the searchUsers action with the search query"
+              },
+              {
+                "step": "Update the search results UI with the returned user objects"
+              }
+            ]
+          }
+        ],
+        "components": [
+          {
+            "name": "SearchForm",
+            "docs": "Form for entering a search query",
+            "props": [],
+            "layout": "The SearchForm component displays a text input field for entering the search query and a submit button. When the form is submitted, it triggers the searchUsers workflow."
+          },
+          {
+            "name": "SearchResults",
+            "docs": "Displays the user search results",
+            "props": [
+              {
+                "property_name": "users",
+                "property_type": "Array of user objects",
+                "docs": "The user objects returned from the search"
+              }
+            ],
+            "layout": "The SearchResults component displays a list of user cards. Each card shows the user's name, username, and avatar. Clicking on a card navigates to that user's profile page."
+          }
+        ],
+        "layout": "The user search page layout displays the SearchForm component at the top of the page. Below that, it displays the SearchResults component, passing in the users prop from the searchUsers workflow. The page uses a responsive layout that adjusts to different screen sizes."
+      },
+      {
+        "route_name": "search/tweets",
+        "docs": "Page for searching for tweets by text content.",
+        "page_title": "Tweet Search",
+        "description": "Search for tweets by text content.",
+        "data_calls": [],
+        "workflows": [
+          {
+            "workflow_name": "searchTweets",
+            "docs": "Handles searching for tweets",
+            "where_called": "Called when the search form is submitted",
+            "actions_used": [
+              {
+                "action_name": "searchTweets",
+                "arguments": [
+                  {
+                    "argument_name": "query",
+                    "type": "v.string()",
+                    "value_description": "The search query entered by the user"  
+                  }
+                ]
+              }
+            ],
+            "workflow": [
+              {
+                "step": "Call the searchTweets action with the search query"
+              },
+              {
+                "step": "Update the search results UI with the returned tweet objects"
+              }
+            ]
+          }
+        ],
+        "components": [
+          {
+            "name": "SearchForm",
+            "docs": "Form for entering a search query",
+            "props": [],
+            "layout": "The SearchForm component displays a text input field for entering the search query and a submit button. When the form is submitted, it triggers the searchTweets workflow."
+          },
+          {
+            "name": "SearchResults",
+            "docs": "Displays the tweet search results",
+            "props": [
+              {
+                "property_name": "tweets",
+                "property_type": "Array of tweet objects",
+                "docs": "The tweet objects returned from the search"
+              }
+            ],
+            "layout": "The SearchResults component displays a list of tweet cards. Each card shows the tweet text, author's name and username, and timestamp. Clicking on a card navigates to the author's profile page."
+          }
+        ],
+        "layout": "The tweet search page layout displays the SearchForm component at the top of the page. Below that, it displays the SearchResults component, passing in the tweets prop from the searchTweets workflow. The page uses a responsive layout that adjusts to different screen sizes."
+      }
+    ]
+  }

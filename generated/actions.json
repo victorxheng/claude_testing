@@ -27,7 +27,7 @@
       {
         "name": "getTimelineTweets",
         "where_used": "Used to populate the timeline view for a logged in user.",
-        "docs": "Retrieves tweet IDs for the given user's timeline based on who they follow.",
+        "docs": "Retrieves tweet objects for the given user's timeline based on who they follow.",
         "requires_auth": true,
         "arguments": [
           {
@@ -36,8 +36,8 @@
             "type": "v.id(\"users\")"
           }
         ],
-        "returns": "An array of tweet IDs for the user's timeline.",
-        "return_type": "Array of tweet ID strings",
+        "returns": "An array of tweet objects for the user's timeline containing each tweet's details.",
+        "return_type": "Array of tweet objects",
         "workflow_steps": [
           {
             "step": "Retrieve IDs of users that the given user is following from the follows table."
@@ -46,7 +46,7 @@
             "step": "Retrieve tweet IDs posted by the followed users from the tweets table."
           },
           {
-            "step": "Sort the tweet IDs by timestamp in descending order."
+            "step": "Sort the tweets by timestamp in descending order."
           }
         ]
       },

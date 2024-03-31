@@ -370,18 +370,148 @@ Make sure not to include anything to do with security. Do not call await verify;
 """
 
 # IMPORTANT: ADD IN SORTING AND FILTERING BY INDEXES
+# ADD IN PAGINATION
+# ADD ROW LEVEL SECURITY
 
 
-def page_schema_system(schema_json, actions_json):
-    return f"""
-You are an expert web developer who can build clean, simple, and well-structured straightforward web applications. 
+def page_schema_system():
+    return """
+You are an expert web developer who can build clean, simple, and well-structured straightforward web applications in next-js app router.
+
+Your task is to construct a page structure of an application given the objective application, database object schema, and available backend functions.
+
+You will be formatting the output as a json layout that you must strictly follow and fill in based on your expert experience. 
+
+Every page has a name, which is also the name of its route in a url domain. Routes can be fixed, such as home (for url/home), or they can be dynamic, such as user/[id] (for url/user/some_user_id).
+
+Dynamic routes are surrounded in brackets. They are often the name of the dynamic route that is used in the page to render an object.
+
+It can come in the form of something like [id] (for url/some_id), blog/[slug] (for url/page/some_slug), or you can nest it: page/blog/comment/[id] (for url/page/blog/comment/some_comment_id).
+
+You can nest routes by having seperate pages that use a slash (/) symbol to define nested routes, such as page/blog/[id]/view or page/blog/[id]/edit, which creates nested routes under page/blog/[id].
+
+You can leave sections empty. For example, if the page has no data calls, simply leave it empty. Or if there are no workflows either.
+
+The page title and description are for metadata purposes and will show up on search engines as well as on the browser.
+
+<DataCalls>
+
+Data calls are calls that are made to the back end to query for data, and are saved into a variable to be renderable in the code. They must be one of the available query_actions defined in the backend schema.
+
+You must also specify what to fill the arguments with, which could be from the dynamic route (which is something like router.id or router.slug based on the name of the dynamic route) or information from the current user or other variable.
+
+</DataCalls>
+
+<Workflows>
+
+Workflows are a series of steps to be run as actions, such as when a button is clicked, the page is loaded, or some state changes. They are called in order to execute a script, such as writing to the database, triggering a UI event, or modifying some thing.
+
+</Workflows>
+
+<Components>
+These are UI components. It helps break down the UI of the page into pieces. They typically take in properties to render, and do not inherently require data calls, but can call workflows through buttons or other states.
+
+Components that take in properties typically takes in a object (refer to the database schemas). They can also take in other values as well. They can even take in states.
+
+Components will be written purely using default react components and tailwind css.
+
+When you describe the layout, describe the component, the styling and configuration, and other information as to how it will be structured, the placement, where on the page it is located, mobile responsive design, and other parts.
+
+Also describe what each component does, such as what workflows are called.
+
+</Components>
+
+<Layout>
+
+This is where you put the components together. Describe the lay out, how the components are used, additional UI components implemented, and any further workflows or places where data calls are used to render data.
+
+</Layout>
 
 
+<jsonSchema>
+{
+	"description": "string description of the app page structure and layout",
+  "features_description": "string description of where the features are in the layout",
+	"pages": [{
+		"route_name": "string name of page route.", "docs": "string description of the page",
+    "page_title": "title of the page for metadata",
+    "description": "description of the page for metadata",
+    "data_calls": [{
+      "query_name": "string name of the query to call from the back end",
+      "purpose": "purpose and use of the query call"
+      "arguments": [{
+        "argument_name": "argument to use", "type": "argument type", "value_description": "description of what is being entered"
+      }]
+    }],
+    "workflows": [{
+      "workflow_name": "name of workflow",
+      "docs": "purpose and documentation of the workflow",
+      "where_called": "where the workflow is called from",
+      "actions_used": [{
+        "action_name": "name of the action available from the backend being called",
+        "arguments": [{
+            "argument_name": "argument to use", "type": "argument type", "value_description": "description of what is being entered"
+        }]
+      }]
+      "workflow": [{"step": "string description of what to do at this step, such as calling an action and passing arguments, or modifying the front end, showing/hiding, etc"}]
+    }],
+		"components":[{
+        "name": "component name", "docs": "component description and what it does", 
+        "props": [{"property_name": "name of the property being passed through, deconstructed", "property_type": "type of the property", "docs": "description of the property and its use in the component"}],
+        "layout": "description of the layout, structure, ui components, what workflows are called from where, and where the properties are used"
+    }],
+    "layout":"description of the layout using the components",
+    "states": "description of the different states that will be used to control data, states, and UI elements."
+	}]
+}
+</jsonSchema>
+
+The output must be surrounded by the <jsonSchema> </jsonSchema> tags.
+
+"""
+
+# THINGS TO ADD:
+# Handling user authentication with clerk
+# The real time database and not needing to fetch anything
+# include nav bar and footer requirements, or some sort of navigation process
+# integration of page state
+
+# need to eventually make it multi pass to scale it properly across larger projects
+
+def ui_generation_system():
+    return """
+You are an expert web developer who can write very clean looking UIs.
+
+
+
+<jsonSchema>
+{
+	"route_name": "corresponding page route",
+  "states": [{
+    "state_name": "name of the state. this is a react state using useState('initial_state')",
+    "docs": "what the state does and what uses the state",
+    "initial_state": "what the initial state it. can be empty or not."
+  }]
+  "data_calls": [{
+    "query_name": "string name of the query to call from the back end",
+    "code": "the code implementing the query, such as saving to a state or performing modifications."
+  }],
+  "workflows": [{
+    "workflow_name": "name of workflow",
+    "code": "the code implementing the workflow steps and using the arguments"
+  }],
+  "components":[{
+      "name": "component name",
+      "code": "the code implementation of the component in react and tailwind"
+  }],
+  "layout": "the code implementation of the layout using the components and passing the correct parameters, or writing directly using react and tailwind"
+}
+</jsonSchema>
 
 
 
 """
-    
+
 
 
 class Project:
@@ -431,7 +561,7 @@ class Project:
         return message.split("<jsonSchema>")[1].split("</jsonSchema>")[0]
     
     def create_page_structure(self, prompt: str):
-        system = schema_system
+        system = page_schema_system()
         message = self.send_message(system, messages=[
             self.create_user_message(prompt)
         ])
@@ -612,50 +742,51 @@ newline = '\n'
 p = Project()
 
 schema_path = f'generated/schema.json'
-#structure = p.create_schema_structure("Create a schema for a very simple twitter application") # json
+initial_prompt = "Create a schema for a very simple twitter application"
+#structure = p.create_schema_structure(initial_prompt) # json
 #p.write_to_file(structure, schema_path)
 # schema = json.load(structure)
 schema = json.loads(r"""
-    { 
-        "description": "A simple Twitter-like application that allows users to post tweets, follow other users, and view a timeline of tweets from followed users.",
-        "features_description": "- User registration and login\n- Posting tweets\n- Following other users\n- Timeline view of tweets from followed users\n- User profile pages\n- Searching for users and tweets",
-        "schema_tables": [
-            {
-                "name": "users",
-                "docs": "Stores user account information",
-                "fields": [
-                    {"name": "username", "docs": "The username of the user", "type": "v.string()"},
-                    {"name": "email", "docs": "The email of the user", "type": "v.string()"},
-                    {"name": "name", "docs": "The display name of the user", "type": "v.string()"},
-                    {"name": "bio", "docs": "A short user bio", "type": "v.string()"}
-                ]
-            },
-            {
-                "name": "tweets",
-                "docs": "Stores individual tweets posted by users",
-                "fields": [
-                    {"name": "userId", "docs": "ID of the user who posted the tweet", "type": "v.id('users')"},
-                    {"name": "text", "docs": "The text content of the tweet", "type": "v.string()"}
-                ]
-            },
-            {
-                "name": "follows",
-                "docs": "Stores follow relationships between users",
-                "fields": [
-                    {"name": "followerId", "docs": "ID of the user doing the following", "type": "v.id('users')"},
-                    {"name": "followedId", "docs": "ID of the user being followed", "type": "v.id('users')"}
-                ]
-            }
-        ]
-    }
-    """, strict=False)
+{ 
+    "description": "A simple Twitter-like application that allows users to post tweets, follow other users, and view a timeline of tweets from followed users.",
+    "features_description": "- User registration and login\n- Posting tweets\n- Following other users\n- Timeline view of tweets from followed users\n- User profile pages\n- Searching for users and tweets",
+    "schema_tables": [
+        {
+            "name": "users",
+            "docs": "Stores user account information",
+            "fields": [
+                {"name": "username", "docs": "The username of the user", "type": "v.string()"},
+                {"name": "email", "docs": "The email of the user", "type": "v.string()"},
+                {"name": "name", "docs": "The display name of the user", "type": "v.string()"},
+                {"name": "bio", "docs": "A short user bio", "type": "v.string()"}
+            ]
+        },
+        {
+            "name": "tweets",
+            "docs": "Stores individual tweets posted by users",
+            "fields": [
+                {"name": "userId", "docs": "ID of the user who posted the tweet", "type": "v.id('users')"},
+                {"name": "text", "docs": "The text content of the tweet", "type": "v.string()"}
+            ]
+        },
+        {
+            "name": "follows",
+            "docs": "Stores follow relationships between users",
+            "fields": [
+                {"name": "followerId", "docs": "ID of the user doing the following", "type": "v.id('users')"},
+                {"name": "followedId", "docs": "ID of the user being followed", "type": "v.id('users')"}
+            ]
+        }
+    ]
+}
+""", strict=False)
 
 actions = json.loads(r"""
 {
   "actions_description": "The actions for this Twitter-like application will involve creating, retrieving and searching for users, posting and retrieving tweets, and managing user follow relationships.",
 
   "query_actions_required": "Query actions are needed to get user profiles, retrieve tweets for a user's timeline, and search for users and tweets.",
-  
+
   "query_actions": [
     {
       "name": "getUserProfile",
@@ -680,7 +811,7 @@ actions = json.loads(r"""
     {
       "name": "getTimelineTweets",
       "where_used": "Used to populate the timeline view for a logged in user.",
-      "docs": "Retrieves tweet IDs for the given user's timeline based on who they follow.",
+      "docs": "Retrieves tweet objects for the given user's timeline based on who they follow.",
       "requires_auth": true,
       "arguments": [
         {
@@ -689,8 +820,8 @@ actions = json.loads(r"""
           "type": "v.id(\"users\")"
         }
       ],
-      "returns": "An array of tweet IDs for the user's timeline.",
-      "return_type": "Array of tweet ID strings",
+      "returns": "An array of tweet objects for the user's timeline containing each tweet's details.",
+      "return_type": "Array of tweet objects",
       "workflow_steps": [
         {
           "step": "Retrieve IDs of users that the given user is following from the follows table."
@@ -699,7 +830,7 @@ actions = json.loads(r"""
           "step": "Retrieve tweet IDs posted by the followed users from the tweets table."
         },
         {
-          "step": "Sort the tweet IDs by timestamp in descending order."
+          "step": "Sort the tweets by timestamp in descending order."
         }
       ]
     },
@@ -752,7 +883,7 @@ actions = json.loads(r"""
   ],
 
   "mutation_actions_required": "Mutation actions are needed for user signup, posting tweets, and following/unfollowing users.",
-  
+
   "mutation_actions": [
     {
       "name": "postTweet",
@@ -830,21 +961,24 @@ actions = json.loads(r"""
       ]
     }
   ],
-  
+
   "actions_required": "No additional standalone actions are required for this application.",
   "actions": []
 }
 """, strict = False)
 
+"""
+# WRITES THE BACKEND CODE
 c = Compiler()
 schema_page = c.create_schema(schema, f'generated/schema.ts')
 crud_page = c.create_crud(schema, f'generated/call.ts')
 # faker_data = c.create_faker_data_code(schema, 'generated/faker.ts')
 actions_code = c.create_actions_code(actions, schema_page, crud_page, f'generated/backend.json')
 final = c.create_actions_page(actions, json.loads(actions_code, strict = False), crud_page, 'generated/backend.ts')
+"""
 
-
-
+pages = p.create_page_structure("Task: " + initial_prompt + "\n\nHere is the database schema for the avaiable database objects you are to use: \n<Schemas>\n" + str(schema) + "\n</Schemas>\n\n Here are the backend queries and mutations that you can call: \n<backend>" + str(actions) + "\n</backend>\n\nNow, generate the page layout strictly in the json format described above." )
+p.write_to_file(pages, 'generated/page_schema.json')
 
 
 
