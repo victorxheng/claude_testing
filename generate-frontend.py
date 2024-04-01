@@ -67,6 +67,7 @@ The queries available to the frontend are as follows:
 {json.dumps(queries, indent=2)}
 The mutations available to the frontend are as follows:
 {json.dumps(mutations, indent=2)}
+All return values are as stated, there is no object with a data field, error field, loading field, etc that is returned.
 ''' + '''
 In order to use a query or mutation, import the api object from convex and use the useQuery or useMutation functions:
 ```jsx
@@ -77,6 +78,7 @@ import useStoreUserEffect from "@/useStoreUserEffect";
 
 export default function Home() {
   const userId = useStoreUserEffect();
+  // note that this is not `const { data: tasks, isLoading, error } = ...`
   const tasks = useQuery(api.backend.get, userId ? { userId }: 'skip');
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
@@ -100,7 +102,7 @@ export function MyApp() {
 ```
 All available queries and mutations are in the api.backend object.
 
-In order to get the current user, use the useUser function from Clerk. To get the current userId, which can be used in mutations and queries, use the useStoreUserEffect function. the returned userId can be null, so use the non-null assertion operator, or pass 'skip' into useQuery instead of args where needed.
+In order to get the current user, use the useUser function from Clerk. To get the current userId, which can be used in mutations and queries, use the useStoreUserEffect function. the returned userId can be null, so use the non-null assertion operator, or pass 'skip' into useQuery instead of args where needed. Always use the userId to check if 'skip' should be passed in, i.e. do not use isSignedIn in queries and mutations.
 ```jsx
 "use client";
 import useStoreUserEffect from "@/useStoreUserEffect";
@@ -213,7 +215,7 @@ Gradients: from-[#ff80b5], to-[#9089fc]
 Clip-path: polygon(...)
 Flexbox: flex, flex-1, items-center, justify-center, justify-between, gap-x-6, gap-x-12
 Grid: grid, grid-cols-1, gap-y-10
-The pages are as follows, and you are to write part of the {page_title} page:
+The pages are as follows, and you are to write part of the {page_title} page. You only have the following components to work with, so do not import any components in your code:
 {json.dumps(pages, indent=2)}
 {backend_info}'''
     message = send_message(system, messages=[
