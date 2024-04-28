@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 import anthropic
 import dotenv
 import json
@@ -10,7 +10,7 @@ dotenv.load_dotenv()
 client = anthropic.Anthropic()
 model = "claude-3-sonnet-20240229"
 
-def send_message(system, messages):
+def send_message(system: str, messages: List):
     reply = ''
     with client.messages.stream(
         model=model,
@@ -48,7 +48,7 @@ def create_user_message(message_content: str, img_media_type: Optional[str] = No
 def create_assistant_message(message_content: str):
     return {"role": "assistant", "content": message_content}
 
-def create_json_prompt_guard(json):
+def json_prompt_guard(json):
     return '''Output a json object fitting the schema in the following <jsonSchema> tag.
 Code only, no commentary, no introduction sentence, no codefence block.
 Do not output triple backticks with or without json language name. Start with the content of the json object or array directly.
@@ -70,7 +70,7 @@ The mutations available to the frontend are as follows:
 All return values are as stated, there is no object with a data field, error field, loading field, etc that is returned.
 ''' + '''
 In order to use a query or mutation, import the api object from convex and use the useQuery or useMutation functions:
-```jsx
+```tsx
 "use client";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -87,7 +87,8 @@ export default function Home() {
   );
 }
 ```
-```jsx
+```tsx
+"use client";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
@@ -103,7 +104,7 @@ export function MyApp() {
 All available queries and mutations are in the api.backend object.
 
 In order to get the current user, use the useUser function from Clerk. To get the current userId, which can be used in mutations and queries, use the useStoreUserEffect function. the returned userId can be null, so use the non-null assertion operator, or pass 'skip' into useQuery instead of args where needed. Always use the userId to check if 'skip' should be passed in, i.e. do not use isSignedIn in queries and mutations.
-```jsx
+```tsx
 "use client";
 import useStoreUserEffect from "@/useStoreUserEffect";
 import { useUser } from "@clerk/clerk-react";
@@ -115,6 +116,56 @@ export default function UserInfo() {
         return <></>
     }
     return <div>{user.fullName}, {userId!}, {user.imageUrl}</div>;
+}
+```
+
+If you need the userId in a component of a page, accept it as a prop:
+```tsx
+"use client";
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import useStoreUserEffect from '@/useStoreUserEffect'
+
+interface Props {
+  userId: string | null
+}
+
+export default ({ userId }: Props) => {
+  const tweets = useQuery(api.backend.getTimelineTweets, userId ? { userId } : 'skip')
+
+  return (
+    <div>
+      {tweets?.map(tweet => (
+        <div key={tweet._id}>
+          <p>{tweet.text}</p>
+          <p>By: {tweet.author.username}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+If you want to receive objects from the database as a prop, import Doc:
+```tsx
+"use client"
+import { Doc } from "@/convex/_generated/dataModel";
+
+interface Props {
+  tweets: Doc<"tweets">[]
+}
+
+export default ({ tweets }: Props) => {
+  return (
+    <div>
+      {tweets.map(tweet => (
+        <div key={tweet._id}>
+          <p>{tweet.text}</p>
+          <p>By: {tweet.author.username}</p>
+        </div>
+      ))}
+    </div>
+  )
 }
 ```
 '''
@@ -134,7 +185,7 @@ def extract_context_from_backend(path):
 
 def generate_page_list(prompt, backend_info):
     system = f'''You are writing a web app with Next.js, Convex, and Tailwind. Take the user's description of the app and list out what pages the app will need. The titles of pages should not have spaces. {backend_info}
-''' + create_json_prompt_guard('''{
+''' + json_prompt_guard('''{
     pages: [
         {
             url: string,
@@ -150,7 +201,7 @@ def generate_page_list(prompt, backend_info):
 
 def generate_component_list(prompt, backend_info, pages):
     system = f'''You are writing a web app with Next.js, Convex, and Tailwind. Take the user's description of the app and list of pages they want, and for each page, add an array of components that are necessary to make up that page. If any components are shared, do not omit them. For example, if there should be a navbar, then include the Navbar component in every page. {backend_info}
-''' + create_json_prompt_guard('''{
+''' + json_prompt_guard('''{
     pages: [
         {
             url: string,
@@ -432,10 +483,11 @@ pages = [
     }
 ]
 # print(generate_updated_router(pages))
-print(backend_info)
-for page in pages[:1]:
-    for component in page["components"][1:2]:
-        generate_component_code(pages, page["title"], component["name"], prompt, backend_info)
+if __name__ == '__main__':
+    print(backend_info)
+    for page in pages[:1]:
+        for component in page["components"][1:2]:
+            generate_component_code(pages, page["title"], component["name"], prompt, backend_info)
 
 # prompt, schema, crud = extract(results.json)
 # pages: [{url: str, title: str, description: string}] = generate_page_list(prompt, schema)
