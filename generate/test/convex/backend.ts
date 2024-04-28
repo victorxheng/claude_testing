@@ -24,6 +24,7 @@ async function verify(ctx: GenericQueryCtx<any>){
     if (!user) {
       throw new Error("Unauthenticated call");
     }
+    return [identity, user]
 }
 
 //returns a full table scan query based on an optional filter
@@ -45,13 +46,13 @@ function getManyFollows(db: DatabaseReader, fltr?: (f: typeof Follows.doc.type) 
 async function getOneFollows(db: DatabaseReader, id: string | Id<"follows">){return await db.get(id as Id<"follows">)}
 
 //creates one document based on data object, returns the resulting document id
-async function createOneUsers(db: DatabaseWriter, data: typeof Users.doc.type){return await db.insert("users", data);}
+async function createOneUsers(db: DatabaseWriter, data: WithoutSystemFields<typeof Users.doc.type>){return await db.insert("users", data);}
 
 //creates one document based on data object, returns the resulting document id
 async function createOneTweets(db: DatabaseWriter, data: WithoutSystemFields<typeof Tweets.doc.type>){return await db.insert("tweets", data);}
 
 //creates one document based on data object, returns the resulting document id
-async function createOneFollows(db: DatabaseWriter, data: typeof Follows.doc.type){return await db.insert("follows", data);}
+async function createOneFollows(db: DatabaseWriter, data: WithoutSystemFields<typeof Follows.doc.type>){return await db.insert("follows", data);}
 
 //updates one document based on an id and a partial data object, returns nothing
 async function updateOneUsers(db: DatabaseWriter, id: Id<"users">, data: Partial<any>){await db.patch(id, data);}
@@ -130,12 +131,10 @@ export const postTweet = mutation({
     text: v.string(), //The text content of the new tweet
   },
   handler: async (ctx, args) => {
-		await verify(ctx) //security
+		const [identity, user] = await verify(ctx) //security
 
     const d = ctx.db
-    const identity = await ctx.auth.getUserIdentity();
-		const user = await getManyUsers(d, (user) => user.tokenIdentifier == identity.tokenIdentifier).unique();
-		const tweetId = await createOneTweets(d, {userId: user._id, text: args.text});
+    const tweetId = await createOneTweets(d, {userId: user._id, text: args.text});
 		const tweet = await getOneTweets(d, tweetId);
 		return tweet;
   },
@@ -147,12 +146,10 @@ export const followUser = mutation({
     userId: v.id("users"), //The ID of the user to follow
   },
   handler: async (ctx, args) => {
-		await verify(ctx) //security
+		const [identity, user] = await verify(ctx) //security
 
     const d = ctx.db
-    const identity = await ctx.auth.getUserIdentity();
-		const user = identity ? await getManyUsers(d, (user) => user.tokenIdentifier == identity.tokenIdentifier).unique() : null;
-		const followId = await createOneFollows(d, {followerId: user?._id, followedId: args.userId});
+    const followId = await createOneFollows(d, {followerId: user._id, followedId: args.userId});
 		const follow = await getOneFollows(d, followId);
 		return follow;
   },
@@ -164,15 +161,11 @@ export const unfollowUser = mutation({
     userId: v.id("users"), //The ID of the user to unfollow
   },
   handler: async (ctx, args) => {
-    await verify(ctx) //security
+		const [identity, user] = await verify(ctx) //security
 
     const d = ctx.db
-    const identity = await d.auth.getUserIdentity();
-    const user = await getManyUsers(d, (user) => user.tokenIdentifier == identity.tokenIdentifier).unique();
     const follow = await getManyFollows(d, (follow) => follow.followerId == user._id && follow.followedId == args.userId).unique();
-    if (follow) {
-      await deleteOneFollows(d, follow._id);
-    }
-    return follow;
+		await deleteOneFollows(d, follow!._id);
+		return follow;
   },
 });
