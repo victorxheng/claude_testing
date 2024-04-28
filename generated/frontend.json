@@ -1,0 +1,140 @@
+
+{
+  "pages": [
+    {
+      "route_name": "home",
+      "states": [],
+      "data_calls": [
+        {
+          "query_name": "getTimelineTweets",
+          "code": "const timelineTweets = getTimelineTweets({ userId: user.id });"
+        }
+      ],
+      "workflows": [],
+      "components": [
+        {
+          "name": "TweetList",
+          "code": "interface TweetListProps {\n  tweets: Tweet[];\n}\n\nconst TweetList: React.FC<TweetListProps> = ({ tweets }) => {\n  return (\n    <div className=\"space-y-4\">\n      {tweets.map((tweet) => (\n        <TweetItem key={tweet.id} tweet={tweet} />\n      ))}\n    </div>\n  );\n};"
+        },
+        {
+          "name": "TweetItem",
+          "code": "interface TweetItemProps {\n  tweet: Tweet;\n}\n\nconst TweetItem: React.FC<TweetItemProps> = ({ tweet }) => {\n  return (\n    <div className=\"border border-gray-200 rounded-lg p-4\">\n      <p>{tweet.text}</p>\n      <Link href={`/user/${tweet.user.username}`}>\n        <a className=\"text-blue-500\">{tweet.user.name}</a>\n      </Link>\n    </div>\n  );\n};"
+        }
+      ],
+      "layout": "const Home: React.FC = () => {\n  const timelineTweets = getTimelineTweets({ userId: user.id });\n\n  return (\n    <div>\n      <h1 className=\"text-2xl font-bold mb-4\">Home Timeline</h1>\n      <TweetList tweets={timelineTweets} />\n      <button className=\"bg-blue-500 text-white px-4 py-2 rounded-lg\">Post Tweet</button>\n    </div>\n  );\n};"
+    },
+    {
+      "route_name": "user/[username]",
+      "states": [],
+      "data_calls": [
+        {
+          "query_name": "getUserProfile",
+          "code": "const userProfile = getUserProfile({ userId: router.query.userId });"
+        },
+        {
+          "query_name": "getUserTweets",
+          "code": "const userTweets = getUserTweets({ userId: router.query.userId });"
+        }
+      ],
+      "workflows": [
+        {
+          "workflow_name": "followUser",
+          "code": "const followUser = () => {\n  followUser({\n    followerId: user.id,\n    followedId: userProfile.id,\n  });\n  // Update UI to reflect following\n};"
+        },
+        {
+          "workflow_name": "unfollowUser",
+          "code": "const unfollowUser = () => {\n  unfollowUser({\n    followerId: user.id,\n    followedId: userProfile.id,\n  });\n  // Update UI to reflect unfollowing\n};"
+        }
+      ],
+      "components": [
+        {
+          "name": "ProfileHeader",
+          "code": "interface ProfileHeaderProps {\n  user: User;\n}\n\nconst ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {\n  return (\n    <div className=\"mb-4\">\n      <h2 className=\"text-xl font-bold\">{user.name}</h2>\n      <p className=\"text-gray-500\">@{user.username}</p>\n      <p>{user.bio}</p>\n      <button \n        className=\"bg-blue-500 text-white px-4 py-2 rounded-lg\"\n        onClick={followUser}\n      >\n        Follow\n      </button>\n      <button\n        className=\"bg-red-500 text-white px-4 py-2 rounded-lg\"\n        onClick={unfollowUser}\n      >\n        Unfollow  \n      </button>\n    </div>\n  );\n};"
+        },
+        {
+          "name": "TweetList",
+          "code": "interface TweetListProps {\n  tweets: Tweet[];\n}\n\nconst TweetList: React.FC<TweetListProps> = ({ tweets }) => {\n  return (\n    <div className=\"space-y-4\">\n      {tweets.map((tweet) => (\n        <TweetItem key={tweet.id} tweet={tweet} />\n      ))}\n    </div>\n  );\n};"
+        },
+        {
+          "name": "TweetItem",
+          "code": "interface TweetItemProps {\n  tweet: Tweet;\n}\n\nconst TweetItem: React.FC<TweetItemProps> = ({ tweet }) => {\n  return (\n    <div className=\"border border-gray-200 rounded-lg p-4\">\n      <p>{tweet.text}</p>\n      <Link href={`/user/${tweet.user.username}`}>\n        <a className=\"text-blue-500\">{tweet.user.name}</a>\n      </Link>\n    </div>\n  );\n};"
+        }
+      ],
+      "layout": "const UserProfile: React.FC = () => {\n  const userProfile = getUserProfile({ userId: router.query.userId });\n  const userTweets = getUserTweets({ userId: router.query.userId });\n\n  return (\n    <div>\n      <ProfileHeader user={userProfile} />\n      <TweetList tweets={userTweets} />\n    </div>\n  );\n};"
+    },
+    {
+      "route_name": "search/users",
+      "states": [
+        {
+          "state_name": "searchQuery",
+          "docs": "Stores the current search query entered by the user. Used in the SearchInput.",
+          "initial_state": ""
+        },
+        {
+          "state_name": "searchResults",
+          "docs": "Stores the current user search results. Used in the UserList.",
+          "initial_state": "[]"
+        }
+      ],
+      "data_calls": [],
+      "workflows": [
+        {
+          "workflow_name": "searchUsers",
+          "code": "const searchUsers = (query: string) => {\n  const results = searchUsers({ query });\n  setSearchResults(results);\n};"
+        }
+      ],
+      "components": [
+        {
+          "name": "SearchInput",
+          "code": "interface SearchInputProps {\n  onSearch: (query: string) => void;\n}\n\nconst SearchInput: React.FC<SearchInputProps> = ({ onSearch }) => {\n  const [query, setQuery] = useState('');\n\n  const handleSubmit = (e: React.FormEvent) => {\n    e.preventDefault();\n    onSearch(query);\n  };\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <input\n        type=\"text\"\n        value={query}\n        onChange={(e) => setQuery(e.target.value)}\n        className=\"border border-gray-300 rounded-lg px-4 py-2\"\n        placeholder=\"Search users...\"\n      />\n      <button \n        type=\"submit\"\n        className=\"bg-blue-500 text-white px-4 py-2 rounded-lg ml-2\"\n      >\n        Search\n      </button>\n    </form>\n  );\n};"
+        },
+        {
+          "name": "UserList",
+          "code": "interface UserListProps {\n  users: User[];\n}\n\nconst UserList: React.FC<UserListProps> = ({ users }) => {\n  return (\n    <div className=\"space-y-4\">\n      {users.map((user) => (\n        <UserItem key={user.id} user={user} />\n      ))}\n    </div>\n  );\n};"
+        },
+        {
+          "name": "UserItem",
+          "code": "interface UserItemProps {\n  user: User;\n}\n\nconst UserItem: React.FC<UserItemProps> = ({ user }) => {\n  return (\n    <div className=\"border border-gray-200 rounded-lg p-4\">\n      <Link href={`/user/${user.username}`}>\n        <a className=\"font-bold\">{user.name}</a>\n      </Link>\n      <p className=\"text-gray-500\">@{user.username}</p>\n    </div>\n  );\n};"
+        }
+      ],
+      "layout": "const UserSearch: React.FC = () => {\n  const [searchQuery, setSearchQuery] = useState('');\n  const [searchResults, setSearchResults] = useState<User[]>([]);\n\n  const searchUsers = (query: string) => {\n    const results = searchUsers({ query });\n    setSearchResults(results);\n  };\n\n  return (\n    <div>\n      <h1 className=\"text-2xl font-bold mb-4\">User Search</h1>\n      <SearchInput onSearch={(query) => {\n        setSearchQuery(query);\n        searchUsers(query);\n      }} />\n      <UserList users={searchResults} />\n    </div>\n  );\n};"
+    },
+    {
+      "route_name": "search/tweets",
+      "states": [
+        {
+          "state_name": "searchQuery",
+          "docs": "Stores the current search query entered by the user. Used in the SearchInput.",
+          "initial_state": ""
+        },
+        {
+          "state_name": "searchResults",
+          "docs": "Stores the current tweet search results. Used in the TweetList.",
+          "initial_state": "[]"
+        }
+      ],
+      "data_calls": [],
+      "workflows": [
+        {
+          "workflow_name": "searchTweets",
+          "code": "const searchTweets = (query: string) => {\n  const results = searchTweets({ query });\n  setSearchResults(results);\n};"
+        }
+      ],
+      "components": [
+        {
+          "name": "SearchInput",
+          "code": "interface SearchInputProps {\n  onSearch: (query: string) => void;\n}\n\nconst SearchInput: React.FC<SearchInputProps> = ({ onSearch }) => {\n  const [query, setQuery] = useState('');\n\n  const handleSubmit = (e: React.FormEvent) => {\n    e.preventDefault();\n    onSearch(query);\n  };\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <input\n        type=\"text\"\n        value={query}\n        onChange={(e) => setQuery(e.target.value)}\n        className=\"border border-gray-300 rounded-lg px-4 py-2\"\n        placeholder=\"Search tweets...\"\n      />\n      <button\n        type=\"submit\"\n        className=\"bg-blue-500 text-white px-4 py-2 rounded-lg ml-2\"\n      >\n        Search\n      </button>\n    </form>\n  );\n};"
+        },
+        {
+          "name": "TweetList",
+          "code": "interface TweetListProps {\n  tweets: Tweet[];\n}\n\nconst TweetList: React.FC<TweetListProps> = ({ tweets }) => {\n  return (\n    <div className=\"space-y-4\">\n      {tweets.map((tweet) => (\n        <TweetItem key={tweet.id} tweet={tweet} />\n      ))}\n    </div>\n  );\n};"
+        },
+        {
+          "name": "TweetItem",
+          "code": "interface TweetItemProps {\n  tweet: Tweet;\n}\n\nconst TweetItem: React.FC<TweetItemProps> = ({ tweet }) => {\n  return (\n    <div className=\"border border-gray-200 rounded-lg p-4\">\n      <p>{tweet.text}</p>\n      <Link href={`/user/${tweet.user.username}`}>\n        <a className=\"text-blue-500\">{tweet.user.name}</a>\n      </Link>\n    </div>\n  );\n};"
+        }
+      ],
+      "layout": "const TweetSearch: React.FC = () => {\n  const [searchQuery, setSearchQuery] = useState('');\n  const [searchResults, setSearchResults] = useState<Tweet[]>([]);\n\n  const searchTweets = (query: string) => {\n    const results = searchTweets({ query });\n    setSearchResults(results);\n  };\n\n  return (\n    <div>\n      <h1 className=\"text-2xl font-bold mb-4\">Tweet Search</h1>\n      <SearchInput onSearch={(query) => {\n        setSearchQuery(query);\n        searchTweets(query);\n      }} />\n      <TweetList tweets={searchResults} />\n    </div>\n  );\n};"
+    }
+  ]
+}

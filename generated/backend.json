@@ -1,0 +1,10 @@
+
+{
+  "getUserProfile": "const user = await getOneUsers(d, args.userId)\nreturn user",
+  "getTimelineTweets": "const follows = await getManyFollows(d, (follow) => follow.followerId == args.userId).collect()\nconst followedUserIds = follows.map(follow => follow.followedId)\nconst timelineTweets = await getManyTweets(d, (tweet) => followedUserIds.includes(tweet.userId)).order(\"desc\").collect()\nreturn timelineTweets",
+  "searchUsers": "const users = await getManyUsers(d, (user) => user.username.includes(args.query) || user.name.includes(args.query)).collect()\nreturn users",
+  "searchTweets": "const tweets = await getManyTweets(d, (tweet) => tweet.text.includes(args.query)).collect()\nreturn tweets",
+  "postTweet": "const tweetId = await createOneTweets(d, {userId: args.userId, text: args.text})\nconst tweet = await getOneTweets(d, tweetId)\nreturn tweet",
+  "followUser": "const followId = await createOneFollows(d, {followerId: args.followerId, followedId: args.followedId})\nconst follow = await getOneFollows(d, followId)\nreturn follow", 
+  "unfollowUser": "const follow = await getManyFollows(d, (follow) => follow.followerId == args.followerId && follow.followedId == args.followedId).unique()\nawait deleteOneFollows(d, follow._id)"
+}

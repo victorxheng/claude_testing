@@ -1,0 +1,32 @@
+{ 
+	"description": "A simple Twitter-like application that allows users to post tweets, follow other users, and view a timeline of tweets from followed users.",
+	"features_description": "- User registration and login\n- Posting tweets\n- Following other users\n- Timeline view of tweets from followed users\n- User profile pages\n- Searching for users and tweets",
+	"schema_tables": [
+		{
+			"name": "users",
+			"docs": "Stores user account information",
+			"fields": [
+				{"name": "username", "docs": "The username of the user", "type": "v.string()"},
+				{"name": "email", "docs": "The email of the user", "type": "v.string()"},
+				{"name": "name", "docs": "The display name of the user", "type": "v.string()"},
+				{"name": "bio", "docs": "A short user bio", "type": "v.string()"}
+			]
+		},
+		{
+			"name": "tweets",
+			"docs": "Stores individual tweets posted by users",
+			"fields": [
+				{"name": "userId", "docs": "ID of the user who posted the tweet", "type": "v.id('users')"},
+				{"name": "text", "docs": "The text content of the tweet", "type": "v.string()"}
+			]
+		},
+		{
+			"name": "follows",
+			"docs": "Stores follow relationships between users",
+			"fields": [
+				{"name": "followerId", "docs": "ID of the user doing the following", "type": "v.id('users')"},
+				{"name": "followedId", "docs": "ID of the user being followed", "type": "v.id('users')"}
+			]
+		}
+	]
+}

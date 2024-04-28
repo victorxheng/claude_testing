@@ -1,0 +1,351 @@
+
+{
+  "description": "A simple Twitter-like application that allows users to post tweets, follow other users, and view a timeline of tweets from followed users.",
+  "features_description": "The main pages include a home timeline, user profile, user search, and tweet search. The home timeline shows tweets from followed users. User profiles display user details and their tweets. Users can post tweets, follow/unfollow other users, and search for users and tweets.",
+  "pages": [
+    {
+      "route_name": "home",
+      "docs": "Displays the logged in user's timeline of tweets from users they follow.",
+      "page_title": "Home Timeline",
+      "description": "View tweets from users you follow.",
+      "data_calls": [
+        {
+          "query_name": "getTimelineTweets",
+          "purpose": "Retrieves tweets for the logged in user's timeline.",
+          "arguments": [
+            {
+              "argument_name": "userId",
+              "type": "v.id('users')",
+              "value_description": "The ID of the currently logged in user."
+            }
+          ]
+        }
+      ],
+      "workflows": [],
+      "components": [
+        {
+          "name": "TweetList",
+          "docs": "Displays a list of tweets.",
+          "props": [
+            {
+              "property_name": "tweets",
+              "property_type": "Array of tweet objects",
+              "docs": "The tweets to display in the list."
+            }
+          ],
+          "layout": "Renders a vertical list of TweetItem components. Passed the tweets array from the page data call."
+        },
+        {
+          "name": "TweetItem",
+          "docs": "Displays an individual tweet.",
+          "props": [
+            {
+              "property_name": "tweet",
+              "property_type": "Tweet object",
+              "docs": "The tweet to display."
+            }
+          ], 
+          "layout": "Renders the tweet text and author. Includes the author's name linked to their profile page."
+        }
+      ],
+      "layout": "Displays the TweetList component with tweets from the getTimelineTweets data call. Includes a button to post a new tweet which opens a modal with a text input.",
+      "states": "No additional states needed."
+    },
+    {
+      "route_name": "user/[username]",
+      "docs": "Displays a user's profile page with their details and tweets.",
+      "page_title": "User Profile",
+      "description": "View a user's profile information and posted tweets.",
+      "data_calls": [
+        {
+          "query_name": "getUserProfile",
+          "purpose": "Retrieves the user's profile details.",
+          "arguments": [
+            {
+              "argument_name": "userId",
+              "type": "v.id('users')",
+              "value_description": "The ID of the user from the URL parameter."
+            }
+          ]
+        },
+        {
+          "query_name": "getUserTweets",
+          "purpose": "Retrieves the user's posted tweets.",
+          "arguments": [
+            {
+              "argument_name": "userId",
+              "type": "v.id('users')",
+              "value_description": "The ID of the user from the URL parameter."  
+            }
+          ]
+        }
+      ],
+      "workflows": [
+        {
+          "workflow_name": "followUser",
+          "docs": "Follows the user when the follow button is clicked.",
+          "where_called": "Triggered by clicking the follow button.",
+          "actions_used": [
+            {
+              "action_name": "followUser",
+              "arguments": [
+                {
+                  "argument_name": "followerId",
+                  "type": "v.id('users')",
+                  "value_description": "The ID of the currently logged in user."
+                },
+                {
+                  "argument_name": "followedId",
+                  "type": "v.id('users')",
+                  "value_description": "The ID of the user being viewed."
+                }
+              ]
+            }
+          ],
+          "workflow": [
+            {
+              "step": "Call the followUser mutation with the logged in user ID and viewed user ID."
+            },
+            {
+              "step": "Update the UI to reflect the user is now being followed."  
+            }
+          ]
+        },
+        {
+          "workflow_name": "unfollowUser",
+          "docs": "Unfollows the user when the unfollow button is clicked.",
+          "where_called": "Triggered by clicking the unfollow button.",
+          "actions_used": [
+            {
+              "action_name": "unfollowUser",
+              "arguments": [
+                {
+                  "argument_name": "followerId",
+                  "type": "v.id('users')",
+                  "value_description": "The ID of the currently logged in user."
+                },
+                {
+                  "argument_name": "followedId", 
+                  "type": "v.id('users')",
+                  "value_description": "The ID of the user being viewed."
+                }
+              ]
+            }
+          ],
+          "workflow": [
+            {
+              "step": "Call the unfollowUser mutation with the logged in user ID and viewed user ID."
+            },
+            {
+              "step": "Update the UI to reflect the user is no longer being followed."
+            }
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "ProfileHeader",
+          "docs": "Displays the user's profile details.",
+          "props": [
+            {
+              "property_name": "user",
+              "property_type": "User object",
+              "docs": "The user to display profile details for."
+            }
+          ],
+          "layout": "Renders the user's name, username, bio. Includes a follow/unfollow button that triggers the respective workflow."
+        },
+        {
+          "name": "TweetList",
+          "docs": "Displays a list of the user's tweets.",
+          "props": [
+            {
+              "property_name": "tweets",
+              "property_type": "Array of tweet objects",
+              "docs": "The tweets to display in the list."
+            }
+          ],
+          "layout": "Renders a vertical list of TweetItem components. Passed the user's tweets array from the page data call."
+        },
+        {
+          "name": "TweetItem",
+          "docs": "Displays an individual tweet.",
+          "props": [
+            {
+              "property_name": "tweet",
+              "property_type": "Tweet object", 
+              "docs": "The tweet to display."
+            }
+          ],
+          "layout": "Renders the tweet text and author. Includes the author's name linked to their profile page."
+        }
+      ],
+      "layout": "Displays the ProfileHeader and TweetList components. ProfileHeader is passed the user data from getUserProfile. TweetList is passed the user's tweets from getUserTweets.",
+      "states": "No additional states needed."
+    },
+    {
+      "route_name": "search/users",
+      "docs": "Allows searching for users by name or username.",
+      "page_title": "User Search",
+      "description": "Find users by searching for names or usernames.",
+      "data_calls": [],
+      "workflows": [
+        {
+          "workflow_name": "searchUsers",
+          "docs": "Searches for users based on the entered search query.",
+          "where_called": "Triggered by submitting the search form.",
+          "actions_used": [
+            {
+              "action_name": "searchUsers",
+              "arguments": [
+                {
+                  "argument_name": "query",
+                  "type": "v.string()",
+                  "value_description": "The search query entered by the user."
+                }
+              ]  
+            }
+          ],
+          "workflow": [
+            {
+              "step": "Get the search query from the search input."
+            },
+            {
+              "step": "Call the searchUsers query with the search query."
+            },
+            {
+              "step": "Update the search results list with the returned users."
+            }
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "SearchInput", 
+          "docs": "Allows entering a search query.",
+          "props": [],
+          "layout": "Renders a text input for entering a search query and a submit button to trigger the search."
+        },
+        {
+          "name": "UserList",
+          "docs": "Displays a list of user search results.",
+          "props": [
+            {
+              "property_name": "users",
+              "property_type": "Array of user objects",
+              "docs": "The user results to display."
+            }
+          ],
+          "layout": "Renders a vertical list of UserItem components. Passed the search results from the searchUsers workflow."
+        },
+        {
+          "name": "UserItem",
+          "docs": "Displays an individual user result.",
+          "props": [
+            {
+              "property_name": "user",
+              "property_type": "User object",
+              "docs": "The user to display."
+            }
+          ],
+          "layout": "Renders the user's name and username. Links to the user's profile page."
+        }
+      ],
+      "layout": "Displays the SearchInput and UserList components. SearchInput triggers the searchUsers workflow on submit. UserList displays the results from searchUsers.",
+      "states": [
+        {
+          "name": "searchQuery",
+          "initial_value": "",
+          "docs": "Stores the current search query entered by the user. Used in the SearchInput."
+        },
+        {
+          "name": "searchResults",
+          "initial_value": [],
+          "docs": "Stores the current user search results. Used in the UserList."  
+        }
+      ]
+    },
+    {
+      "route_name": "search/tweets",
+      "docs": "Allows searching for tweets by text content.",
+      "page_title": "Tweet Search",
+      "description": "Find tweets by searching for keywords.",
+      "data_calls": [],
+      "workflows": [
+        {
+          "workflow_name": "searchTweets",
+          "docs": "Searches for tweets based on the entered search query.",
+          "where_called": "Triggered by submitting the search form.",
+          "actions_used": [
+            {
+              "action_name": "searchTweets",
+              "arguments": [
+                {
+                  "argument_name": "query",
+                  "type": "v.string()",
+                  "value_description": "The search query entered by the user."
+                }
+              ]
+            }
+          ],
+          "workflow": [
+            {
+              "step": "Get the search query from the search input."
+            },
+            {
+              "step": "Call the searchTweets query with the search query."  
+            },
+            {
+              "step": "Update the search results list with the returned tweets."
+            }
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "SearchInput",
+          "docs": "Allows entering a search query.",
+          "props": [],
+          "layout": "Renders a text input for entering a search query and a submit button to trigger the search."
+        },
+        {
+          "name": "TweetList",
+          "docs": "Displays a list of tweet search results.",
+          "props": [
+            {
+              "property_name": "tweets",
+              "property_type": "Array of tweet objects",
+              "docs": "The tweet results to display."
+            }
+          ],
+          "layout": "Renders a vertical list of TweetItem components. Passed the search results from the searchTweets workflow."
+        },
+        {
+          "name": "TweetItem",
+          "docs": "Displays an individual tweet result.",
+          "props": [
+            {
+              "property_name": "tweet",
+              "property_type": "Tweet object",
+              "docs": "The tweet to display."  
+            }
+          ],
+          "layout": "Renders the tweet text and author. Includes the author's name linked to their profile page."
+        }
+      ],
+      "layout": "Displays the SearchInput and TweetList components. SearchInput triggers the searchTweets workflow on submit. TweetList displays the results from searchTweets.",
+      "states": [
+        {
+          "name": "searchQuery",
+          "initial_value": "",
+          "docs": "Stores the current search query entered by the user. Used in the SearchInput."
+        },
+        {
+          "name": "searchResults",
+          "initial_value": [],
+          "docs": "Stores the current tweet search results. Used in the TweetList."
+        }
+      ]
+    }
+  ]
+}
