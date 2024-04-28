@@ -1,0 +1,138 @@
+
+As each function above is async, it requires an await beforehand.
+</AvailableCRUDFunctions>
+
+<DbParameter>
+Generally, every function requires you to pass down the databaseReader as a first argument. This is simply making the letter d as the first argument. 
+
+For example, you could do the following, requiring the letter "d" as the first parameter for each function:
+const data = await getManyData(d) //gets the entire
+const oneData = await getOneData(d, data_id)
+const dataId = await createOneData(d, parameters)
+await deleteData(d, data_id)
+await updateData(d, data_id, partial)
+
+</DbParameter>
+
+<Arguments>
+Arguments are passed down with a name and a type in the arguments list. Their name is the variable, and to use it, you must write args.name, such as args.userId if the argument is userId.
+
+Arguments also have types for proper validation. Here is a list:
+
+v.id("tableName"): For referencing other tables, with a string argument for the table name.
+v.null(): JavaScript's undefined is not a valid Convex value. Use null instead.
+v.int64(): For BigInt type of numbers
+v.number(): For all numbers, including floating point precision
+v.boolean(): for true false
+v.string(): for strings
+v.bytes(): for bytestrings
+v.array(values): an array of values of another type, ie v.array(v.boolean()). Limited to 8192 values; use only for small limited sizes
+v.object({"{"}property: value{"}"}): an object with properties, ie v.object({"{"} weather: "clear"{"}"})
+
+
+You then can use them later on for the code, always referencing arguments using args.name.
+</Arguments>
+
+<UsingReadMany>
+When using a getMany function such as getManyData, you can pass in a filter function (optional), and you must append dot functions after to format the data in the way that's required.
+
+
+<Filtering>
+Get many can be used in the following way:
+
+data = getManyData(d, (data) => data.body == args.body).collect()
+
+In this case, the parameter of the lambda function is the single document itself. The lambda then checks this document for a condition, such as if its data.tags field includes an argument field
+
+The lambda can be any complex operation that returns a boolean based on whether the document should be included or not based on certain conditions.
+
+The .collect() after is required to collect all the data. You can use other functions after as well listed in the Collecting section.
+
+<Examples>
+const longTweets = await getManyTweets(d, (tweet) => tweet.body.length >= 50).collect()
+const complexFilter = await getManyData(d, (data) => data.rank >=  5 && data.content.includes(args.keyword) || data.force == true).collect()
+const tagged_posts = await getManyPosts(d, (post) => post.tags.includes(args.tag)).collect()
+</Examples>
+
+</Filtering>
+
+<Collecting>
+Every getMany must have a .collect() in order to carry out the actual database read to return an array of the read documents.
+
+There are different ways to specify the output of a filtering operation. By default Convex always returns documents ordered by _creationTime.
+
+1. Sorting and Ordering
+
+You can use .order("asc" | "desc") to pick whether the order is ascending or descending. If the order isn't specified, it defaults to ascending.
+
+const data = await getManyData(d).order("asc").collect();
+const reverse_data = await getManyData(d).order("desc").collect();
+
+If you need to sort on a field other than _creationTime and your document query returns a small number of documents (on the order of hundreds rather than thousands of documents), consider sorting in Javascript:
+
+const sorted_data = await getManyData(d).collect().sort((a, b) => b.points - a.points).slice(0, 10) // gets top ten documents with most points
+
+2. Replacing .collect()
+
+Instead of using .collect(), which returns the entire filtered table, you can use the following:
+
+.take(n) selects only the first n results that match your query.
+
+const data = await getManyData(d).order("asc").take(5); // takes 5 data points
+
+.first() selects the first document that matches your query and returns null if no documents were found.
+
+const data = await getManyData(d).first(); // gets only the first
+
+.unique() selects the single document from your query or returns null if no documents were found. If there are multiple results it will throw an exception.
+
+const findData = await getManyData(d, (data) => data.name == args.name).unique();
+
+Remember, using getMany returns a Query class, which you cannot perform operations on. Each call from getMany must end with a .collect(), .take(n), .first(), or .unique() before a Promise<any[]> array object is returned for operations to be performed. Thus, collection is required before any sort of mapping or other operations.
+</Collecting>
+
+If documents scale too much, indicate areas where an index should be used instead for filtering and sorting. Using indexes will help with slow full table scans and eliminate the need for filtering and sorting at scale. Indicate through comments where in the code they should be included.
+
+</UsingReadMany>
+
+<Returning>
+Remember to return the correct data based on what the instructions are. You should be saving data in variables and then returning the correct variable.
+</Returning>
+
+<QueryExample>
+const data = await getOneData(d, args.id)
+return data
+</QueryExample>
+
+<QueryExample>
+const data = await getManyData(d, (data) => data.tag == args.tag).order("desc").collect()
+return data
+</QueryExample>
+
+
+<QueryExample>
+const data = await getManyData(d, (data) => data.username == await getManyUsers(d, (user) => user.username == data.username).unique()).order("desc").collect()
+return data
+</QueryExample>
+
+
+<MutationExamples>
+const tweetId = await createOneTweet(d, args.tweet)
+return tweetId
+</MutationExamples>
+
+
+<MutationExamples>
+await deleteOneData(d, args.id)
+</MutationExamples>
+
+
+<MutationExamples>
+const data = await getOneData(d, args.id)
+const widgetId = await createOneWidget(d, {"{"} field1: data.test1, field2: data.test2 {"}"})
+return widgetId
+</MutationExamples>
+
+<DoNotInclude>
+Make sure not to include anything to do with security. Do not call await verify; it is handled for you. You should only focus on the database operations and not auth verification.
+</DoNotInclude>
