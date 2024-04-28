@@ -4,7 +4,7 @@ import { mutation, action, query, internalQuery, DatabaseReader, DatabaseWriter 
 import { api } from "./_generated/api";
 import { filter } from "convex-helpers/server/filter";
 import { Id } from "./_generated/dataModel";
-import { Auth, DocumentByInfo, GenericDatabaseReader, GenericDatabaseWriter, GenericQueryCtx, GenericTableInfo, PaginationOptions, PaginationResult, QueryInitializer } from "convex/server";
+import { Auth, DocumentByInfo, GenericDatabaseReader, GenericDatabaseWriter, GenericQueryCtx, GenericTableInfo, PaginationOptions, PaginationResult, QueryInitializer, WithoutSystemFields } from "convex/server";
 import { useMutation, useQuery } from "convex/react";
 
 import schema, { Users, Tweets, Follows } from "./schema";
@@ -24,6 +24,7 @@ async function verify(ctx: GenericQueryCtx<any>){
     if (!user) {
       throw new Error("Unauthenticated call");
     }
+    return [identity, user]
 }
 
 //returns a full table scan query based on an optional filter
@@ -45,13 +46,13 @@ function getManyFollows(db: DatabaseReader, fltr?: (f: typeof Follows.doc.type) 
 async function getOneFollows(db: DatabaseReader, id: string | Id<"follows">){return await db.get(id as Id<"follows">)}
 
 //creates one document based on data object, returns the resulting document id
-async function createOneUsers(db: DatabaseWriter, data: typeof Users.doc.type){return await db.insert("users", data);}
+async function createOneUsers(db: DatabaseWriter, data: WithoutSystemFields<typeof Users.doc.type>){return await db.insert("users", data);}
 
 //creates one document based on data object, returns the resulting document id
-async function createOneTweets(db: DatabaseWriter, data: typeof Tweets.doc.type){return await db.insert("tweets", data);}
+async function createOneTweets(db: DatabaseWriter, data: WithoutSystemFields<typeof Tweets.doc.type>){return await db.insert("tweets", data);}
 
 //creates one document based on data object, returns the resulting document id
-async function createOneFollows(db: DatabaseWriter, data: typeof Follows.doc.type){return await db.insert("follows", data);}
+async function createOneFollows(db: DatabaseWriter, data: WithoutSystemFields<typeof Follows.doc.type>){return await db.insert("follows", data);}
 
 //updates one document based on an id and a partial data object, returns nothing
 async function updateOneUsers(db: DatabaseWriter, id: Id<"users">, data: Partial<any>){await db.patch(id, data);}

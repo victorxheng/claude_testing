@@ -145,6 +145,7 @@ async function verify(ctx: GenericQueryCtx<any>){
     if (!user) {
       throw new Error("Unauthenticated call");
     }
+    return [identity, user]
 }
 """
 
@@ -252,7 +253,7 @@ def create_actions_page(actions, code, crud_page, path):
         for arg in query["arguments"]:
             args += f'{arg["name"]}: {arg["type"]}, //{arg["docs"]}\n'
 
-        page += create_action("query", query["name"], args, "\n\t\tawait verify(ctx) //security\n" if query["requires_auth"] else "", query["docs"], str(code[query["name"]]).replace('\n', '\n\t\t'))
+        page += create_action("query", query["name"], args, "\n\t\tconst [identity, user] = await verify(ctx) //security //security\n" if query["requires_auth"] else "", query["docs"], str(code[query["name"]]).replace('\n', '\n\t\t'))
     
 
     for mutation in mutations:
@@ -260,7 +261,7 @@ def create_actions_page(actions, code, crud_page, path):
         for arg in mutation["arguments"]:
             args += f'{arg["name"]}: {arg["type"]}, //{arg["docs"]}\n'
 
-        page += create_action("mutation", mutation["name"], args, "\n\t\tawait verify(ctx) //security\n" if mutation["requires_auth"] else "", mutation["docs"], str(code[mutation["name"]]).replace('\n', '\n\t\t'))
+        page += create_action("mutation", mutation["name"], args, "\n\t\tconst [identity, user] = await verify(ctx) //security\n" if mutation["requires_auth"] else "", mutation["docs"], str(code[mutation["name"]]).replace('\n', '\n\t\t'))
     
 
     with open(path, 'w') as f:

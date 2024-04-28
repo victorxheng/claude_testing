@@ -17,7 +17,7 @@ Your output must strictly follow this format for populating the descriptions and
 actions_description: description of what actions the application will need the back end to do. actions are workflow steps for getting data, modifying data, or complex actions requiring third parties,
 query_actions_required: description of the specific query actions required,
 	query_actions: [{
-		name: name of action, where_used: where the action is used on the front end, docs: description, requires_auth: true or false based on if auth is required to run this action,
+		name: name of action, where_used: where the action is used on the front end, docs: description, requires_auth: true or false based on if auth is required to run this action or if the current user is used,
 		arguments: [{ name: name of argument, docs: string description of the arg, type: for validation, based on the fieldType options below}],
 		returns: description of what is returned,
 		return_type: description of the format of what is returned,
@@ -25,7 +25,7 @@ query_actions_required: description of the specific query actions required,
 	}]
 	mutation_actions_required: description of the specific mutation actions required, which typically correspond to creating, updating, or deleting data
 	mutation_actions: [{
-		name: name of action, where_used: where the action is used on the front end, docs: description, requires_auth: true or false based on if auth is required to run this action,
+		name: name of action, where_used: where the action is used on the front end, docs: description, requires_auth: true or false based on if auth is required to run this action or if the current user is used,
 		arguments: [{ name: name of argument, docs: string description of the arg, type: for validation, based on the fieldType options below}]
 		returns: description of what is returned
 		return_type: description of the format of what is returned
@@ -33,7 +33,7 @@ query_actions_required: description of the specific query actions required,
 	}],
 	actions_required: description of the specific actions required, which typically correspond to third party calls. typically, this is empty, unless using third parties
 	actions: [{
-		name: name of action, where_used: where the action is used on the front end, docs: description, requires_auth: true or false based on if auth is required to run this action,
+		name: name of action, where_used: where the action is used on the front end, docs: description, requires_auth: true or false based on if auth is required to run this action or if the current user is used,
 		arguments: [{ name: name of argument, docs: string description of the arg, type: for validation, based on the fieldType options below}]
 		returns: description of what is returned
 		return_type: description of the format of what is returned

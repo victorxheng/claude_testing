@@ -89,6 +89,11 @@ const data = await getManyData(d).first(); // gets only the first
 const findData = await getManyData(d, (data) => data.name == args.name).unique();
 
 Remember, using getMany returns a Query class, which you cannot perform operations on. Each call from getMany must end with a .collect(), .take(n), .first(), or .unique() before a Promise<any[]> array object is returned for operations to be performed. Thus, collection is required before any sort of mapping or other operations.
+
+After using the .first() or .unique(), any use of the resulting object variable will require an exclamation mark after to show that it is not null, as the type checker will think it might be null.
+
+For example, if you query const variable, then you use it later on for a field, you do variable!.field
+You can also add an if statement throwing an error if the object is null.
 </Collecting>
 
 If documents scale too much, indicate areas where an index should be used instead for filtering and sorting. Using indexes will help with slow full table scans and eliminate the need for filtering and sorting at scale. Indicate through comments where in the code they should be included.
@@ -135,4 +140,11 @@ return widgetId
 
 <DoNotInclude>
 Make sure not to include anything to do with security. Do not call await verify; it is handled for you. You should only focus on the database operations and not auth verification.
+Also do not write any code for getting the current user or the user identity. If the function requires auth, you can get the current user and identity by using "user" and "identity". 
+<GivenUserInfor>
+At the start of every function that uses auth, you can get the current authenticated user's information with the already written variables that you do not need to write:
+const [identity, user] (is already written, it verifies auth)
+This line is written and you do not need to write it. It gives you the current user identity and the user object, which allows you to obtain fields from the user schema.
+</GivenUserInfor>
+
 </DoNotInclude>
