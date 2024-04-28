@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, action, query, internalQuery } from "./_generated/server";
+import { mutation, action, query, internalQuery, DatabaseReader, DatabaseWriter } from "./_generated/server";
 import { api } from "./_generated/api";
 import schema, { Tweets, User } from "./schema";
 import { filter } from "convex-helpers/server/filter";
@@ -17,12 +17,12 @@ export const getMainFeed = query({
   args: {
 
   },
-  handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {
+  handler: async (ctx, args) => {
     //security 
     await verify(ctx)
 
     const d = ctx.db
-    const tweets = await getTweets(d).collect()
+    const tweets = getTweets(d)
     return tweets
   },
 });
@@ -58,9 +58,9 @@ async function verify(ctx: GenericQueryCtx<any>){
     }
 }
 
-function getTweets(db: GenericDatabaseReader<any>, fltr?: (f: typeof Tweets.doc.type) => Promise<boolean> | boolean): QueryInitializer<any>{
+function getTweets(db: DatabaseReader, fltr?: (f: typeof Tweets.doc.type) => Promise<boolean> | boolean) {
   return filter(db.query("tweets"), fltr ? fltr : () => true)
 }
-async function createTweet(db: GenericDatabaseWriter<any>, data: {[x: string]: any;}){return await db.insert("tweets", data);}
-async function updateTweet(db: GenericDatabaseWriter<any>, id: Id<"tweets">, data: Partial<any>){return await db.patch(id, data);}
-async function deleteTweet(db: GenericDatabaseWriter<any>, id: Id<"tweets">){return await db.delete(id);}
+async function createTweet(db: DatabaseWriter, data: {[x: string]: any;}){return await db.insert("tweets", data);}
+async function updateTweet(db: DatabaseWriter, id: Id<"tweets">, data: Partial<any>){return await db.patch(id, data);}
+async function deleteTweet(db: DatabaseWriter, id: Id<"tweets">){return await db.delete(id);}

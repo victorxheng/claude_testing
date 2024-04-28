@@ -713,7 +713,7 @@ import { v } from "convex/values";
 
 crud_boilerplate_imports = """
 import { v } from "convex/values";
-import { mutation, action, query, internalQuery } from "./_generated/server";
+import { mutation, action, query, internalQuery, DatabaseReader, DatabaseWriter } from "./_generated/server";
 import { api } from "./_generated/api";
 import { filter } from "convex-helpers/server/filter";
 import { Id } from "./_generated/dataModel";
@@ -745,8 +745,8 @@ def create_action(action_type, action_name, args_code, security, docs, code):
 export const {action_name} = {action_type}({"{"}
   args: {"{"}
     {args_code}  {"}"},
-  handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {"{"}{security}
-    d = ctx.db
+  handler: async (ctx, args) => {"{"}{security}
+    const d = ctx.db
     {code}
   {"}"},
 {"}"});
@@ -794,11 +794,11 @@ class Compiler:
             # NEED TO ADD BETTER COMMENTS
             # would be more ideal to generate a json of these functions and pass it into the AI. for now, just pass in all the code.
             schema_imports.append(str(table['name']).capitalize())
-            reads.append(f'\n//returns a full table scan query based on an optional filter\nfunction getMany{str(table["name"]).capitalize()}(db: GenericDatabaseReader<any>, fltr?: (f: typeof {str(table["name"]).capitalize()}.doc.type) => Promise<boolean> | boolean): QueryInitializer<any>{"{"}return filter(db.query("{table["name"]}"), fltr ? fltr : () => true){"}"}\n')
-            reads.append(f'\n//returns one document based on an id\nasync function getOne{str(table["name"]).capitalize()}(db: GenericDatabaseReader<any>, id: string | Id<"{table["name"]}">):  Promise<DocumentByInfo<GenericTableInfo>[]>{"{"}return await db.get(id as Id<"{table["name"]}">){"}"}\n')
-            creates.append(f'\n//creates one document based on data object, returns the resulting document id\nasync function createOne{str(table["name"]).capitalize()}(db: GenericDatabaseWriter<any>, data: {"{"}[x: string]: any;{"}"}){"{"}return await db.insert("{table["name"]}", data);{"}"}\n')
-            updates.append(f'\n//updates one document based on an id and a partial data object, returns nothing\nasync function updateOne{str(table["name"]).capitalize()}(db: GenericDatabaseWriter<any>, id: Id<"{table["name"]}">, data: Partial<any>){"{"}await db.patch(id, data);{"}"}\n')
-            deletes.append(f'\n//deletes one document based on an id, returns nothing\nasync function deleteOne{str(table["name"]).capitalize()}(db: GenericDatabaseWriter<any>, id: Id<"{table["name"]}">){"{"}await db.delete(id);{"}"}\n')
+            reads.append(f'\n//returns a full table scan query based on an optional filter\nfunction getMany{str(table["name"]).capitalize()}(db: DatabaseReader, fltr?: (f: typeof {str(table["name"]).capitalize()}.doc.type) => Promise<boolean> | boolean): QueryInitializer<any>{"{"}return filter(db.query("{table["name"]}"), fltr ? fltr : () => true){"}"}\n')
+            reads.append(f'\n//returns one document based on an id\nasync function getOne{str(table["name"]).capitalize()}(db: DatabaseReader, id: string | Id<"{table["name"]}">):  Promise<DocumentByInfo<GenericTableInfo>[]>{"{"}return await db.get(id as Id<"{table["name"]}">){"}"}\n')
+            creates.append(f'\n//creates one document based on data object, returns the resulting document id\nasync function createOne{str(table["name"]).capitalize()}(db: DatabaseWriter, data: {"{"}[x: string]: any;{"}"}){"{"}return await db.insert("{table["name"]}", data);{"}"}\n')
+            updates.append(f'\n//updates one document based on an id and a partial data object, returns nothing\nasync function updateOne{str(table["name"]).capitalize()}(db: DatabaseWriter, id: Id<"{table["name"]}">, data: Partial<any>){"{"}await db.patch(id, data);{"}"}\n')
+            deletes.append(f'\n//deletes one document based on an id, returns nothing\nasync function deleteOne{str(table["name"]).capitalize()}(db: DatabaseWriter, id: Id<"{table["name"]}">){"{"}await db.delete(id);{"}"}\n')
 
         page_imports = crud_boilerplate_imports
         page_imports += '\nimport schema, { '+ str(schema_imports).replace('[','').replace(']','').replace("'", "") +' } from "./schema";\n\n'
@@ -864,6 +864,7 @@ class Compiler:
         with open(path, 'w') as f:
             f.write(page) # need it to write to same file
         return page 
+    
 
 
     

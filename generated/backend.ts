@@ -146,12 +146,13 @@ export const followUser = mutation({
     followerId: v.id("users"), //The ID of the user doing the following.
 followedId: v.id("users"), //The ID of the user being followed.
   },
-  handler: async (ctx, args): Promise<DocumentByInfo<GenericTableInfo>[]> => {
+  handler: async (ctx, args) => {
 		await verify(ctx) //security
 
     d = ctx.db
     const followId = await createOneFollows(d, {followerId: args.followerId, followedId: args.followedId})
-		const follow = await getOneFollows(d, followId)
+		const follow = await ctxdb.get(id as Id<"tweets">)
+    
 		return follow
   },
 });
