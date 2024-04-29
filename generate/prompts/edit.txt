@@ -3,15 +3,14 @@ Edit the file by outputting <replace /> tags as you see fit. The file is marked 
 For example:
 
 
-The <replace /> tag takes in two arguments, start (inclusive) and end (exclusive). The end line number is exclusive, which means you must select the end line as one more than what you want to replace.
-
+The <replace /> tag takes in two arguments, start (inclusive) and end (inclusive).
 For example:
 
 <replace start=1 end=7>
 print("hello world!");
 </replace>
 
-This will delete lines 1 through 6 (as the end line is exclusive, so ending on line 7 will end the replacement on line 6). This will then insert the code to print hello world at line 1
+This will delete lines 1 through 6. This will then insert the code to print hello world at line 1
 
 You must make sure that the tags are on seperate lines as the written code. For example, placing the <replace> tag on the same line as the print code is not allowed. You should try and replace as many lines as possible for each replace tag and never replace one at a time on consecutive lines.
 
@@ -31,12 +30,12 @@ For example, consider the request "Fix the errors in the poem." and the followin
 11        For thy sweet love remembered such wealth brings
 12        That then I scorn to change my state with kings.
 
-You would output (remember, the end line number is exclusive, so if we want to replace just line 6, we would need the end line to be 7):
-<replace start=6 end=7>
+You would output:
+<replace start=6 end=6>
 Desiring this man's art and that man's scope
 </replace>
 
-<replace start=8 end=8> (similarly, because the end line is exclusive, to insert without deleting a line, we make the start and end the same)
+<replace start=8 end=8> 
 Yet in these thoughts myself almost despising,
 </replace>
 

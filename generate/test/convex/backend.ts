@@ -13,7 +13,7 @@ import schema, { Users, Matches } from "./schema";
 async function verify(ctx: GenericQueryCtx<any>) {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) {
-    throw new Error("Unauthenticated call to mutation");
+    throw new Error("Unauthenticated call");
   }
   const user = await ctx.db
     .query("users")
@@ -63,7 +63,7 @@ export const getUserProfile = query({
   args: {
   },
   handler: async (ctx, args) => {
-    const [identity, user] = await verify(ctx) //security //security
+    const [identity, user] = await verify(ctx) //security
 
     const d = ctx.db
     const userProfile = await getOneUsers(d, user._id);
@@ -76,7 +76,7 @@ export const getAvailableProfiles = query({
   args: {
   },
   handler: async (ctx, args) => {
-    const [identity, user] = await verify(ctx) //security //security
+    const [identity, user] = await verify(ctx) //security
 
     const d = ctx.db
     const availableProfiles = await getManyUsers(d, (u) => u.isAvailable && u._id != user._id).collect();

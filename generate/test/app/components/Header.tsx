@@ -1,7 +1,20 @@
 'use client'
+
+import { Button } from "@/components/ui/button";
+import {
+  Authenticated,
+  Unauthenticated,
+  AuthLoading,
+  useMutation,
+  useQuery,
+} from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Code } from "@/components/typography/code";
+import { Link } from "@/components/typography/link";
 import { SignInButton, SignUpButton, UserButton } from "@clerk/clerk-react";
-import { useUser } from "@clerk/nextjs";
-import useStoreUserEffect from '@/lib/useStoreUserEffect';
+import { StickyHeader } from "@/components/layout/sticky-header";
+import { Skeleton } from "@/components/ui/skeleton";
+import useStoreUserEffect from "@/lib/useStoreUserEffect";
 
 export default function Header() {
   const userId = useStoreUserEffect();

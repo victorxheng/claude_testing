@@ -170,7 +170,7 @@ def get_replace_tags(llm_output: str) -> List[ReplaceTag]:
 def diff_replace_tags(file_path, tags: List[ReplaceTag]):
   lines = read(file_path).split('\n')
   for tag in tags[::-1]:
-    for line_num in reversed(range(tag.start, tag.end)):
+    for line_num in reversed(range(tag.start, tag.end+1)):
       del lines[line_num]
     for line_num, line in enumerate(tag.content.split('\n')):
       lines.insert(tag.start + line_num, line)
@@ -178,7 +178,7 @@ def diff_replace_tags(file_path, tags: List[ReplaceTag]):
   write(file_path, '\n'.join(lines))
 
 
-def generate_page(path, pages, page, schema_path, actions_path):
+def generate_page(path, pages, page, schema_path, actions_path, skip=0):
   # extracts information and builds prompts
   prompt, schema, queries, mutations = extract_backend(schema_path, actions_path)
   backend_info = dump_backend(schema, queries, mutations)
@@ -201,6 +201,8 @@ List of pages:
   write(page_file_path, page_boilerplate)
 
   for i, component in enumerate(page['components']):
+    if i < skip:
+       continue
     print(f'Writing the {component["name"]} component... (enter)')
 
     component_file_path = os.path.join(dir, 'components', component['name'] + '.tsx')
