@@ -21,7 +21,6 @@ export default ({ userId }: Props) => {
             <Link href={`/profile/${user?.username}`}>
               <img
                 src={user?.profileImageUrl}
-                alt={user?.username}
                 className="w-8 h-8 rounded-full"
               />
             </Link>

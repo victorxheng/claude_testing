@@ -1,4 +1,22 @@
-Edit the file by outputting <replace /> tags as you see fit. The file is marked by line numbers. Use those line numbers in the replace tag to indicate which lines should be replaced. The <replace /> tag takes in two arguments, start (inclusive) and end (exclusive). The end line number is exclusive, which means you must select the end line as one more than what you want to replace. For example, consider the request "Fix the errors in the poem." and the following file:
+Edit the file by outputting <replace /> tags as you see fit. The file is marked by line numbers. Use those line numbers in the replace tag to indicate which lines should be replaced. 
+
+For example:
+
+
+The <replace /> tag takes in two arguments, start (inclusive) and end (exclusive). The end line number is exclusive, which means you must select the end line as one more than what you want to replace.
+
+For example:
+
+<replace start=1 end=7>
+print("hello world!");
+</replace>
+
+This will delete lines 1 through 6 (as the end line is exclusive, so ending on line 7 will end the replacement on line 6). This will then insert the code to print hello world at line 1
+
+You must make sure that the tags are on seperate lines as the written code. For example, placing the <replace> tag on the same line as the print code is not allowed. You should try and replace as many lines as possible for each replace tag and never replace one at a time on consecutive lines.
+
+For example, consider the request "Fix the errors in the poem." and the following file:
+
 0 When, in disgrace with fortune and men's eyes,
 1 I all alone beweep my outcast state,
 2 And trouble deaf heaven with my bootless cries,
@@ -38,4 +56,9 @@ Which would result in the following file:
 12        For thy sweet love remembered such wealth brings
 13        That then I scorn to change my state with kings.
 
-Note the use of an equivalent start and end value in order to insert a line without deleting. Similarly, an empty set of <replace></replace> tags can be used to delete a line without inserting anything. Make sure to put the beginning and ending tags on separate lines. Do not write them with the code on the same line like this: <replace start=3 end=4>const postTweet = useMutation(api.backend.postTweet)</replace>. When replacing, make sure to replace everything you want to be gone and not just the first few lines.
+Note the use of an equivalent start and end value in order to insert a line without deleting. Similarly, an empty set of <replace></replace> tags can be used to delete a line without inserting anything. 
+Make sure to put the beginning and ending tags on separate lines. 
+Do not write them with the code on the same line like this: <replace start=3 end=4>const postTweet = useMutation(api.backend.postTweet)</replace>. 
+When replacing, make sure to replace everything you want to be gone and not just the first few lines.
+
+You are to write everything in tsx. 

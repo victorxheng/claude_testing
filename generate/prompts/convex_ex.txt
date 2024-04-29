@@ -1,3 +1,5 @@
+Here are some examples on how to use queries and mutations with convex on the back end:
+
 In order to use a query or mutation, import the api object from convex and use the useQuery or useMutation functions:
 ```tsx
 "use client";
@@ -16,6 +18,13 @@ export default function Home() {
   );
 }
 ```
+
+In this case, the const tasks is subscribed to the backend function, get, which is always called using api.backend.FunctionName. 
+This variable can then be used later on to render all objects using the fields defined in the schema.
+
+You must surround queries used with the useQuery() hook, ie: useQuery(api.backend.get, userId ? { userId }: 'skip');
+
+
 ```tsx
 "use client";
 import { useMutation } from "convex/react";
@@ -30,12 +39,16 @@ export function MyApp() {
   // ...
 }
 ```
-All available queries and mutations are in the api.backend object.
+
+You must surround mutations with the useMutation() hook, such as useMutation(api.backend.mutateSomething);.
+Then, when you call the mutation function later, you pass in an object containing the args.
+
+All available queries and mutations are in the api.backend object. You must always start each function name with api.backend.functionName. The available fields are defined in the schema. The arguments required are defined in each query mutation definition.
 
 In order to get the current user, use the useUser function from Clerk. To get the current userId, which can be used in mutations and queries, use the useStoreUserEffect function. the returned userId can be null, so use the non-null assertion operator, or pass 'skip' into useQuery instead of args where needed. Always use the userId to check if 'skip' should be passed in, i.e. do not use isSignedIn in queries and mutations.
 ```tsx
 "use client";
-import useStoreUserEffect from "@/useStoreUserEffect";
+import useStoreUserEffect from "@/lib/useStoreUserEffect";
 import { useUser } from "@clerk/clerk-react";
 
 export default function UserInfo() {
@@ -53,7 +66,7 @@ If you need the userId in a component of a page, accept it as a prop:
 "use client";
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
-import useStoreUserEffect from '@/useStoreUserEffect'
+import useStoreUserEffect from '@/lib/useStoreUserEffect'
 
 interface Props {
   userId: string | null
@@ -74,6 +87,8 @@ export default ({ userId }: Props) => {
   )
 }
 ```
+
+If you want the id of the current user, simply do "const userId = useStoreUserEffect();". This will give you the userId of the current user, which can then be used to obtain a user from the database.
 
 If you want to receive objects from the database as a prop, import Doc:
 ```tsx

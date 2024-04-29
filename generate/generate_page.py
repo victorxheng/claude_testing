@@ -74,6 +74,7 @@ The mutations available to the frontend are as follows:
 </Mutations>
 
 All return values are as stated, there is no object with a data field, error field, loading field, etc that is returned.
+
 ''' + p("convex_ex")
 
 def extract_backend(schema_json_path, actions_json_path):
@@ -176,7 +177,9 @@ def generate_page(pages, page, schema_path, actions_path):
   prompt, schema, queries, mutations = extract_backend(schema_path, actions_path)
   backend_info = dump_backend(schema, queries, mutations)
 
-  system = f'''You are writing a web app with Next.js, Convex, and Tailwind. Take the following description of the app and a list of pages and components, and edit the boilerplate file. The app description is as follows: \n{prompt}
+  system = f'''
+You are writing a web app with Next.js, Convex, and Tailwind. Take the following description of the app and a list of pages and components, and edit the boilerplate file. 
+The app description is as follows: \n{prompt}
 You are to write the {page['title']} page.
 List of pages:
 {json.dumps(pages, indent=2)}

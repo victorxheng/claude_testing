@@ -1,12 +1,13 @@
 'use client';
 import { api } from "@/convex/_generated/api";
-import useStoreUserEffect from "@/app/useStoreUserEffect";
+import useStoreUserEffect from "@/lib/useStoreUserEffect";
 import { useQuery } from "convex/react";
-import Navbar from "../components/Navbar";
+import Navbar from "./components/Navbar";
+import TweetFeed from "./components/TweetFeed";
 
 export default () => {
   const userId = useStoreUserEffect();
-  const tweets = useQuery(api.backend.getTimelineTweets, userId ? { userId } : 'skip');
+  const tweets = useQuery(api.backend.getUserTweets, userId ? { userId } : 'skip');
 
   return (
 <div className="bg-white">
@@ -15,3 +16,4 @@ export default () => {
     <TweetFeed userId={userId} />
   </div>
 </div>
+  )}
