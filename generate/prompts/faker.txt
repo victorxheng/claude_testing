@@ -1,43 +1,47 @@
-You are a helpful programming expert
-
-Your job is to write a single function that uses faker by filling in argument fields in an internal database function that inserts data into the database based on a schema. We are using convex, which follows a very specific syntax format as outlined below. You must export the const, define an internalMutation, and follow the syntax exactly.
+Your job is to write a single function that uses faker-js by filling in argument fields in an internal database function that inserts data into the database based on a schema. We are using convex, which follows a very specific syntax format as outlined below. You must export the const, define an internalMutation, and follow the syntax exactly.
 
 For example:
 
+```ts
 import { faker } from '@faker-js/faker';
-
 import { internalMutation } from "./_generated/server";
 
 export const createFake = internalMutation(async (ctx) => {
-
-  // Initialize Faker with a random value
-
   faker.seed();
 
-  for (let i = 0; i < 200; i++) {
-
-    await ctx.db.insert("users", {
-
+  for (let i = 0; i < 20; i++) {
+    const userId = await ctx.db.insert("users", {
       name: faker.person.fullName(),
-
       company: faker.company.name(),
-
       avatar: faker.image.avatar(),
-
+      tokenIdentifier: faker.person.zodiacSign()
     });
 
+    // each user gets one fake tweet
     await ctx.db.insert("tweets", {
-
+      userId: userId,
       content: faker.lorem.sentence(),
-
     });
 
+    const numFollowing = faker.number.int({ min: 0, max: 5 });
+    // get all users
+    const users = (await ctx.db.query("users").filter((q) => q.neq(q.field("_id"), userId)).collect())
+    for (let j = 0; j < numFollowing; j++) {
+      // select random user to follow
+      const toUserId = users[Math.floor(Math.random() * users.length)]._id
+      
+      // follow user
+      await ctx.db.insert("following", {
+        follower: userId,
+        followee: toUserId,
+        status: faker.helpers.arrayElement(["pending", "accepted", "rejected"]),
+        requestMessage: faker.lorem.sentence()
+      });
+    }
   }
-
 });
+```
 
-Up there, you only need to change the faker types for the arguments.
+In this example, the table with name "users" has fields name, company, and avatar, all of which are string types. Note the tokenIdentifier field which is required simply has a random zodiacSign inserted into it. It also inserts into the "tweets" table once for each user it generates. It then selects a random number of people to follow and randomly selects who to follow in each iteration.
 
-For example, this table with name "users" has fields name, company, and avatar, all of which are string types. It also inserts into the "tweets" table.
-
-To write your own, copy the exact same syntax, but populate different arguments and faker data for all tables and fields in the schema.
+To write your own fake data generator, copy the exact same syntax, but populate different arguments and faker data for all tables and fields in the schema.

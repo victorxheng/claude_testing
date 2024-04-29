@@ -226,10 +226,10 @@ def create_crud(schema, path):
     # for now, all in one file LOL
 
 def create_faker_data_code(schema, path): # UNTESTED
-    result = send_message(p("faker"), user_msg("Here are the schemas you should be making fake data for: \n" + schema))
+    result = send_message(p("faker"), [user_msg("Here are the schemas you should be making fake data for: \n" + json.dumps(schema, indent=2))])
     
     with open(path, 'w') as f:
-        f.write(result)
+        f.write(result.split('```ts')[1].split('```')[0])
     return result
 
 def create_actions_code(actions, schema_page, crud_page, path):

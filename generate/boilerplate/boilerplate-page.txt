@@ -6,5 +6,5 @@ import { useQuery, useMutation } from "convex/react";
 export default () => {
   const userId = useStoreUserEffect();
 
-  return <></>;
+  return <main className="min-h-screen bg-white"></main>;
 };

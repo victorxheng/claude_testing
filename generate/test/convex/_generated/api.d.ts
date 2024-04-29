@@ -15,6 +15,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as backend from "../backend.js";
+import type * as faker from "../faker.js";
 import type * as users from "../users.js";
 
 /**
@@ -27,6 +28,7 @@ import type * as users from "../users.js";
  */
 declare const fullApi: ApiFromModules<{
   backend: typeof backend;
+  faker: typeof faker;
   users: typeof users;
 }>;
 export declare const api: FilterApi<
