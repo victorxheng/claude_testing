@@ -4,7 +4,7 @@ A simple Twitter-like application that allows users to post tweets, follow other
 - User registration and login
 - Posting tweets
 - Following other users
-- Timeline view of tweets from followed users
+- Timeline view showing tweets from followed users
 - User profile pages showing their tweets
 */
 
@@ -24,7 +24,7 @@ export const Users = Table("users", {
 
 export const Tweets = Table("tweets", {
 	userId: v.id("users"), //ID of the user who posted the tweet
-	text: v.string(), //The text content of the tweet
+	text: v.string(), //Text content of the tweet
 });
 
 export const Follows = Table("follows", {

@@ -1,0 +1,767 @@
+Radix Themes is a pre-styled component library that is designed to work out of the box with minimal configuration. Read the following documentation, and request for more if needed using get_radix_doc.
+# Getting started
+
+### 1. Import the CSS file
+
+Import the global CSS file at the root of your application.
+
+```ts
+import '@radix-ui/themes/styles.css';
+```
+
+### 2. Add the Theme component
+
+Add `Theme` to your application, wrapping the root component inside of `body`.
+
+```jsx line=7,9
+import { Theme } from '@radix-ui/themes';
+
+export default function () {
+  return (
+    <html>
+      <body>
+        <Theme>
+          <MyApp />
+        </Theme>
+      </body>
+    </html>
+  );
+}
+```
+
+### 3. Start building
+
+You are now ready to use Radix Themes components.
+
+```jsx
+import { Flex, Text, Button } from '@radix-ui/themes';
+
+export default function MyApp() {
+  return (
+    <Flex direction="column" gap="2">
+      <Text>Hello from Radix Themes :)</Text>
+      <Button>Let's go</Button>
+    </Flex>
+  );
+}
+```
+
+## Customizing your theme
+
+Configuration is managed and applied via the Theme component.
+
+### Basic configuration
+
+Pass configuration to the `Theme` to customize appearance.
+
+```jsx line=1
+<Theme accentColor="crimson" grayColor="sand" radius="large" scaling="95%">
+  <MyApp />
+</Theme>
+```
+
+### Using the theme panel
+
+`ThemePanel` is a drop-in component that allows you to preview the theme in real time. Visit the component playground to see it in action.
+
+To add `ThemePanel` to your app, import it from the package and drop it inside your root `Theme`.
+
+```jsx line=7
+import { Theme, ThemePanel } from '@radix-ui/themes';
+
+export default function () {
+  return (
+    <Theme>
+      <MyApp />
+      <ThemePanel />
+    </Theme>
+  );
+}
+```
+
+# Layout
+
+<Description>Get the layout concerns right.</Description>
+
+## Layout components
+
+Layout components are used to separate layout responsibilities from content and interactivity. This is *the* separation of concerns that makes your app maintainable and easy to reason about, and understanding these principles is key to building your interfaces effectively.
+
+### Box
+
+Box is the most fundamental layout component. Box is used to:
+
+- Provide spacing to child elements.
+- Impose sizing constraints on content.
+- Control layout behaviour within flex and grid containers.
+- Hide content based on screen size using its responsive `display` prop.
+
+### Flex
+
+Flex component does everything that Box can do, but comes with an additional set of props to organize items along an axis. It provides convenient access to the CSS flexbox properties
+
+### Grid
+
+Grid is used to organize the content in columns and rows. Like Box and Flex, it’s made to provide convenient access to the underlying CSS grid properties without any magic of its own.
+
+### Section
+
+Section provides a consistent vertical spacing between the larger parts of your page content, creating a sense of hierarchy and separation. There’s just a few pre-defined sizes for different spacing levels to keep things simple and consistent.
+
+### Container
+
+Container’s sole responsibility is to provide a consistent `max-width` to the content it wraps. Like Section, it comes just with a couple of pre-defined sizes that work well with common breakpoints and typical content widths for comfortable reading.
+
+---
+
+## Common layout props
+
+Each layout component has a set of it’s own specialized props and also a shared set of common layout props. All layout props support responsive object values.
+
+### Padding
+
+Padding props can access the space scale steps or accept any valid CSS padding value.
+
+```jsx
+<Box p="4" />
+<Box p="100px">
+<Box p={{ sm: '6', lg: '9' }}>
+```
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| p | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9">> |  |
+| px | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9">> |  |
+| py | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9">> |  |
+| pt | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9">> |  |
+| pr | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9">> |  |
+| pb | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9">> |  |
+| pl | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9">> |  |
+
+### Width
+
+Width props accept any valid CSS width value.
+
+```jsx
+<Box width="100px" />
+<Box width={{ md: '100vw', xl: '1400px' }} />
+```
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| width | Responsive<string> |  |
+| minWidth | Responsive<string> |  |
+| maxWidth | Responsive<string> |  |
+
+### Height
+
+Height props accept any valid CSS height value.
+
+```jsx
+<Box height="100px" />
+<Box height={{ md: '100vh', xl: '600px' }} />
+```
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| height | Responsive<string> |  |
+| minHeight | Responsive<string> |  |
+| maxHeight | Responsive<string> |  |
+
+### Positioning
+
+Positioning props can change how the element is placed relative to the normal flow of the document. As usual, the corresponding CSS values are accepted for each property, and the space scale steps can be used for the offset values.
+
+```jsx
+<Box position="relative" />
+<Box position={{ initial: "relative", lg: "sticky" }} />
+
+<Box inset="4" />
+<Box inset={{ initial: "0", xl: "auto" }} />
+
+<Box left="4" />
+<Box left={{ initial: "0", xl: "auto" }} />
+```
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| position | Responsive<"static" | "relative" | "absolute" | "fixed" | "sticky"> |  |
+| inset | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| top | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| right | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| bottom | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| left | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+
+### Flex children
+
+Each layout component has props used to control the style when it is a child of a flex container.
+
+```jsx
+<Box flexBasis="100%" />
+<Box flexShrink="0">
+<Box flexGrow={{ initial: "0", lg: "1" }} />
+```
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| flexBasis | Responsive<string> |  |
+| flexShrink | Responsive<Union<string, "0" | "1">> |  |
+| flexGrow | Responsive<Union<string, "0" | "1">> |  |
+
+### Grid children
+
+Each layout component has props used to control the style when it is a child of a grid container.
+
+```jsx
+<Box gridColumn="1 / 3" />
+<Box gridColumnStart="2">
+<Box gridColumnEnd={{ initial: "-1", md: "3", lg: "auto" }} />
+
+<Box gridRow="1 / 3" />
+<Box gridRowStart="2">
+<Box gridRowEnd={{ initial: "-1", md: "3", lg: "auto" }} />
+```
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| gridColumn | Responsive<string> |  |
+| gridColumnStart | Responsive<string> |  |
+| gridColumnEnd | Responsive<string> |  |
+| gridRow | Responsive<string> |  |
+| gridRowStart | Responsive<string> |  |
+| gridRowEnd | Responsive<string> |  |
+
+---
+
+## Margin props
+
+Margin props are available on most components in order to provide spacing around the elements. They are not exclusive to layout components.
+
+Margin props can access the space scale steps or accept any valid CSS margin value
+
+```jsx
+<Button m="4" />
+<Button m="100px">
+<Button m={{ sm: '6', lg: '9' }}>
+```
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| m | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| mx | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| my | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| mt | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| mr | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| mb | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| ml | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+
+The margin props may be unavailable on components that don’t render a HTML node or rely on their Root part for layout.
+
+---
+
+## Standalone usage
+
+If needed, it’s possible to use _just_ the layout component from Radix Themes. Just make sure that JavaScript tree-shaking works on your side, and import the CSS that powers the layout styles:
+
+```jsx
+import '@radix-ui/themes/layout.css';
+```
+
+You’ll still have to wrap your app with `Theme` to provide the space scale and scaling factor settings.
+
+# Styling
+
+<Description>How to approach styling with Radix Themes.</Description>
+
+## Introduction
+
+Radix Themes does not come with a built-in styling system. There’s no `css` or `sx` prop, and it does not use any styling libraries internally. Under the hood, it’s built with vanilla CSS.
+
+There’s no overhead when it comes to picking a styling technology for your app.
+
+## What you get
+
+The components in Radix Themes are relatively closed—they come with a set of styles that aren’t always easily overridden. They are customizable within what’s allowed by their props and the theme configuration.
+
+However, you also get access to the same CSS variables that power the Radix Themes components. You can use these tokens to create custom components that naturally feel at home in the original theme. Changes to the token system are treated as breaking.
+
+For more information on specific tokens, refer to the corresponding guides in the Theme section.
+
+<Flex direction="column" gap="7" my="6">
+  <ThemesAllColors />
+  <ThemesTypeSpecimen />
+  <ThemesPanelComposition />
+</Flex>
+
+## Overriding styles
+
+Beyond simple style overrides, we recommend using the components as-is, or create your own versions using the same building blocks.
+
+Most components do have `className` and `style` props, but if you find yourself needing to override a lot of styles, it’s a good sign that you should either:
+
+- Try to achieve what you need with the existing props and theme configuration.
+- See whether you can achieve your design by tweaking the underlying token system.
+- Create your own component using lower-level building blocks, such Primitives and Colors.
+- Reconsider whether Radix Themes is the right fit for your project.
+
+### Tailwind
+
+Tailwind is _great_. Yet, if you plan to use Radix Themes with Tailwind, keep in mind how its ergonomics may encourage you to create complex styles on the fly, sometimes reaching into the component internals without friction.
+
+Tailwind is a different styling paradigm, which may not mix well with the idea of a closed component system where customization is achieved through props, tokens, and creating new components on top of a shared set of building blocks.
+
+## Custom components
+
+If you need to create a custom component, use the same building blocks that Radix Themes uses:
+
+- Theme tokens that power the components
+- Radix Primitives, a library of accessible, unstyled components
+- Radix Colors, a color system for building beautiful websites and apps
+
+Feel free to explore the source code of Radix Themes to see how it is built.
+
+## Common issues
+
+### z-index conflicts
+
+Out of the box, portalled Radix Themes components can be nested and stacked in any order without conflicts. For example, you can open a popover that opens a dialog, which in turn opens another popover. They all stack on top of each other in the order they were opened:
+
+<ThemesZIndexExample />
+
+When building your own components, use the following rules to avoid z-index conflicts:
+
+- Don’t use `z-index` values other than `auto`, `0`, or `-1` in rare cases.
+- Render the elements that should stack on top of each other in portals.
+
+Your main content and portalled content are separated by the stacking context that the styles of the root `<Theme>` component create. This allows you to stack portalled content on top of the main content without worrying about z-indices.
+
+### Next.js import order
+
+As of Next.js 13.0 to 14.1, the import order of CSS files in `app/**/layout.tsx` is not guaranteed, so Radix Themes may overwrite your own styles even when written correctly:
+
+```js
+import '@radix-ui/themes/styles.css';
+import './my-styles.css';
+```
+
+This Next.js issue may come and go sporadically, or happen only in development or production.
+
+As a workaround, you can merge all the CSS into a single file first via postcss-import and import just that into your layout. Alternatively, importing the styles directly in `page.tsx` files also works.
+
+### Tailwind base styles
+
+As of Tailwind v3, styles produced by the `@tailwind` directive are usually appended after any imported CSS, no matter the original import order. In particular, Tailwind’s button reset style may interfere with Radix Themes buttons, rendering certain buttons without a background color.
+
+Workarounds:
+
+- Don’t use `@tailwind base`
+- Set up separate CSS layers for Tailwind and Radix Themes
+- Set up postcss-import and manually import Tailwind base styles via `@import tailwindcss/base` before Radix Themes styles. Example setup
+
+### Missing styles in portals
+
+When you render a custom portal in a Radix Themes project, it will naturally appear outside of the root `<Theme>` component, which means it won’t have access to most of the theme tokens and styles. To fix that, wrap the portal content with another `<Theme>`:
+
+```jsx line=11,18
+// Implementation example of a custom dialog using the low-level Dialog primitive
+// Refer to https://www.radix-ui.com/primitives/docs/components/dialog
+import * as Dialog from '@radix-ui/react-dialog';
+import { Theme } from '@radix-ui/themes';
+
+function MyCustomDialog() {
+  return (
+    <Dialog.Root>
+      <Dialog.Trigger>Open</Dialog.Trigger>
+      <Dialog.Portal>
+        <Theme>
+          <Dialog.Overlay />
+          <Dialog.Content>
+            <Dialog.Title />
+            <Dialog.Description />
+            <Dialog.Close />
+          </Dialog.Content>
+        </Theme>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+```
+
+Components like Dialog and Popover in Radix Themes already handle this for you, so this is only necessary when creating your own portalled components.
+
+### Complex CSS precedence
+
+Usually, you’d want your custom CSS to override Radix Themes styles. However, there are cases when it is natural to expect the opposite.
+
+Consider a simple paragraph style that just resets the browser’s default margin:
+
+```css
+.my-paragraph {
+  margin: 0;
+}
+```
+
+You might apply the margin prop from a `Box` onto your custom paragraph via `asChild`:
+
+```jsx line="7,9"
+import '@radix-ui/themes/styles.css';
+import './my-styles.css';
+
+function MyApp() {
+  return (
+    <Theme>
+      <Box asChild m="5">
+        <p className="my-paragraph">My custom paragraph</p>
+      </Box>
+    </Theme>
+  );
+}
+```
+
+Yet, this won’t work intuitively. The custom styles are imported after Radix Themes styles, so they will override the margin prop. As a workaround, Radix Themes provides separate `tokens.css`, `components.css`, and `utilities.css` files that the original `styles.css` is built upon:
+
+```jsx
+import '@radix-ui/themes/tokens.css';
+import '@radix-ui/themes/components.css';
+import '@radix-ui/themes/utilities.css';
+```
+
+You can import `utilities.css` after your custom styles to ensure that the layout props work as expected with your custom styles. However, if you use Next.js, keep in mind the import order issue that’s mentioned above.
+
+If you use standalone layout components, split CSS files are also available for them:
+
+```jsx
+import '@radix-ui/themes/layout/tokens.css';
+import '@radix-ui/themes/layout/components.css';
+import '@radix-ui/themes/layout/utilities.css';
+```
+
+
+Use the following list of documentation sections to gain information about how Radix Themes works. Call the get_radix_doc tool with the following source fields as the parameter, and documentation about those sections will be returned.
+[
+  {
+    "title": "Text Area",
+    "description": "Captures multi-line user input.",
+    "source": "components/text-area"
+  },
+  {
+    "title": "Switch",
+    "description": "Toggle switch alternative to the checkbox.",
+    "source": "components/switch"
+  },
+  {
+    "title": "Aspect Ratio",
+    "description": "Displays content within a desired ratio.",
+    "source": "components/aspect-ratio"
+  },
+  {
+    "title": "Theme",
+    "description": "Wraps all or part of a React tree to provide theme configuration.",
+    "source": "components/theme"
+  },
+  {
+    "title": "Box",
+    "description": "Fundamental layout building block.",
+    "source": "components/box"
+  },
+  {
+    "title": "Scroll Area",
+    "description": "Custom-styled scrollable area using native functionality.",
+    "source": "components/scroll-area"
+  },
+  {
+    "title": "Segmented Control",
+    "description": "Toggle buttons for switching between different values or views.",
+    "source": "components/segmented-control"
+  },
+  {
+    "title": "Code",
+    "description": "Marks text to signify a short fragment of computer code.",
+    "source": "components/code"
+  },
+  {
+    "title": "Spinner",
+    "description": "Displays an animated loading indicator.",
+    "source": "components/spinner"
+  },
+  {
+    "title": "Blockquote",
+    "description": "Block-level quotation from another source.",
+    "source": "components/blockquote"
+  },
+  {
+    "title": "Checkbox Group",
+    "description": "Set of interactive buttons where multiple options can be selected at a time.",
+    "source": "components/checkbox-group"
+  },
+  {
+    "title": "Tooltip",
+    "description": "Floating element that provides a control with contextual information via pointer or focus.",
+    "source": "components/tooltip"
+  },
+  {
+    "title": "Section",
+    "description": "Denotes a section of page content.",
+    "source": "components/section"
+  },
+  {
+    "title": "Slider",
+    "description": "Provides user selection from a range of values.",
+    "source": "components/slider"
+  },
+  {
+    "title": "Radio Group",
+    "description": "Set of interactive radio buttons where only one can be selected at a time.",
+    "source": "components/radio-group"
+  },
+  {
+    "title": "Data List",
+    "description": "Displays metadata as a list of key-value pairs.",
+    "source": "components/data-list"
+  },
+  {
+    "title": "Inset",
+    "description": "Applies a negative margin to allow content to bleed into the surrounding container.",
+    "source": "components/inset"
+  },
+  {
+    "title": "Dropdown Menu",
+    "description": "Menu representing a set of actions, triggered by a button.",
+    "source": "components/dropdown-menu"
+  },
+  {
+    "title": "Slot",
+    "description": "Merges its props onto its immediate child.",
+    "source": "components/slot"
+  },
+  {
+    "title": "Tab Nav",
+    "description": "Navigation menu with links styled as tabs.",
+    "source": "components/tab-nav"
+  },
+  {
+    "title": "Context Menu",
+    "description": "Menu representing a set of actions, displayed at the point of right click or long press.",
+    "source": "components/context-menu"
+  },
+  {
+    "title": "Container",
+    "description": "Constrains the maximum width of page content.",
+    "source": "components/container"
+  },
+  {
+    "title": "Dialog",
+    "description": "Modal dialog window displayed above the page.",
+    "source": "components/dialog"
+  },
+  {
+    "title": "Checkbox",
+    "description": "Base input element to toggle an option on and off.",
+    "source": "components/checkbox"
+  },
+  {
+    "title": "Portal",
+    "description": "Renders a React subtree in a different part of the DOM.",
+    "source": "components/portal"
+  },
+  {
+    "title": "Quote",
+    "description": "Short inline quotation.",
+    "source": "components/quote"
+  },
+  {
+    "title": "Card",
+    "description": "Container that groups related content and actions.",
+    "source": "components/card"
+  },
+  {
+    "title": "Em",
+    "description": "Marks text to stress emphasis.",
+    "source": "components/em"
+  },
+  {
+    "title": "Grid",
+    "description": "Component for creating grid layouts.",
+    "source": "components/grid"
+  },
+  {
+    "title": "Button",
+    "description": "Trigger an action or event, such as submitting a form or displaying a dialog.",
+    "source": "components/button"
+  },
+  {
+    "title": "Table",
+    "description": "Semantic table element for presenting data.",
+    "source": "components/table"
+  },
+  {
+    "title": "Alert Dialog",
+    "description": "Modal confirmation dialog that interrupts the user and expects a response.",
+    "source": "components/alert-dialog"
+  },
+  {
+    "title": "Radio",
+    "description": "Standalone radio button that can be used in any layout.",
+    "source": "components/radio"
+  },
+  {
+    "title": "Skeleton",
+    "description": "Replaces content with same shape placeholder that indicates a loading state.",
+    "source": "components/skeleton"
+  },
+  {
+    "title": "Tabs",
+    "description": "Set of content sections to be displayed one at a time.",
+    "source": "components/tabs"
+  },
+  {
+    "title": "Avatar",
+    "description": "Profile picture, user initials or fallback icon.",
+    "source": "components/avatar"
+  },
+  {
+    "title": "Progress",
+    "description": "Displays a progress bar related to a task.",
+    "source": "components/progress"
+  },
+  {
+    "title": "Visually Hidden",
+    "description": "Hides content from the screen in an accessible way.",
+    "source": "components/visually-hidden"
+  },
+  {
+    "title": "Popover",
+    "description": "Floating element for displaying rich content, triggered by a button.",
+    "source": "components/popover"
+  },
+  {
+    "title": "Flex",
+    "description": "Component for creating flex layouts.",
+    "source": "components/flex"
+  },
+  {
+    "title": "Accessible Icon",
+    "description": "Makes icons accessible by adding a label.",
+    "source": "components/accessible-icon"
+  },
+  {
+    "title": "Text Field",
+    "description": "Captures user input with an optional slot for buttons and icons.",
+    "source": "components/text-field"
+  },
+  {
+    "title": "Kbd",
+    "description": "Represents keyboard input or a hotkey.",
+    "source": "components/kbd"
+  },
+  {
+    "title": "Icon Button",
+    "description": "Button designed specifically for usage with a single icon.",
+    "source": "components/icon-button"
+  },
+  {
+    "title": "Heading",
+    "description": "Semantic heading element.",
+    "source": "components/heading"
+  },
+  {
+    "title": "Link",
+    "description": "Semantic element for navigation between pages.",
+    "source": "components/link"
+  },
+  {
+    "title": "Strong",
+    "description": "Marks text to signify strong importance.",
+    "source": "components/strong"
+  },
+  {
+    "title": "Text",
+    "description": "Foundational text primitive.",
+    "source": "components/text"
+  },
+  {
+    "title": "Hover Card",
+    "description": "For sighted users to preview content available behind a link.",
+    "source": "components/hover-card"
+  },
+  {
+    "title": "Separator",
+    "description": "Visually or semantically separates content.",
+    "source": "components/separator"
+  },
+  {
+    "title": "Badge",
+    "description": "Stylized badge element.",
+    "source": "components/badge"
+  },
+  {
+    "title": "Checkbox Cards",
+    "description": "Set of interactive cards where multiple options can be selected at a time.",
+    "source": "components/checkbox-cards"
+  },
+  {
+    "title": "Callout",
+    "description": "Short message to attract user\u2019s attention.",
+    "source": "components/callout"
+  },
+  {
+    "title": "Reset",
+    "description": "Removes default browser styles from any component.",
+    "source": "components/reset"
+  },
+  {
+    "title": "Radio Cards",
+    "description": "Set of interactive cards where only one can be selected at a time.",
+    "source": "components/radio-cards"
+  },
+  {
+    "title": "Select",
+    "description": "Displays a list of options for the user to pick from\u2014triggered by a button.",
+    "source": "components/select"
+  },
+  {
+    "title": "Color",
+    "description": "Understanding the color system and it's application in your theme.",
+    "source": "theme/color"
+  },
+  {
+    "title": "Typography",
+    "description": "Guidance for using and tuning typography.",
+    "source": "theme/typography"
+  },
+  {
+    "title": "Breakpoints",
+    "description": "Built-in breakpoints allow you to easily build",
+    "source": "theme/breakpoints"
+  },
+  {
+    "title": "Spacing",
+    "description": "Overview of the space scale and scaling options.",
+    "source": "theme/spacing"
+  },
+  {
+    "title": "Shadows",
+    "description": "Understanding the shadow styles used in your theme.",
+    "source": "theme/shadows"
+  },
+  {
+    "title": "Radius",
+    "description": "Choosing the right radius setting in your theme.",
+    "source": "theme/radius"
+  },
+  {
+    "title": "Theme overview",
+    "description": "Use the Theme component to change the look and feel of your UI.",
+    "source": "theme/overview"
+  },
+  {
+    "title": "Cursors",
+    "description": "Customizing cursors used for interactive elements.",
+    "source": "theme/cursors"
+  },
+  {
+    "title": "Dark mode",
+    "description": "Using appearance to manage and integrate dark mode.",
+    "source": "theme/dark-mode"
+  }
+]

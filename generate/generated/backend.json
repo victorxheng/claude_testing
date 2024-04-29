@@ -1,10 +1,9 @@
 
 {
-  "getUserProfile": "const user = await getManyUsers(d, (user) => user.username == args.username).unique();\nreturn user;",
-  "getUserTweets": "const tweets = await getManyTweets(d, (tweet) => tweet.userId == args.userId).collect();\nreturn tweets;",
-  "getFollowing": "const follows = await getManyFollows(d, (follow) => follow.followerId == args.userId).collect();\nconst followedUserIds = follows.map(follow => follow.followedId);\nconst followedUsers = await Promise.all(followedUserIds.map(userId => getOneUsers(d, userId)));\nreturn followedUsers;",
-  "getFollowers": "const follows = await getManyFollows(d, (follow) => follow.followedId == args.userId).collect();\nconst followerUserIds = follows.map(follow => follow.followerId);\nconst followerUsers = await Promise.all(followerUserIds.map(userId => getOneUsers(d, userId)));\nreturn followerUsers;",
-  "postTweet": "const tweetId = await createOneTweets(d, {userId: user._id, text: args.text});\nconst tweet = await getOneTweets(d, tweetId);\nreturn tweet;",
-  "followUser": "const followId = await createOneFollows(d, {followerId: user._id, followedId: args.userId});\nconst follow = await getOneFollows(d, followId);\nreturn follow;",
-  "unfollowUser": "const follow = await getManyFollows(d, (follow) => follow.followerId == user._id && follow.followedId == args.userId).unique();\nawait deleteOneFollows(d, follow._id);\nreturn follow;"
+  "getTweets": "const followedUserIds = await getManyFollows(d, (follow) => follow.followerId.equals(user._id)).collect().map(follow => follow.followedId); const tweets = await getManyTweets(d, (tweet) => followedUserIds.includes(tweet.userId)).order(\"desc\").take(args.limit ?? 50); return tweets;",
+  "getUserProfile": "const profile = await getOneUsers(d, args.userId); return profile;",
+  "getUserTweets": "const tweets = await getManyTweets(d, (tweet) => tweet.userId.equals(args.userId)).order(\"desc\").take(args.limit ?? 50); return tweets;",
+  "postTweet": "const tweetId = await createOneTweets(d, {userId: user._id, text: args.text}); return tweetId;", 
+  "followUser": "const existingFollow = await getManyFollows(d, (follow) => follow.followerId.equals(user._id) && follow.followedId.equals(args.userId)).first(); if (existingFollow) {return existingFollow._id;} const followId = await createOneFollows(d, {followerId: user._id, followedId: args.userId}); return followId;",
+  "unfollowUser": "const existingFollow = await getManyFollows(d, (follow) => follow.followerId.equals(user._id) && follow.followedId.equals(args.userId)).first(); if (!existingFollow) {return false;} await deleteOneFollows(d, existingFollow._id); return true;"
 }

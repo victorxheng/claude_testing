@@ -1,33 +1,28 @@
 'use client'
-import Link from 'next/link'
+import { Flex, Box, Link, Avatar } from '@radix-ui/react-components'
+import { Logo } from '@/components/Logo'
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface Props {
-  isLoggedIn: boolean
 }
 
-export default ({ isLoggedIn }: Props) => {
+export default ({}: Props) => {
   return (
-    <nav className="flex justify-between items-center py-4 px-6 bg-white">
-      <div className="flex items-center">
-        <Link href="/">
-          <span className="text-2xl font-bold">Twitter Clone</span>
+    <Flex align="center" justify="between" p="4">
+      <Logo />
+      <Flex gap="4">
+        <Link href="/" size="3" weight="bold">
+          Home
         </Link>
-      </div>
-      <div className="hidden md:flex space-x-4">
-        <Link href="/">Home</Link>
-        {isLoggedIn ? (
-          <>
-            <Link href="/compose">Compose</Link>
-            <Link href="/profile">Profile</Link>
-          </>
-        ) : (
-          <Link href="/login">Login</Link>
-        )}
-      </div>
-      <div className="md:hidden">
-        {/* Mobile menu toggle button */}
-      </div>
-    </nav>
-  )
-}
+        <Link href="/profile/[username]" size="3" weight="bold">
+          Profile
+        </Link>
+        <Link href="/compose" size="3" weight="bold">
+          Compose
+        </Link>
+      </Flex>
+      <Avatar />
+    </Flex>
+  );
+};
+};

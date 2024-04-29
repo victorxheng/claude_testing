@@ -7,6 +7,8 @@ import dotenv
 import json
 from typing import List, Optional
 
+from tools import Tool, use_tool
+
 
 dotenv.load_dotenv()
 
@@ -95,7 +97,7 @@ def extract_backend(schema_json_path, actions_json_path):
 def generate_component_list(schema_path, actions_path):
     prompt, schema, queries, mutations = extract_backend(schema_path, actions_path)
     backend_info = dump_backend(schema, queries, mutations)
-    system = f'''You are writing a web app with Next.js, Convex, and Tailwind. Take the user's description of the app and list out what pages the app will need. The titles of pages should not have spaces. {backend_info}
+    system = f'''You are writing a web app with Next.js, Convex, Radix Themes, and Tailwind. Take the user's description of the app and list out what pages the app will need. The titles of pages should not have spaces. {backend_info}
 ''' + json_prompt_guard('''{
     pages: [
         {
@@ -108,7 +110,7 @@ def generate_component_list(schema_path, actions_path):
     pages = send_message(system, messages=[
         user_msg(prompt)
     ])
-    system = f'''You are writing a web app with Next.js, Convex, and Tailwind. Take the user's description of the app and list of pages they want, and for each page, add an array of components that are necessary to make up that page. If any components are shared, do not omit them. For example, if there should be a navbar, then include the Navbar component in every page. {backend_info}
+    system = f'''You are writing a web app with Next.js, Convex, Radix Themes, and Tailwind. Take the user's description of the app and list of pages they want, and for each page, add an array of components that are necessary to make up that page. If any components are shared, do not omit them. For example, if there should be a navbar, then include the Navbar component in every page. {backend_info}
 ''' + json_prompt_guard('''{
     pages: [
         {
@@ -131,6 +133,32 @@ def generate_component_list(schema_path, actions_path):
 
 page_boilerplate = read('boilerplate/boilerplate-page.txt')
 component_boilerplate = read('boilerplate/boilerplate-component.txt')
+
+def get_radix_doc_func(sources: List[str]):
+  docs = json.loads('\n'.join(p("radixui_docs").splitlines()[440:]))
+  
+  out_docs = ''
+  for source in sources:
+    for doc in docs:
+       if doc["source"] == source:
+          with open(os.path.join("radixui_docs", doc["source"] + '.mdx'), "r") as f:
+             out_docs += f.read() + "\n\n"
+
+  return out_docs
+
+get_radix_doc = Tool({
+   "name": "get_radix_doc",
+   "description": "Gets the relevant documentation for a section of Radix Themes",
+   "input_schema": {
+      "type": "object",
+      "properties": {
+         "sources": {
+            "type": "array",
+            "description": "Desired sections of Radix Themes"
+         }
+      }
+   }
+}, get_radix_doc_func)
 
 def add_lines(page):
   page_with_lines = page.split('\n')
@@ -176,11 +204,10 @@ def generate_page(pages, page, schema_path, actions_path):
   prompt, schema, queries, mutations = extract_backend(schema_path, actions_path)
   backend_info = dump_backend(schema, queries, mutations)
 
-  system = f'''You are writing a web app with Next.js, Convex, and Tailwind. Take the following description of the app and a list of pages and components, and edit the boilerplate file. The app description is as follows: \n{prompt}
-You are to write the {page['title']} page.
+  system = f'''You are writing a web app with Next.js, Convex, Radix Themes, and Tailwind. Take the following description of the app and a list of pages and components, and edit the boilerplate file. The app description is as follows: \n{prompt}
 List of pages:
 {json.dumps(pages, indent=2)}
-{p("styling")}
+{p("radixui_docs")}
 {backend_info}
 {p("edit")}
 '''
@@ -194,8 +221,9 @@ List of pages:
     input()
     component_file_path = os.path.join(dir, 'components', component['name'] + '.tsx')
     write(component_file_path, component_boilerplate)
-    message = send_message(system, messages=[
-      user_msg(f'Edit the following file for the {component["name"]} component of the {page["title"]} page:\n{add_lines(component_boilerplate)}')
+
+    message = use_tool([get_radix_doc], system, messages=[
+       user_msg(f'Use the get_radix_doc tool, then edit the following file for the {component["name"]} component of the {page["title"]} page:\n{add_lines(component_boilerplate)}')
     ])
     replace_tags = get_replace_tags(message)
     diff_replace_tags(component_file_path, replace_tags)
@@ -218,8 +246,7 @@ List of pages:
   
     while (edits := input('Edits to this component (enter to accept): ').strip()) != '':
       message = send_message(system, messages=[
-        user_msg(f'Make the following changes to the file for the {component["name"]} component of the {page["title"]} page: {edits}\n{add_lines(read(component_file_path))}')
+        user_msg(f'If you need to, use the get_radix_doc tool, then make the following changes to the file for the {component["name"]} component of the {page["title"]} page: {edits}\n{add_lines(read(component_file_path))}')
       ])
       replace_tags = get_replace_tags(message)
       diff_replace_tags(component_file_path, replace_tags)
-

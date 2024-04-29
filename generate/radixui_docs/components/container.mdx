@@ -1,0 +1,97 @@
+```jsx live=true
+<Box style={{ background: 'var(--gray-a2)', borderRadius: 'var(--radius-3)' }}>
+  <Container size="1">
+    <DecorativeBox>
+      <Box py="9" />
+    </DecorativeBox>
+  </Container>
+</Box>
+```
+
+## API Reference
+
+This component is based on the `div` element and supports common margin props.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| asChild | boolean |  |
+| size | Responsive<"1" | "2" | "3" | "4"> | "4" |
+| display | Responsive<"none" | "initial"> |  |
+| align | Responsive<"left" | "center" | "right"> |  |
+
+
+Container sizes use the following `max-width` values, which may be customized if needed.
+
+<Table.Root variant="surface" my="5">
+  <Table.Header>
+    <Table.Row>
+      <Table.ColumnHeaderCell>Size</Table.ColumnHeaderCell>
+      <Table.ColumnHeaderCell>CSS variable</Table.ColumnHeaderCell>
+      <Table.ColumnHeaderCell>Width</Table.ColumnHeaderCell>
+    </Table.Row>
+  </Table.Header>
+
+  <Table.Body>
+    <Table.Row>
+      <Table.RowHeaderCell>`size="1"`</Table.RowHeaderCell>
+      <Table.Cell><Code color="gray">--container-1</Code></Table.Cell>
+      <Table.Cell><Code color="gray">448px</Code></Table.Cell>
+    </Table.Row>
+
+    <Table.Row>
+      <Table.RowHeaderCell>`size="2"`</Table.RowHeaderCell>
+      <Table.Cell><Code color="gray">--container-2</Code></Table.Cell>
+      <Table.Cell><Code color="gray">688px</Code></Table.Cell>
+    </Table.Row>
+
+    <Table.Row>
+      <Table.RowHeaderCell>`size="3"`</Table.RowHeaderCell>
+      <Table.Cell><Code color="gray">--container-3</Code></Table.Cell>
+      <Table.Cell><Code color="gray">880px</Code></Table.Cell>
+    </Table.Row>
+
+    <Table.Row>
+      <Table.RowHeaderCell>`size="4"`</Table.RowHeaderCell>
+      <Table.Cell><Code color="gray">--container-4</Code></Table.Cell>
+      <Table.Cell><Code color="gray">1136px</Code></Table.Cell>
+    </Table.Row>
+
+  </Table.Body>
+</Table.Root>
+
+The following props are shared between Box, Flex, Grid, Container and Section components. Read more about layout components in Layout.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| p | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9">> |  |
+| px | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9">> |  |
+| py | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9">> |  |
+| pt | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9">> |  |
+| pr | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9">> |  |
+| pb | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9">> |  |
+| pl | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9">> |  |
+| width | Responsive<string> |  |
+| minWidth | Responsive<string> |  |
+| maxWidth | Responsive<string> |  |
+| height | Responsive<string> |  |
+| minHeight | Responsive<string> |  |
+| maxHeight | Responsive<string> |  |
+| position | Responsive<"static" | "relative" | "absolute" | "fixed" | "sticky"> |  |
+| inset | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| top | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| right | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| bottom | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| left | Responsive<Union<string, "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8" | "-9">> |  |
+| overflow | Responsive<"visible" | "hidden" | "clip" | "scroll" | "auto"> |  |
+| overflowX | Responsive<"visible" | "hidden" | "clip" | "scroll" | "auto"> |  |
+| overflowY | Responsive<"visible" | "hidden" | "clip" | "scroll" | "auto"> |  |
+| flexBasis | Responsive<string> |  |
+| flexShrink | Responsive<Union<string, "0" | "1">> |  |
+| flexGrow | Responsive<Union<string, "0" | "1">> |  |
+| gridColumn | Responsive<string> |  |
+| gridColumnStart | Responsive<string> |  |
+| gridColumnEnd | Responsive<string> |  |
+| gridRow | Responsive<string> |  |
+| gridRowStart | Responsive<string> |  |
+| gridRowEnd | Responsive<string> |  |
+

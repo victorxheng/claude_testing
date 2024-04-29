@@ -1,0 +1,4 @@
+{
+  "title": "Portal",
+  "description": "Renders a React subtree in a different part of the DOM."
+}

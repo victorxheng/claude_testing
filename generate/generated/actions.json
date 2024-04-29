@@ -1,158 +1,152 @@
 
 {
-  "actions_description": "The application will need actions to get a user's profile information, get a user's tweets, get the list of users a user is following, get the list of users following a user, post a new tweet, and follow/unfollow another user.",
-  "query_actions_required": "Query actions will be needed to retrieve user profiles, user tweets, and follower/following lists.",
+  "actions_description": "The application will need actions to fetch tweets for a user's timeline, post new tweets, fetch user profiles, and manage user follows.",
+  "query_actions_required": "Query actions will be needed to fetch tweets and user profiles.",
   "query_actions": [
     {
+      "name": "getTweets",
+      "where_used": "Used to fetch tweets for a user's timeline",
+      "docs": "Retrieves tweets from users that the authenticated user follows",
+      "requires_auth": true,
+      "arguments": [
+        {
+          "name": "limit",
+          "docs": "Maximum number of tweets to return",
+          "type": "v.optional(v.number())"
+        }
+      ],
+      "returns": "An array of tweet objects",
+      "return_type": "v.array(v.object({userId: v.id(\"users\"), text: v.string()}))",
+      "workflow_steps": [
+        {
+          "step": "Fetch the IDs of users that the current user follows from the follows table"
+        },
+        {
+          "step": "Query the tweets table for tweets with a userId matching the followed user IDs"
+        },
+        {
+          "step": "Sort the tweets by descending timestamp and return the requested number"
+        }
+      ]
+    },
+    {
       "name": "getUserProfile",
-      "where_used": "Used on a user's profile page to get their profile details",
-      "docs": "Retrieves a user's profile information",
+      "where_used": "Used to fetch profile details when viewing a user's page",
+      "docs": "Retrieves profile details for a given user ID",
       "requires_auth": false,
       "arguments": [
         {
-          "name": "username",
-          "docs": "The username of the user whose profile to retrieve",
-          "type": "v.string()"
+          "name": "userId",
+          "docs": "ID of the user to fetch profile for",
+          "type": "v.id(\"users\")"
         }
       ],
-      "returns": "The user's profile information",
-      "return_type": "User object",
+      "returns": "The requested user profile object",
+      "return_type": "v.object({username: v.string(), email: v.string(), name: v.string(), bio: v.string()})",
       "workflow_steps": [
         {
-          "step": "Retrieve the user record matching the provided username"
+          "step": "Query the users table for the user with the provided userId"
         }
       ]
     },
     {
       "name": "getUserTweets",
-      "where_used": "Used on a user's profile page to display their tweets",
-      "docs": "Retrieves a list of tweets posted by a user",
+      "where_used": "Used to fetch a user's tweets when viewing their profile",
+      "docs": "Retrieves tweets posted by a given user",
       "requires_auth": false,
       "arguments": [
         {
           "name": "userId",
-          "docs": "The ID of the user whose tweets to retrieve",
+          "docs": "ID of the user to fetch tweets for",
           "type": "v.id(\"users\")"
-        }
-      ],
-      "returns": "A list of the user's tweets",
-      "return_type": "Array of tweet objects",
-      "workflow_steps": [
-        {
-          "step": "Query the tweets table for all tweets with the provided userId"
-        }
-      ]
-    },
-    {
-      "name": "getFollowing",
-      "where_used": "Used on a user's profile page to show the list of users they are following",
-      "docs": "Retrieves the list of users that a user is following",
-      "requires_auth": false,
-      "arguments": [
-        {
-          "name": "userId",
-          "docs": "The ID of the user to get the following list for",
-          "type": "v.id(\"users\")"
-        }
-      ],
-      "returns": "A list of users that the provided user is following",
-      "return_type": "Array of user objects",
-      "workflow_steps": [
-        {
-          "step": "Query the follows table for all records with the provided userId as the followerId"
         },
         {
-          "step": "For each follow record, retrieve the corresponding followed user details"
-        }
-      ]
-    },
-    {
-      "name": "getFollowers",
-      "where_used": "Used on a user's profile page to show the list of users following them",
-      "docs": "Retrieves the list of users following a user",
-      "requires_auth": false,
-      "arguments": [
-        {
-          "name": "userId",
-          "docs": "The ID of the user to get the followers list for",
-          "type": "v.id(\"users\")"
+          "name": "limit",
+          "docs": "Maximum number of tweets to return",
+          "type": "v.optional(v.number())"
         }
       ],
-      "returns": "A list of users following the provided user",
-      "return_type": "Array of user objects", 
+      "returns": "An array of the user's tweet objects",
+      "return_type": "v.array(v.object({userId: v.id(\"users\"), text: v.string()}))",
       "workflow_steps": [
         {
-          "step": "Query the follows table for all records with the provided userId as the followedId"
+          "step": "Query the tweets table for tweets with the provided userId"
         },
         {
-          "step": "For each follow record, retrieve the corresponding follower user details"
+          "step": "Sort the tweets by descending timestamp and return the requested number"  
         }
       ]
     }
   ],
-  "mutation_actions_required": "Mutation actions will be needed for posting new tweets and following/unfollowing users.",
+  "mutation_actions_required": "Mutation actions will be needed to post tweets and manage follows.",
   "mutation_actions": [
     {
       "name": "postTweet",
-      "where_used": "Used when a user posts a new tweet",
-      "docs": "Posts a new tweet by the authenticated user",
+      "where_used": "Used to post a new tweet",
+      "docs": "Posts a new tweet for the authenticated user",
       "requires_auth": true,
       "arguments": [
         {
           "name": "text",
-          "docs": "The text content of the new tweet",
+          "docs": "Text content of the tweet to post",
           "type": "v.string()"
         }
       ],
-      "returns": "The newly created tweet object",
-      "return_type": "Tweet object",
+      "returns": "The ID of the newly created tweet",
+      "return_type": "v.id(\"tweets\")",
       "workflow_steps": [
         {
-          "step": "Create a new tweet record with the provided text and the ID of the authenticated user"
+          "step": "Insert a new tweet into the tweets table with the authenticated user's ID and provided text"
         }
       ]
     },
     {
       "name": "followUser",
-      "where_used": "Used when a user follows another user",
-      "docs": "Creates a follow relationship from the authenticated user to another user",
+      "where_used": "Used to follow another user",
+      "docs": "Establishes a follow relationship from the authenticated user to another user",
       "requires_auth": true,
       "arguments": [
         {
           "name": "userId",
-          "docs": "The ID of the user to follow",
-          "type": "v.id(\"users\")"
+          "docs": "ID of the user to follow",
+          "type": "v.id(\"users\")"  
         }
       ],
-      "returns": "The new follow relationship record",
-      "return_type": "Follow object",
+      "returns": "The ID of the newly created follow relationship",
+      "return_type": "v.id(\"follows\")",
       "workflow_steps": [
         {
-          "step": "Create a new follow record with the authenticated user's ID as followerId and the provided userId as followedId"
+          "step": "Check that the authenticated user is not already following the target user"
+        },
+        {
+          "step": "Insert a new follow record into the follows table with the authenticated user as the follower and target user as the followed"
         }
       ]
     },
     {
       "name": "unfollowUser",
-      "where_used": "Used when a user unfollows another user",
+      "where_used": "Used to unfollow a previously followed user",  
       "docs": "Removes a follow relationship from the authenticated user to another user",
       "requires_auth": true,
       "arguments": [
         {
           "name": "userId",
-          "docs": "The ID of the user to unfollow",
+          "docs": "ID of the user to unfollow",
           "type": "v.id(\"users\")"
         }
       ],
-      "returns": "The deleted follow relationship record",
-      "return_type": "Follow object",
+      "returns": "True if the unfollow was successful, false if there was no existing follow relationship",
+      "return_type": "v.boolean()",
       "workflow_steps": [
         {
-          "step": "Delete the follow record with the authenticated user's ID as followerId and the provided userId as followedId"
+          "step": "Check if a follow record exists with the authenticated user as follower and target user as followed"
+        },
+        {
+          "step": "If found, delete the follow record, otherwise return false"
         }
       ]
     }
   ],
-  "actions_required": "No additional actions are required for this application beyond queries and mutations.",
+  "actions_required": "No additional actions are required for this application.",
   "actions": []
 }
