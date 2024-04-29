@@ -1,0 +1,99 @@
+In order to use a query or mutation, import the api object from convex and use the useQuery or useMutation functions:
+```tsx
+"use client";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import useStoreUserEffect from "@/useStoreUserEffect";
+
+export default function Home() {
+  const userId = useStoreUserEffect();
+  // note that this is not `const { data: tasks, isLoading, error } = ...`
+  const tasks = useQuery(api.backend.get, userId ? { userId }: 'skip');
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      {tasks?.map(({ _id, text }) => <div key={_id}>{text}</div>)}
+    </main>
+  );
+}
+```
+```tsx
+"use client";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+
+export function MyApp() {
+  const mutateSomething = useMutation(api.backend.mutateSomething);
+  const handleClick = () => {
+    mutateSomething({ a: 1, b: 2 });
+  };
+  // pass `handleClick` to a button
+  // ...
+}
+```
+All available queries and mutations are in the api.backend object.
+
+In order to get the current user, use the useUser function from Clerk. To get the current userId, which can be used in mutations and queries, use the useStoreUserEffect function. the returned userId can be null, so use the non-null assertion operator, or pass 'skip' into useQuery instead of args where needed. Always use the userId to check if 'skip' should be passed in, i.e. do not use isSignedIn in queries and mutations.
+```tsx
+"use client";
+import useStoreUserEffect from "@/useStoreUserEffect";
+import { useUser } from "@clerk/clerk-react";
+
+export default function UserInfo() {
+    const userId = useStoreUserEffect();
+    const { isSignedIn, user } = useUser();
+    if (!isSignedIn) {
+        return <></>
+    }
+    return <div>{user.fullName}, {userId!}, {user.imageUrl}</div>;
+}
+```
+
+If you need the userId in a component of a page, accept it as a prop:
+```tsx
+"use client";
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import useStoreUserEffect from '@/useStoreUserEffect'
+
+interface Props {
+  userId: string | null
+}
+
+export default ({ userId }: Props) => {
+  const tweets = useQuery(api.backend.getTimelineTweets, userId ? { userId } : 'skip')
+
+  return (
+    <div>
+      {tweets?.map(tweet => (
+        <div key={tweet._id}>
+          <p>{tweet.text}</p>
+          <p>By: {tweet.author.username}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+If you want to receive objects from the database as a prop, import Doc:
+```tsx
+"use client"
+import { Doc } from "@/convex/_generated/dataModel";
+
+interface Props {
+  tweets: Doc<"tweets">[]
+}
+
+export default ({ tweets }: Props) => {
+  return (
+    <div>
+      {tweets.map(tweet => (
+        <div key={tweet._id}>
+          <p>{tweet.text}</p>
+          <p>By: {tweet.author.username}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+```
