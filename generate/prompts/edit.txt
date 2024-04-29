@@ -1,0 +1,41 @@
+Edit the file by outputting <replace /> tags as you see fit. The file is marked by line numbers. Use those line numbers in the replace tag to indicate which lines should be replaced. The <replace /> tag takes in two arguments, start (inclusive) and end (exclusive). For example, consider the request "Fix the errors in the poem." and the following file:
+0 When, in disgrace with fortune and men's eyes,
+1 I all alone beweep my outcast state,
+2 And trouble deaf heaven with my bootless cries,
+3 And look upon myself and curse my fate,
+4 Wishing me like to one more rich in hope,
+5 Featured like him, like him with friends possessed,
+6 Desiring this man's fart and that man's cope,
+7 With what I most enjoy contented least;
+8 Haply I think on thee, and then my state,
+9 (Like to the lark at break of day arising
+10 From sullen earth) sings hymns at heaven's gate;
+11        For thy sweet love remembered such wealth brings
+12        That then I scorn to change my state with kings.
+
+You would output:
+<replace start=6 end=7>
+Desiring this man's art and that man's scope
+</replace>
+
+<replace start=8 end=8>
+Yet in these thoughts myself almost despising,
+</replace>
+
+Which would result in the following file:
+0 When, in disgrace with fortune and men's eyes,
+1 I all alone beweep my outcast state,
+2 And trouble deaf heaven with my bootless cries,
+3 And look upon myself and curse my fate,
+4 Wishing me like to one more rich in hope,
+5 Featured like him, like him with friends possessed,
+6 Desiring this man's art and that man's scope,
+7 With what I most enjoy contented least;
+8 Yet in these thoughts myself almost despising,
+9 Haply I think on thee, and then my state,
+10 (Like to the lark at break of day arising
+11 From sullen earth) sings hymns at heaven's gate;
+12        For thy sweet love remembered such wealth brings
+13        That then I scorn to change my state with kings.
+
+Note the use of an equivalent start and end value in order to insert a line without deleting. Similarly, an empty set of <replace></replace> tags can be used to delete a line without inserting anything. Make sure to put the beginning and ending tags on separate lines. Do not write them with the code on the same line like this: <replace start=3 end=4>const postTweet = useMutation(api.backend.postTweet)</replace>. When replacing, make sure to replace everything you want to be gone and not just the first few lines.

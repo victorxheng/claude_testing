@@ -1,291 +1,91 @@
-
 {
-  "description": "A simple Twitter-like application that allows users to post tweets, follow other users, and view a timeline of tweets from followed users.",
-  "features_description": "The main pages include the home timeline, user profile, new tweet form, and user registration/login. The home timeline displays tweets from followed users. User profiles show the user's info and posted tweets. The new tweet form allows posting tweets. User registration and login enable accounts.",
-  "pages": [
-    {
-      "route_name": "home",
-      "docs": "Displays the logged in user's timeline of tweets from followed users",
-      "page_title": "Home Timeline",
-      "description": "View tweets from users you follow",
-      "data_calls": [
+    "pages": [
         {
-          "query_name": "getTimeline",
-          "purpose": "Retrieves the tweets from followed users to display in the timeline",
-          "arguments": [
-            {
-              "argument_name": "userId",
-              "type": "v.id(\"users\")",
-              "value_description": "The ID of the currently logged in user, obtained from authentication"
-            }
-          ]
-        }
-      ],
-      "workflows": [],
-      "components": [
-        {
-          "name": "TimelineTweet",
-          "docs": "Displays an individual tweet in the timeline",
-          "props": [
-            {
-              "property_name": "tweet",
-              "property_type": "v.object({userId: v.id(\"users\"), text: v.string()})",
-              "docs": "The tweet object to display"
-            }
-          ],
-          "layout": "Renders the tweet text and author username. Includes the author's profile image."
-        }
-      ],
-      "layout": "Displays a vertical list of TimelineTweet components, one for each tweet returned from the getTimeline query. Includes the navbar component.",
-      "states": "No states needed"
-    },
-    {
-      "route_name": "user/[username]",
-      "docs": "Displays a user's profile information and their posted tweets",
-      "page_title": "User Profile",
-      "description": "View a user's profile and tweets",
-      "data_calls": [
-        {
-          "query_name": "getUserProfile",
-          "purpose": "Retrieves the user's profile data and tweets to display on their profile page",
-          "arguments": [
-            {
-              "argument_name": "username",
-              "type": "v.string()",
-              "value_description": "The username from the URL route parameter"  
-            }
-          ]
-        }
-      ],
-      "workflows": [
-        {
-          "workflow_name": "followUser",
-          "docs": "Follows or unfollows the user when clicking the follow/unfollow button",
-          "where_called": "Triggered by clicking the follow/unfollow button",
-          "actions_used": [
-            {
-              "action_name": "followUser",
-              "arguments": [
+            "url": "/",
+            "title": "Home",
+            "description": "The main timeline page showing tweets from users the logged-in user is following",
+            "components": [
                 {
-                  "argument_name": "followerId",
-                  "type": "v.id(\"users\")",
-                  "value_description": "The ID of the currently logged in user, obtained from authentication"
+                    "name": "Navbar",
+                    "description": "Navigation bar with links to other pages"
                 },
                 {
-                  "argument_name": "followedId",
-                  "type": "v.id(\"users\")",
-                  "value_description": "The ID of the user whose profile is being viewed, obtained from the getUserProfile query"
+                    "name": "TweetFeed",
+                    "description": "Displays a feed of tweets from followed users"
                 }
-              ]
-            },
-            {
-              "action_name": "unfollowUser",
-              "arguments": [
-                {
-                  "argument_name": "followerId",
-                  "type": "v.id(\"users\")",
-                  "value_description": "The ID of the currently logged in user, obtained from authentication"
-                },
-                {
-                  "argument_name": "followedId",
-                  "type": "v.id(\"users\")",
-                  "value_description": "The ID of the user whose profile is being viewed, obtained from the getUserProfile query"
-                }
-              ]
-            }
-          ],
-          "workflow": [
-            {
-              "step": "If the logged in user is not already following the viewed user, call the followUser mutation action"
-            },
-            {
-              "step": "If the logged in user is already following the viewed user, call the unfollowUser mutation action"
-            },
-            {
-              "step": "Update the UI to reflect the new follow/unfollow state"
-            }
-          ]
-        }
-      ],
-      "components": [
-        {
-          "name": "ProfileTweet",
-          "docs": "Displays an individual tweet on the user's profile page",
-          "props": [
-            {
-              "property_name": "tweet",
-              "property_type": "v.object({text: v.string()})",
-              "docs": "The tweet object to display"
-            }
-          ],
-          "layout": "Renders the tweet text. Includes the posted date/time."
+            ]
         },
         {
-          "name": "FollowButton",
-          "docs": "Renders a button to follow or unfollow the user",
-          "props": [
-            {
-              "property_name": "isFollowing",
-              "property_type": "v.boolean()",
-              "docs": "Whether the logged in user is currently following the viewed user"
-            }
-          ],
-          "layout": "Displays 'Follow' if isFollowing is false, or 'Unfollow' if isFollowing is true. Triggers the followUser workflow when clicked."
-        }
-      ],
-      "layout": "Displays the user's profile image, name, username, bio, and follower/following counts. Includes the FollowButton component. Renders a vertical list of ProfileTweet components for the user's tweets. Includes the navbar component.",
-      "states": "isFollowing: boolean state indicating if the logged in user is following the viewed user. Used to control the FollowButton label and workflow."
-    },
-    {
-      "route_name": "compose",
-      "docs": "Allows the logged in user to post a new tweet",
-      "page_title": "New Tweet",
-      "description": "Compose a new tweet",
-      "data_calls": [],
-      "workflows": [
-        {
-          "workflow_name": "postTweet",
-          "docs": "Posts a new tweet when the form is submitted",
-          "where_called": "Triggered by submitting the new tweet form",
-          "actions_used": [
-            {
-              "action_name": "postTweet",
-              "arguments": [
+            "url": "/login",
+            "title": "Login",
+            "description": "The login page for users to sign in to their account",
+            "components": [
                 {
-                  "argument_name": "userId",
-                  "type": "v.id(\"users\")",
-                  "value_description": "The ID of the currently logged in user, obtained from authentication"
+                    "name": "Navbar",
+                    "description": "Navigation bar with links to other pages"
                 },
                 {
-                  "argument_name": "text",
-                  "type": "v.string()",
-                  "value_description": "The text content of the new tweet, obtained from the controlled textarea input"
+                    "name": "LoginForm",
+                    "description": "Form for users to enter their credentials and log in"
                 }
-              ]
-            }
-          ],
-          "workflow": [
-            {
-              "step": "Call the postTweet mutation action with the form data"
-            },
-            {
-              "step": "Clear the form input"
-            },
-            {
-              "step": "Display a success message"
-            },
-            {
-              "step": "Redirect to the home timeline page"  
-            }
-          ]
-        }
-      ],
-      "components": [],
-      "layout": "Displays a form with a textarea input for the tweet text and a submit button. The textarea is a controlled component. Submitting the form triggers the postTweet workflow. Includes the navbar component.",
-      "states": "text: string state bound to the textarea input value. Cleared after form submission."
-    },
-    {
-      "route_name": "register",
-      "docs": "Allows a new user to create an account",
-      "page_title": "Register",
-      "description": "Create a new account",
-      "data_calls": [],
-      "workflows": [
+            ]
+        },
         {
-          "workflow_name": "registerUser",
-          "docs": "Registers a new user account when the form is submitted",
-          "where_called": "Triggered by submitting the registration form",
-          "actions_used": [
-            {
-              "action_name": "registerUser",
-              "arguments": [
+            "url": "/register",
+            "title": "Register",
+            "description": "The registration page for new users to create an account",
+            "components": [
                 {
-                  "argument_name": "username",
-                  "type": "v.string()",
-                  "value_description": "The username entered in the form"
+                    "name": "Navbar",
+                    "description": "Navigation bar with links to other pages"
                 },
                 {
-                  "argument_name": "email",
-                  "type": "v.string()",
-                  "value_description": "The email entered in the form"  
-                },
-                {
-                  "argument_name": "name",
-                  "type": "v.string()",
-                  "value_description": "The name entered in the form"
-                },
-                {
-                  "argument_name": "bio",
-                  "type": "v.string()",
-                  "value_description": "The bio entered in the form"
+                    "name": "RegistrationForm",
+                    "description": "Form for new users to create an account"
                 }
-              ]
-            }
-          ],
-          "workflow": [
-            {
-              "step": "Validate the form inputs"
-            },
-            {
-              "step": "Call the registerUser mutation action with the form data"
-            },
-            {
-              "step": "Display a success message"
-            },
-            {
-              "step": "Redirect to the login page"
-            }
-          ]
-        }
-      ],
-      "components": [],
-      "layout": "Displays a form with inputs for username, email, name, bio, and password. Includes a submit button. Submitting the form triggers the registerUser workflow after validating inputs.",
-      "states": "Form input states for username, email, name, bio, and password. Cleared after successful registration."
-    },
-    {
-      "route_name": "login",
-      "docs": "Allows an existing user to log in",
-      "page_title": "Login",
-      "description": "Log in to your account",
-      "data_calls": [],
-      "workflows": [
+            ]
+        },
         {
-          "workflow_name": "loginUser",
-          "docs": "Logs in the user when the form is submitted",
-          "where_called": "Triggered by submitting the login form",
-          "actions_used": [
-            {
-              "action_name": "loginUser",
-              "arguments": [
+            "url": "/profile/[username]",
+            "title": "UserProfile",
+            "description": "A user's profile page showing their bio, tweets, followers, and users they are following",
+            "components": [
                 {
-                  "argument_name": "username",
-                  "type": "v.string()",
-                  "value_description": "The username entered in the form"
+                    "name": "Navbar",
+                    "description": "Navigation bar with links to other pages"
                 },
                 {
-                  "argument_name": "password",
-                  "type": "v.string()",
-                  "value_description": "The password entered in the form"
+                    "name": "UserProfileHeader",
+                    "description": "Displays the user's profile picture, name, bio, and stats"
+                },
+                {
+                    "name": "TweetFeed",
+                    "description": "Displays a feed of the user's tweets"
+                },
+                {
+                    "name": "FollowingList",
+                    "description": "List of users the profile user is following"
+                },
+                {
+                    "name": "FollowersList",
+                    "description": "List of users following the profile user"
                 }
-              ]
-            }
-          ],
-          "workflow": [
-            {
-              "step": "Call the loginUser mutation action with the form data"
-            },
-            {
-              "step": "Store the returned auth token"
-            },
-            {
-              "step": "Redirect to the home timeline page"
-            }
-          ]
-        }  
-      ],
-      "components": [],
-      "layout": "Displays a form with inputs for username and password. Includes a submit button. Submitting the form triggers the loginUser workflow.",
-      "states": "Form input states for username and password. Cleared after successful login."
-    }
-  ]
+            ]
+        },
+        {
+            "url": "/compose",
+            "title": "ComposeTweet",
+            "description": "A page for the logged-in user to compose and post a new tweet",
+            "components": [
+                {
+                    "name": "Navbar",
+                    "description": "Navigation bar with links to other pages"
+                },
+                {
+                    "name": "TweetComposer",
+                    "description": "Form for the user to enter and post a new tweet"
+                }
+            ]
+        }
+    ]
 }
