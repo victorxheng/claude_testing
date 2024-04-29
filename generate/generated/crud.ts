@@ -7,7 +7,7 @@ import { Id } from "./_generated/dataModel";
 import { Auth, DocumentByInfo, GenericDatabaseReader, GenericDatabaseWriter, GenericQueryCtx, GenericTableInfo, PaginationOptions, PaginationResult, QueryInitializer, WithoutSystemFields } from "convex/server";
 import { useMutation, useQuery } from "convex/react";
 
-import schema, { Users, Tweets, Follows } from "./schema";
+import schema, { Users, Matches } from "./schema";
 
 
 async function verify(ctx: GenericQueryCtx<any>){
@@ -34,40 +34,25 @@ function getManyUsers(db: DatabaseReader, fltr?: (f: typeof Users.doc.type) => P
 async function getOneUsers(db: DatabaseReader, id: string | Id<"users">){return await db.get(id as Id<"users">)}
 
 //returns a full table scan query based on an optional filter
-function getManyTweets(db: DatabaseReader, fltr?: (f: typeof Tweets.doc.type) => Promise<boolean> | boolean){return filter(db.query("tweets"), fltr ? fltr : () => true)}
+function getManyMatches(db: DatabaseReader, fltr?: (f: typeof Matches.doc.type) => Promise<boolean> | boolean){return filter(db.query("matches"), fltr ? fltr : () => true)}
 
 //returns one document based on an id
-async function getOneTweets(db: DatabaseReader, id: string | Id<"tweets">){return await db.get(id as Id<"tweets">)}
-
-//returns a full table scan query based on an optional filter
-function getManyFollows(db: DatabaseReader, fltr?: (f: typeof Follows.doc.type) => Promise<boolean> | boolean){return filter(db.query("follows"), fltr ? fltr : () => true)}
-
-//returns one document based on an id
-async function getOneFollows(db: DatabaseReader, id: string | Id<"follows">){return await db.get(id as Id<"follows">)}
+async function getOneMatches(db: DatabaseReader, id: string | Id<"matches">){return await db.get(id as Id<"matches">)}
 
 //creates one document based on data object, returns the resulting document id
 async function createOneUsers(db: DatabaseWriter, data: WithoutSystemFields<typeof Users.doc.type>){return await db.insert("users", data);}
 
 //creates one document based on data object, returns the resulting document id
-async function createOneTweets(db: DatabaseWriter, data: WithoutSystemFields<typeof Tweets.doc.type>){return await db.insert("tweets", data);}
-
-//creates one document based on data object, returns the resulting document id
-async function createOneFollows(db: DatabaseWriter, data: WithoutSystemFields<typeof Follows.doc.type>){return await db.insert("follows", data);}
+async function createOneMatches(db: DatabaseWriter, data: WithoutSystemFields<typeof Matches.doc.type>){return await db.insert("matches", data);}
 
 //updates one document based on an id and a partial data object, returns nothing
 async function updateOneUsers(db: DatabaseWriter, id: Id<"users">, data: Partial<any>){await db.patch(id, data);}
 
 //updates one document based on an id and a partial data object, returns nothing
-async function updateOneTweets(db: DatabaseWriter, id: Id<"tweets">, data: Partial<any>){await db.patch(id, data);}
-
-//updates one document based on an id and a partial data object, returns nothing
-async function updateOneFollows(db: DatabaseWriter, id: Id<"follows">, data: Partial<any>){await db.patch(id, data);}
+async function updateOneMatches(db: DatabaseWriter, id: Id<"matches">, data: Partial<any>){await db.patch(id, data);}
 
 //deletes one document based on an id, returns nothing
 async function deleteOneUsers(db: DatabaseWriter, id: Id<"users">){await db.delete(id);}
 
 //deletes one document based on an id, returns nothing
-async function deleteOneTweets(db: DatabaseWriter, id: Id<"tweets">){await db.delete(id);}
-
-//deletes one document based on an id, returns nothing
-async function deleteOneFollows(db: DatabaseWriter, id: Id<"follows">){await db.delete(id);}
+async function deleteOneMatches(db: DatabaseWriter, id: Id<"matches">){await db.delete(id);}

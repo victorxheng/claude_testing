@@ -1,10 +1,12 @@
 
 {
-  "getUserProfile": "const user = await getManyUsers(d, (user) => user.username == args.username).unique();\nreturn user;",
-  "getUserTweets": "const tweets = await getManyTweets(d, (tweet) => tweet.userId == args.userId).collect();\nreturn tweets;",
-  "getFollowing": "const follows = await getManyFollows(d, (follow) => follow.followerId == args.userId).collect();\nconst followedUserIds = follows.map(follow => follow.followedId);\nconst followedUsers = await Promise.all(followedUserIds.map(userId => getOneUsers(d, userId)));\nreturn followedUsers;",
-  "getFollowers": "const follows = await getManyFollows(d, (follow) => follow.followedId == args.userId).collect();\nconst followerUserIds = follows.map(follow => follow.followerId);\nconst followerUsers = await Promise.all(followerUserIds.map(userId => getOneUsers(d, userId)));\nreturn followerUsers;",
-  "postTweet": "const tweetId = await createOneTweets(d, {userId: user._id, text: args.text});\nconst tweet = await getOneTweets(d, tweetId);\nreturn tweet;",
-  "followUser": "const followId = await createOneFollows(d, {followerId: user._id, followedId: args.userId});\nconst follow = await getOneFollows(d, followId);\nreturn follow;",
-  "unfollowUser": "const follow = await getManyFollows(d, (follow) => follow.followerId == user._id && follow.followedId == args.userId).unique();\nawait deleteOneFollows(d, follow._id);\nreturn follow;"
+  "getUserProfile": "const [identity, user] = await verify(ctx);\nconst userProfile = await getOneUsers(d, user._id);\nreturn userProfile;",
+  "getAvailableProfiles": "const [identity, user] = await verify(ctx);\nconst availableProfiles = await getManyUsers(d, (u) => u.isAvailable && u._id != user._id).collect();\nreturn availableProfiles;",
+  "getIncomingMatches": "const [identity, user] = await verify(ctx);\nconst incomingMatches = await getManyMatches(d, (m) => m.to == user._id).collect();\nreturn incomingMatches;", 
+  "getOutgoingMatches": "const [identity, user] = await verify(ctx);\nconst outgoingMatches = await getManyMatches(d, (m) => m.from == user._id).collect();\nreturn outgoingMatches;",
+  "createUserProfile": "const [identity, user] = await verify(ctx);\nconst userId = await createOneUsers(d, {email: identity.email, name: args.name, linkedin: args.linkedin, description: args.description, isTechnical: args.isTechnical, isAvailable: true, tokenIdentifier: identity.tokenIdentifier});\nreturn userId;",
+  "updateUserProfile": "const [identity, user] = await verify(ctx);\nawait updateOneUsers(d, user._id, {name: args.name, linkedin: args.linkedin, description: args.description, isTechnical: args.isTechnical, isAvailable: args.isAvailable});\nconst updatedUser = await getOneUsers(d, user._id);\nreturn updatedUser;",
+  "sendMatchRequest": "const [identity, user] = await verify(ctx);\nconst matchId = await createOneMatches(d, {from: user._id, to: args.toUserId, status: \"pending\", requestMessage: args.message});\nreturn matchId;",
+  "acceptMatchRequest": "const [identity, user] = await verify(ctx);\nconst match = await getOneMatches(d, args.matchId);\nif(match!.to != user._id){throw new Error(\"Unauthorized\");}\nawait updateOneMatches(d, args.matchId, {status: \"accepted\", acceptMessage: args.message});\nconst updatedMatch = await getOneMatches(d, args.matchId);\nreturn updatedMatch;",
+  "rejectMatchRequest": "const [identity, user] = await verify(ctx);\nconst match = await getOneMatches(d, args.matchId);\nif(match!.to != user._id){throw new Error(\"Unauthorized\");}\nawait updateOneMatches(d, args.matchId, {status: \"rejected\"});\nconst updatedMatch = await getOneMatches(d, args.matchId);\nreturn updatedMatch;"
 }

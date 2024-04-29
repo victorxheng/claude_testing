@@ -234,6 +234,6 @@ List of pages:
       diff_replace_tags(component_file_path, replace_tags)
 
 
-def generate_page(path, pages, schema_path, actions_path):
+def generate_pages(path, pages, schema_path, actions_path):
    for page in pages:
       generate_page(path, pages, page, schema_path, actions_path)

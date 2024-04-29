@@ -1,33 +1,74 @@
 
 {
-	"description": "A simple Twitter-like application that allows users to post tweets, follow other users, and view a timeline of tweets from followed users.",
-	"features_description": "- User registration and login\n- Posting tweets\n- Following other users\n- Timeline view of tweets from followed users\n- User profile pages showing their tweets",
-	"schema_tables": [
-		{
-			"name": "users",
-			"docs": "Stores user account information",
-			"fields": [
-				{"name": "username", "docs": "The username of the user", "type": "v.string()"},
-				{"name": "email", "docs": "The email address of the user", "type": "v.string()"},
-				{"name": "name", "docs": "The display name of the user", "type": "v.string()"},
-				{"name": "bio", "docs": "A short user bio", "type": "v.string()"}
-			]
-		},
-		{
-			"name": "tweets",
-			"docs": "Stores individual tweets posted by users",
-			"fields": [
-				{"name": "userId", "docs": "ID of the user who posted the tweet", "type": "v.id(\"users\")"},
-				{"name": "text", "docs": "The text content of the tweet", "type": "v.string()"}
-			]
-		},
-		{
-			"name": "follows",
-			"docs": "Stores follow relationships between users",
-			"fields": [
-				{"name": "followerId", "docs": "ID of the user doing the following", "type": "v.id(\"users\")"},
-				{"name": "followedId", "docs": "ID of the user being followed", "type": "v.id(\"users\")"}
-			]
-		}
-	]
+  "description": "The YC Co-founder Matching website allows entrepreneurs to create a profile and find contact information of other entrepreneurs to potentially match with as co-founders. Users can create a profile, view and match with other profiles, manage match requests, and edit their profile.",
+  "features_description": "1. Home landing page advertising the site with Clerk authentication to create account\n2. Profile creation page to fill out name, background, LinkedIn profile, and technical cofounder status\n3. Match page to view other available user profiles and send match requests with message\n4. View and manage incoming match requests, approve to connect on LinkedIn or reject\n5. Edit profile page and mark profile as matched once co-founder is found",
+  "schema_tables": [
+    {
+      "name": "users",
+      "docs": "Stores user profile information",
+      "fields": [
+        {
+          "name": "email",
+          "docs": "User's email, populated from Clerk auth",
+          "type": "v.string()"
+        },
+        {
+          "name": "name", 
+          "docs": "User's full name",
+          "type": "v.string()"
+        },
+        {
+          "name": "linkedin",
+          "docs": "URL to user's LinkedIn profile",
+          "type": "v.string()" 
+        },
+        {
+          "name": "description",
+          "docs": "Brief background and description of the user",
+          "type": "v.string()"
+        },
+        {
+          "name": "isTechnical",
+          "docs": "Whether the user is a technical cofounder",
+          "type": "v.boolean()"
+        },
+        {
+          "name": "isAvailable",
+          "docs": "Whether the user is available and looking for a cofounder",
+          "type": "v.boolean()"
+        }
+      ]
+    },
+    {
+      "name": "matches",
+      "docs": "Stores cofounder match requests between users",
+      "fields": [
+        {
+          "name": "from",
+          "docs": "ID of the user sending the match request",
+          "type": "v.id(\"users\")"
+        },
+        {
+          "name": "to",
+          "docs": "ID of the user receiving the match request", 
+          "type": "v.id(\"users\")"
+        },
+        {
+          "name": "status",
+          "docs": "Status of the match request",
+          "type": "v.union(v.literal(\"pending\"), v.literal(\"accepted\"), v.literal(\"rejected\"))"
+        },
+        {
+          "name": "requestMessage",
+          "docs": "Message included with the match request",
+          "type": "v.string()"
+        },
+        {
+          "name": "acceptMessage",
+          "docs": "Message included when accepting the match request",
+          "type": "v.optional(v.string())"
+        }
+      ]
+    }
+  ]
 }

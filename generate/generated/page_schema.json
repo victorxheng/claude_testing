@@ -1,291 +1,135 @@
-
 {
-  "description": "A simple Twitter-like application that allows users to post tweets, follow other users, and view a timeline of tweets from followed users.",
-  "features_description": "The main pages include the home timeline, user profile, and a page to view a single tweet. The home timeline shows tweets from followed users. The user profile page shows the user's tweets, followers, and following. The single tweet page allows viewing replies.",
-  "pages": [
-    {
-      "url": "/home",
-      "docs": "The home timeline page showing tweets from followed users",
-      "title": "Home Timeline",
-      "description": "View tweets from users you follow",
-      "data_calls": [
+    "pages": [
         {
-          "query_name": "getFollowing",
-          "purpose": "Get the list of users the current user is following to fetch their tweets",
-          "arguments": [
-            {
-              "argument_name": "userId",
-              "type": "v.id(\"users\")",
-              "value_description": "The ID of the currently authenticated user"
-            }
-          ]
-        },
-        {
-          "query_name": "getUserTweets",
-          "purpose": "Get the tweets for each followed user to display in the timeline",
-          "arguments": [
-            {
-              "argument_name": "userId",
-              "type": "v.id(\"users\")", 
-              "value_description": "The ID of each followed user"
-            }
-          ]
-        }
-      ],
-      "workflows": [],
-      "components": [
-        {
-          "name": "TweetList",
-          "docs": "Displays a list of tweets",
-          "props": [
-            {
-              "property_name": "tweets",
-              "property_type": "Array of tweet objects",
-              "docs": "The list of tweets to display"
-            }
-          ],
-          "layout": "Renders a vertical list of Tweet components, passing each tweet object as a prop. Includes styling to space out each tweet and scroll when the list gets long."
-        },
-        {
-          "name": "Tweet",
-          "docs": "Displays an individual tweet with the user's name, username, avatar, timestamp, and tweet text",
-          "props": [
-            {
-              "property_name": "tweet",
-              "property_type": "Tweet object",
-              "docs": "The tweet to display, including the user details"
-            }
-          ],
-          "layout": "Renders the tweet user's avatar, name, username, and the tweet text. Styles the layout to clearly distinguish each piece of data. Includes the timestamp of the tweet."
-        }
-      ],
-      "layout": "The main section of the page is a TweetList component that receives the tweets from the data calls. Above the TweetList is a text input and button for posting a new tweet, which calls the postTweet workflow when clicked. At the top is a header with the app logo and name.",
-      "states": "No additional React states are needed on this page, as the data is fetched from the server and updated in realtime."
-    },
-    {
-      "url": "/user/[username]",
-      "docs": "Profile page for an individual user, showing their tweets, followers and following",
-      "title": "User Profile",
-      "description": "View a user's profile with their tweets and follow info",
-      "data_calls": [
-        {
-          "query_name": "getUserProfile",
-          "purpose": "Get the user's profile details to display at the top of the page",
-          "arguments": [
-            {
-              "argument_name": "username",
-              "type": "v.string()",
-              "value_description": "The username from the URL route"
-            }
-          ]
-        },
-        {
-          "query_name": "getUserTweets",
-          "purpose": "Get the user's tweets to display on their profile",
-          "arguments": [
-            {
-              "argument_name": "userId",
-              "type": "v.id(\"users\")",
-              "value_description": "The ID of the user from the getUserProfile query"
-            }
-          ]
-        },
-        {
-          "query_name": "getFollowers",
-          "purpose": "Get the list of the user's followers to display on the page",
-          "arguments": [
-            {
-              "argument_name": "userId",
-              "type": "v.id(\"users\")",
-              "value_description": "The ID of the user from the getUserProfile query"  
-            }
-          ]
-        },
-        {
-          "query_name": "getFollowing",
-          "purpose": "Get the list of users this user is following to display on the page",
-          "arguments": [
-            {
-              "argument_name": "userId",
-              "type": "v.id(\"users\")",
-              "value_description": "The ID of the user from the getUserProfile query"
-            }
-          ]  
-        }
-      ],
-      "workflows": [
-        {
-          "workflow_name": "followUser",
-          "docs": "Adds the currently authenticated user as a follower of this user",
-          "where_called": "Called when the 'Follow' button is clicked on the user profile",
-          "actions_used": [
-            {
-              "action_name": "followUser",
-              "arguments": [
+            "url": "/",
+            "title": "Home",
+            "description": "Landing page advertising the site with Clerk authentication to create account",
+            "components": [
                 {
-                  "argument_name": "userId",
-                  "type": "v.id(\"users\")",
-                  "value_description": "The ID of the user from the getUserProfile query"
-                }
-              ]
-            }
-          ],
-          "workflow": [
-            {
-              "step": "Call the followUser mutation with the user ID to create the follow relationship"
-            },
-            {
-              "step": "Update the UI to reflect that the user is now being followed, changing the button to 'Unfollow'"
-            }
-          ]
-        },
-        {
-          "workflow_name": "unfollowUser",
-          "docs": "Removes the currently authenticated user as a follower of this user",
-          "where_called": "Called when the 'Unfollow' button is clicked on the user profile",
-          "actions_used": [
-            {
-              "action_name": "unfollowUser",
-              "arguments": [
+                    "name": "Header",
+                    "description": "Header component with site logo and navigation"
+                },
                 {
-                  "argument_name": "userId",
-                  "type": "v.id(\"users\")",
-                  "value_description": "The ID of the user from the getUserProfile query"
+                    "name": "Hero",
+                    "description": "Hero section with site tagline and call-to-action"
+                },
+                {
+                    "name": "Features",
+                    "description": "Feature highlights of the site"
+                },
+                {
+                    "name": "Testimonials",
+                    "description": "User testimonials and success stories"
+                },
+                {
+                    "name": "Footer",
+                    "description": "Footer with site links and copyright"
+                },
+                {
+                    "name": "SignInButton",
+                    "description": "Clerk sign in button component"
+                },
+                {
+                    "name": "SignUpButton",
+                    "description": "Clerk sign up button component"
                 }
-              ]
-            }
-          ],
-          "workflow": [
-            {
-              "step": "Call the unfollowUser mutation with the user ID to remove the follow relationship"
-            },
-            {
-              "step": "Update the UI to reflect that the user is no longer being followed, changing the button to 'Follow'"  
-            }
-          ]
+            ]
+        },
+        {
+            "url": "/createProfile",
+            "title": "CreateProfile",
+            "description": "Profile creation page to fill out name, background, LinkedIn profile, and technical cofounder status",
+            "components": [
+                {
+                    "name": "Header",
+                    "description": "Header component with site logo and navigation"
+                },
+                {
+                    "name": "ProfileForm",
+                    "description": "Form to input profile details and submit"
+                },
+                {
+                    "name": "Footer",
+                    "description": "Footer with site links and copyright"
+                }
+            ]
+        },
+        {
+            "url": "/match",
+            "title": "Match",
+            "description": "Match page to view other available user profiles and send match requests with message",
+            "components": [
+                {
+                    "name": "Header",
+                    "description": "Header component with site logo and navigation"
+                },
+                {
+                    "name": "ProfileList",
+                    "description": "List of available user profiles fetched with getAvailableProfiles query"
+                },
+                {
+                    "name": "ProfileCard",
+                    "description": "Card displaying user profile info with match request button"
+                },
+                {
+                    "name": "MatchRequestForm",
+                    "description": "Form to input message and send match request, triggers sendMatchRequest mutation"
+                },
+                {
+                    "name": "Footer",
+                    "description": "Footer with site links and copyright"
+                }
+            ]
+        },
+        {
+            "url": "/matchRequests",
+            "title": "MatchRequests",
+            "description": "View and manage incoming match requests, approve to connect on LinkedIn or reject", 
+            "components": [
+                {
+                    "name": "Header",
+                    "description": "Header component with site logo and navigation"
+                },
+                {
+                    "name": "IncomingRequestList",
+                    "description": "List of incoming match requests fetched with getIncomingMatches query"
+                },
+                {
+                    "name": "OutgoingRequestList",
+                    "description": "List of outgoing match requests fetched with getOutgoingMatches query"  
+                },
+                {
+                    "name": "MatchRequestCard",
+                    "description": "Card displaying match request info with accept/reject buttons, triggers acceptMatchRequest or rejectMatchRequest mutations"
+                },
+                {
+                    "name": "Footer",
+                    "description": "Footer with site links and copyright"
+                }
+            ]
+        },
+        {
+            "url": "/editProfile",
+            "title": "EditProfile",
+            "description": "Edit profile page and mark profile as matched once co-founder is found",
+            "components": [
+                {
+                    "name": "Header",
+                    "description": "Header component with site logo and navigation"
+                },
+                {
+                    "name": "ProfileForm",
+                    "description": "Form to edit profile details, populated with getUserProfile query, submits with updateUserProfile mutation"
+                },
+                {
+                    "name": "MatchStatus",
+                    "description": "Component to display current match status and toggle isAvailable"
+                },
+                {
+                    "name": "Footer",
+                    "description": "Footer with site links and copyright" 
+                }
+            ]
         }
-      ],
-      "components": [
-        {
-          "name": "ProfileHeader",
-          "docs": "Displays the user's avatar, name, username, bio, and follower/following counts",
-          "props": [
-            {
-              "property_name": "user",
-              "property_type": "User object",
-              "docs": "The user object containing the profile details"
-            },
-            {
-              "property_name": "followerCount",
-              "property_type": "number",
-              "docs": "The number of followers the user has"
-            },
-            {
-              "property_name": "followingCount", 
-              "property_type": "number",
-              "docs": "The number of users this user is following"
-            }
-          ],
-          "layout": "Displays the user's avatar prominently, with their name and username next to it. Below that is the user's bio. On the side are the follower and following counts. Includes a Follow/Unfollow button."
-        },
-        {
-          "name": "TweetList",
-          "docs": "Displays a list of tweets",
-          "props": [
-            {
-              "property_name": "tweets",
-              "property_type": "Array of tweet objects",
-              "docs": "The list of tweets to display"
-            }
-          ],
-          "layout": "Renders a vertical list of Tweet components, passing each tweet object as a prop. Includes styling to space out each tweet and scroll when the list gets long."
-        },
-        {
-          "name": "Tweet",
-          "docs": "Displays an individual tweet with the user's name, username, avatar, timestamp, and tweet text",
-          "props": [
-            {
-              "property_name": "tweet",
-              "property_type": "Tweet object",
-              "docs": "The tweet to display, including the user details"
-            }
-          ],
-          "layout": "Renders the tweet user's avatar, name, username, and the tweet text. Styles the layout to clearly distinguish each piece of data. Includes the timestamp of the tweet."
-        },
-        {
-          "name": "FollowList",
-          "docs": "Displays a list of users with their avatar and name, linking to their profile",
-          "props": [
-            {
-              "property_name": "users",
-              "property_type": "Array of user objects",
-              "docs": "The list of users to display in the list"
-            }
-          ],
-          "layout": "Renders a vertical list of user avatars and names, each one linking to that user's profile page. Styles the list to be visually distinct from tweets."
-        }
-      ],
-      "layout": "At the top of the page is the ProfileHeader component showing the user's details. Below that is a tabbed interface with the TweetList showing the user's tweets on one tab, and the FollowList showing followers and following on the other tabs.",
-      "states": "Stores the user object from getUserProfile in a 'user' state. Stores the follower and following counts in separate states to pass into the ProfileHeader. The currently selected tab is stored in a 'tab' state."
-    },
-    {
-      "url": "/tweet/[tweetId]",
-      "docs": "Page to view an individual tweet with replies",
-      "title": "Tweet",
-      "description": "View a tweet and its replies",
-      "data_calls": [
-        {
-          "query_name": "getTweet",
-          "purpose": "Get the details of the tweet to display",
-          "arguments": [
-            {
-              "argument_name": "tweetId",
-              "type": "v.id(\"tweets\")",
-              "value_description": "The ID of the tweet from the URL route"
-            }
-          ]
-        },
-        {
-          "query_name": "getTweetReplies",
-          "purpose": "Get the replies to the tweet to display below it",
-          "arguments": [
-            {
-              "argument_name": "tweetId",
-              "type": "v.id(\"tweets\")",
-              "value_description": "The ID of the tweet from the URL route"
-            }
-          ]
-        }
-      ],
-      "workflows": [],
-      "components": [
-        {
-          "name": "Tweet",
-          "docs": "Displays an individual tweet with the user's name, username, avatar, timestamp, and tweet text",
-          "props": [
-            {
-              "property_name": "tweet",
-              "property_type": "Tweet object",
-              "docs": "The tweet to display, including the user details"
-            }
-          ],
-          "layout": "Renders the tweet user's avatar, name, username, and the tweet text. Styles the layout to clearly distinguish each piece of data. Includes the timestamp of the tweet."
-        },
-        {
-          "name": "TweetList",
-          "docs": "Displays a list of tweets",
-          "props": [
-            {
-              "property_name": "tweets",
-              "property_type": "Array of tweet objects",
-              "docs": "The list of tweets to display"
-            }
-          ],
-          "layout": "Renders a vertical list of Tweet components, passing each tweet object as a prop. Includes styling to space out each tweet and scroll when the list gets long."
-        }
-      ],
-      "layout": "The main Tweet is displayed at the top of the page using the Tweet component. Below it is a TweetList showing the tweet replies. At the very bottom is an input and button for posting a reply.",
-      "states": "Stores the main tweet object in a 'tweet' state to pass to the Tweet component. The replies are stored in a 'replies' state to pass to the TweetList."
-    }
-  ]
+    ]
 }

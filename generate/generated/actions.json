@@ -1,154 +1,269 @@
 
 {
-  "actions_description": "The application will need actions to get a user's profile information, get a user's tweets, get the list of users a user is following, get the list of users following a user, post a new tweet, and follow/unfollow another user.",
-  "query_actions_required": "Query actions will be needed to retrieve user profiles, user tweets, and follower/following lists.",
+  "actions_description": "The backend actions will handle creating and updating user profiles, retrieving user profiles for the match page, creating and managing match requests between users.",
+  "query_actions_required": "Query actions are needed to retrieve a user's own profile, get a list of available user profiles for the match page, and get a user's incoming and outgoing match requests.",
   "query_actions": [
     {
       "name": "getUserProfile",
-      "where_used": "Used on a user's profile page to get their profile details",
-      "docs": "Retrieves a user's profile information",
-      "requires_auth": false,
-      "arguments": [
-        {
-          "name": "username",
-          "docs": "The username of the user whose profile to retrieve",
-          "type": "v.string()"
-        }
-      ],
-      "returns": "The user's profile information",
+      "where_used": "Edit Profile page",
+      "docs": "Retrieves the profile of the currently logged in user.",
+      "requires_auth": true,
+      "arguments": [],
+      "returns": "The user's profile data",
       "return_type": "User object",
       "workflow_steps": [
         {
-          "step": "Retrieve the user record matching the provided username"
-        }
-      ]
-    },
-    {
-      "name": "getUserTweets",
-      "where_used": "Used on a user's profile page to display their tweets",
-      "docs": "Retrieves a list of tweets posted by a user",
-      "requires_auth": false,
-      "arguments": [
-        {
-          "name": "userId",
-          "docs": "The ID of the user whose tweets to retrieve",
-          "type": "v.id(\"users\")"
-        }
-      ],
-      "returns": "A list of the user's tweets",
-      "return_type": "Array of tweet objects",
-      "workflow_steps": [
-        {
-          "step": "Query the tweets table for all tweets with the provided userId"
-        }
-      ]
-    },
-    {
-      "name": "getFollowing",
-      "where_used": "Used on a user's profile page to show the list of users they are following",
-      "docs": "Retrieves the list of users that a user is following",
-      "requires_auth": false,
-      "arguments": [
-        {
-          "name": "userId",
-          "docs": "The ID of the user to get the following list for",
-          "type": "v.id(\"users\")"
-        }
-      ],
-      "returns": "A list of users that the provided user is following",
-      "return_type": "Array of user objects",
-      "workflow_steps": [
-        {
-          "step": "Query the follows table for all records with the provided userId as the followerId"
+          "step": "Get the currently logged in user's ID from Clerk auth"
         },
         {
-          "step": "For each follow record, retrieve the corresponding followed user details"
+          "step": "Query the 'users' table for the document matching the user ID"
+        },
+        {
+          "step": "Return the user document data"
         }
       ]
     },
     {
-      "name": "getFollowers",
-      "where_used": "Used on a user's profile page to show the list of users following them",
-      "docs": "Retrieves the list of users following a user",
-      "requires_auth": false,
-      "arguments": [
-        {
-          "name": "userId",
-          "docs": "The ID of the user to get the followers list for",
-          "type": "v.id(\"users\")"
-        }
-      ],
-      "returns": "A list of users following the provided user",
-      "return_type": "Array of user objects", 
+      "name": "getAvailableProfiles",
+      "where_used": "Match page",
+      "docs": "Retrieves a list of user profiles that are available for matching, excluding the current user.",
+      "requires_auth": true,
+      "arguments": [],
+      "returns": "List of available user profiles",
+      "return_type": "Array of User objects",
       "workflow_steps": [
         {
-          "step": "Query the follows table for all records with the provided userId as the followedId"
+          "step": "Get the currently logged in user's ID from Clerk auth"
         },
         {
-          "step": "For each follow record, retrieve the corresponding follower user details"
+          "step": "Query the 'users' table for documents where isAvailable is true and the ID does not match the current user"
+        },
+        {
+          "step": "Return the matching user documents"
+        }
+      ]
+    },
+    {
+      "name": "getIncomingMatches",
+      "where_used": "Match Requests page",
+      "docs": "Retrieves a list of incoming match requests for the current user.",
+      "requires_auth": true,
+      "arguments": [],
+      "returns": "List of incoming match requests",
+      "return_type": "Array of Match objects",
+      "workflow_steps": [
+        {
+          "step": "Get the currently logged in user's ID from Clerk auth"
+        },
+        {
+          "step": "Query the 'matches' table for documents where the 'to' field matches the current user ID"
+        },
+        {
+          "step": "Return the matching match documents"
+        }
+      ]
+    },
+    {
+      "name": "getOutgoingMatches",
+      "where_used": "Match Requests page",
+      "docs": "Retrieves a list of outgoing match requests sent by the current user.",
+      "requires_auth": true,
+      "arguments": [],
+      "returns": "List of outgoing match requests",
+      "return_type": "Array of Match objects", 
+      "workflow_steps": [
+        {
+          "step": "Get the currently logged in user's ID from Clerk auth"
+        },
+        {
+          "step": "Query the 'matches' table for documents where the 'from' field matches the current user ID"  
+        },
+        {
+          "step": "Return the matching match documents"
         }
       ]
     }
   ],
-  "mutation_actions_required": "Mutation actions will be needed for posting new tweets and following/unfollowing users.",
+  "mutation_actions_required": "Mutation actions are needed for creating and updating the user's profile, sending a new match request, and accepting or rejecting incoming match requests.",
   "mutation_actions": [
     {
-      "name": "postTweet",
-      "where_used": "Used when a user posts a new tweet",
-      "docs": "Posts a new tweet by the authenticated user",
+      "name": "createUserProfile",
+      "where_used": "Profile Creation page",
+      "docs": "Creates a new user profile document.",
       "requires_auth": true,
       "arguments": [
         {
-          "name": "text",
-          "docs": "The text content of the new tweet",
+          "name": "name",
+          "docs": "The user's full name",
+          "type": "v.string()"
+        },
+        {
+          "name": "linkedin",
+          "docs": "URL to the user's LinkedIn profile",
+          "type": "v.string()"
+        },
+        {
+          "name": "description", 
+          "docs": "Brief user description",
+          "type": "v.string()"
+        },
+        {
+          "name": "isTechnical",
+          "docs": "Whether the user is a technical cofounder",
+          "type": "v.boolean()" 
+        }
+      ],
+      "returns": "The ID of the new user document",
+      "return_type": "ID",
+      "workflow_steps": [
+        {
+          "step": "Get the currently logged in user's email from Clerk auth"
+        },
+        {
+          "step": "Create a new document in the 'users' table with the email and supplied profile fields, defaulting isAvailable to true"
+        },
+        {
+          "step": "Return the ID of the newly created document"
+        }
+      ]
+    },
+    {
+      "name": "updateUserProfile",
+      "where_used": "Edit Profile page",
+      "docs": "Updates the current user's profile document.",
+      "requires_auth": true,
+      "arguments": [
+        {
+          "name": "name",
+          "docs": "The user's full name",
+          "type": "v.string()"
+        },
+        {
+          "name": "linkedin",
+          "docs": "URL to the user's LinkedIn profile", 
+          "type": "v.string()"
+        },
+        {
+          "name": "description",
+          "docs": "Brief user description",
+          "type": "v.string()"
+        },
+        {
+          "name": "isTechnical",
+          "docs": "Whether the user is a technical cofounder",
+          "type": "v.boolean()"
+        },
+        {
+          "name": "isAvailable",
+          "docs": "Whether the user is available for matching",
+          "type": "v.boolean()"
+        }
+      ],
+      "returns": "The updated user document",
+      "return_type": "User object",
+      "workflow_steps": [
+        {
+          "step": "Get the currently logged in user's ID from Clerk auth"
+        },
+        {
+          "step": "Update the user document matching the ID with the supplied profile fields"
+        },
+        {
+          "step": "Return the updated user document"
+        }
+      ]
+    },
+    {
+      "name": "sendMatchRequest",
+      "where_used": "Match page",
+      "docs": "Sends a new match request from the current user to another user.",
+      "requires_auth": true,
+      "arguments": [
+        {
+          "name": "toUserId",
+          "docs": "ID of the user to send the request to",
+          "type": "v.id(\"users\")"
+        },
+        {
+          "name": "message",
+          "docs": "Message to include with the match request",
           "type": "v.string()"
         }
       ],
-      "returns": "The newly created tweet object",
-      "return_type": "Tweet object",
+      "returns": "The ID of the new match request document",
+      "return_type": "ID",
       "workflow_steps": [
         {
-          "step": "Create a new tweet record with the provided text and the ID of the authenticated user"
+          "step": "Get the currently logged in user's ID from Clerk auth"  
+        },
+        {
+          "step": "Create a new document in the 'matches' table with the from set to current user ID, to set to supplied user ID, status set to 'pending', and the request message"
+        },
+        {
+          "step": "Return the ID of the newly created match document"
         }
       ]
     },
     {
-      "name": "followUser",
-      "where_used": "Used when a user follows another user",
-      "docs": "Creates a follow relationship from the authenticated user to another user",
+      "name": "acceptMatchRequest",
+      "where_used": "Match Requests page",
+      "docs": "Accepts an incoming match request.",
       "requires_auth": true,
       "arguments": [
         {
-          "name": "userId",
-          "docs": "The ID of the user to follow",
-          "type": "v.id(\"users\")"
+          "name": "matchId",
+          "docs": "ID of the match request document",
+          "type": "v.id(\"matches\")"
+        },
+        {
+          "name": "message",
+          "docs": "Optional message when accepting the request",
+          "type": "v.optional(v.string())"
         }
       ],
-      "returns": "The new follow relationship record",
-      "return_type": "Follow object",
+      "returns": "The updated match document",
+      "return_type": "Match object",
       "workflow_steps": [
         {
-          "step": "Create a new follow record with the authenticated user's ID as followerId and the provided userId as followedId"
+          "step": "Get the match document by ID"
+        },
+        {
+          "step": "Verify the logged in user ID matches the 'to' field of the match"
+        },
+        {
+          "step": "Update the match document, setting status to 'accepted' and the accept message"
+        },
+        {
+          "step": "Return the updated match document"
         }
       ]
     },
     {
-      "name": "unfollowUser",
-      "where_used": "Used when a user unfollows another user",
-      "docs": "Removes a follow relationship from the authenticated user to another user",
+      "name": "rejectMatchRequest",
+      "where_used": "Match Requests page", 
+      "docs": "Rejects an incoming match request.",
       "requires_auth": true,
       "arguments": [
         {
-          "name": "userId",
-          "docs": "The ID of the user to unfollow",
-          "type": "v.id(\"users\")"
+          "name": "matchId",
+          "docs": "ID of the match request document",
+          "type": "v.id(\"matches\")"
         }
       ],
-      "returns": "The deleted follow relationship record",
-      "return_type": "Follow object",
+      "returns": "The updated match document",
+      "return_type": "Match object",
       "workflow_steps": [
         {
-          "step": "Delete the follow record with the authenticated user's ID as followerId and the provided userId as followedId"
+          "step": "Get the match document by ID"
+        },
+        {
+          "step": "Verify the logged in user ID matches the 'to' field of the match"  
+        },
+        {
+          "step": "Update the match document, setting status to 'rejected'"
+        },
+        {
+          "step": "Return the updated match document"
         }
       ]
     }

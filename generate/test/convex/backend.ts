@@ -7,165 +7,191 @@ import { Id } from "./_generated/dataModel";
 import { Auth, DocumentByInfo, GenericDatabaseReader, GenericDatabaseWriter, GenericQueryCtx, GenericTableInfo, PaginationOptions, PaginationResult, QueryInitializer, WithoutSystemFields } from "convex/server";
 import { useMutation, useQuery } from "convex/react";
 
-import schema, { Users, Tweets, Follows } from "./schema";
+import schema, { Users, Matches } from "./schema";
 
 
-async function verify(ctx: GenericQueryCtx<any>){
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Unauthenticated call to mutation");
-    }
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
-    if (!user) {
-      throw new Error("Unauthenticated call");
-    }
-    return [identity, user]
+async function verify(ctx: GenericQueryCtx<any>) {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) {
+    throw new Error("Unauthenticated call to mutation");
+  }
+  const user = await ctx.db
+    .query("users")
+    .withIndex("by_token", (q) =>
+      q.eq("tokenIdentifier", identity.tokenIdentifier),
+    )
+    .unique();
+  if (!user) {
+    throw new Error("Unauthenticated call");
+  }
+  return [identity, user]
 }
 
 //returns a full table scan query based on an optional filter
-function getManyUsers(db: DatabaseReader, fltr?: (f: typeof Users.doc.type) => Promise<boolean> | boolean){return filter(db.query("users"), fltr ? fltr : () => true)}
+function getManyUsers(db: DatabaseReader, fltr?: (f: typeof Users.doc.type) => Promise<boolean> | boolean) { return filter(db.query("users"), fltr ? fltr : () => true) }
 
 //returns one document based on an id
-async function getOneUsers(db: DatabaseReader, id: string | Id<"users">){return await db.get(id as Id<"users">)}
+async function getOneUsers(db: DatabaseReader, id: string | Id<"users">) { return await db.get(id as Id<"users">) }
 
 //returns a full table scan query based on an optional filter
-function getManyTweets(db: DatabaseReader, fltr?: (f: typeof Tweets.doc.type) => Promise<boolean> | boolean){return filter(db.query("tweets"), fltr ? fltr : () => true)}
+function getManyMatches(db: DatabaseReader, fltr?: (f: typeof Matches.doc.type) => Promise<boolean> | boolean) { return filter(db.query("matches"), fltr ? fltr : () => true) }
 
 //returns one document based on an id
-async function getOneTweets(db: DatabaseReader, id: string | Id<"tweets">){return await db.get(id as Id<"tweets">)}
-
-//returns a full table scan query based on an optional filter
-function getManyFollows(db: DatabaseReader, fltr?: (f: typeof Follows.doc.type) => Promise<boolean> | boolean){return filter(db.query("follows"), fltr ? fltr : () => true)}
-
-//returns one document based on an id
-async function getOneFollows(db: DatabaseReader, id: string | Id<"follows">){return await db.get(id as Id<"follows">)}
+async function getOneMatches(db: DatabaseReader, id: string | Id<"matches">) { return await db.get(id as Id<"matches">) }
 
 //creates one document based on data object, returns the resulting document id
-async function createOneUsers(db: DatabaseWriter, data: WithoutSystemFields<typeof Users.doc.type>){return await db.insert("users", data);}
+async function createOneUsers(db: DatabaseWriter, data: WithoutSystemFields<typeof Users.doc.type>) { return await db.insert("users", data); }
 
 //creates one document based on data object, returns the resulting document id
-async function createOneTweets(db: DatabaseWriter, data: WithoutSystemFields<typeof Tweets.doc.type>){return await db.insert("tweets", data);}
-
-//creates one document based on data object, returns the resulting document id
-async function createOneFollows(db: DatabaseWriter, data: WithoutSystemFields<typeof Follows.doc.type>){return await db.insert("follows", data);}
+async function createOneMatches(db: DatabaseWriter, data: WithoutSystemFields<typeof Matches.doc.type>) { return await db.insert("matches", data); }
 
 //updates one document based on an id and a partial data object, returns nothing
-async function updateOneUsers(db: DatabaseWriter, id: Id<"users">, data: Partial<any>){await db.patch(id, data);}
+async function updateOneUsers(db: DatabaseWriter, id: Id<"users">, data: Partial<any>) { await db.patch(id, data); }
 
 //updates one document based on an id and a partial data object, returns nothing
-async function updateOneTweets(db: DatabaseWriter, id: Id<"tweets">, data: Partial<any>){await db.patch(id, data);}
-
-//updates one document based on an id and a partial data object, returns nothing
-async function updateOneFollows(db: DatabaseWriter, id: Id<"follows">, data: Partial<any>){await db.patch(id, data);}
+async function updateOneMatches(db: DatabaseWriter, id: Id<"matches">, data: Partial<any>) { await db.patch(id, data); }
 
 //deletes one document based on an id, returns nothing
-async function deleteOneUsers(db: DatabaseWriter, id: Id<"users">){await db.delete(id);}
+async function deleteOneUsers(db: DatabaseWriter, id: Id<"users">) { await db.delete(id); }
 
 //deletes one document based on an id, returns nothing
-async function deleteOneTweets(db: DatabaseWriter, id: Id<"tweets">){await db.delete(id);}
-
-//deletes one document based on an id, returns nothing
-async function deleteOneFollows(db: DatabaseWriter, id: Id<"follows">){await db.delete(id);}
+async function deleteOneMatches(db: DatabaseWriter, id: Id<"matches">) { await db.delete(id); }
 
 
-//Retrieves a user's profile information
+//Retrieves the profile of the currently logged in user.
 export const getUserProfile = query({
   args: {
-    username: v.string(), //The username of the user whose profile to retrieve
   },
   handler: async (ctx, args) => {
+    const [identity, user] = await verify(ctx) //security //security
+
     const d = ctx.db
-    const user = await getManyUsers(d, (user) => user.username == args.username).unique();
-		return user;
+    const userProfile = await getOneUsers(d, user._id);
+    return userProfile;
   },
 });
 
-//Retrieves a list of tweets posted by a user
-export const getUserTweets = query({
+//Retrieves a list of user profiles that are available for matching, excluding the current user.
+export const getAvailableProfiles = query({
   args: {
-    userId: v.id("users"), //The ID of the user whose tweets to retrieve
   },
   handler: async (ctx, args) => {
+    const [identity, user] = await verify(ctx) //security //security
+
     const d = ctx.db
-    const tweets = await getManyTweets(d, (tweet) => tweet.userId == args.userId).collect();
-		return tweets;
+    const availableProfiles = await getManyUsers(d, (u) => u.isAvailable && u._id != user._id).collect();
+    return availableProfiles;
   },
 });
 
-//Retrieves the list of users that a user is following
-export const getFollowing = query({
+//Retrieves a list of incoming match requests for the current user.
+export const getIncomingMatches = query({
   args: {
-    userId: v.id("users"), //The ID of the user to get the following list for
   },
   handler: async (ctx, args) => {
+    const [identity, user] = await verify(ctx) //security //security
+
     const d = ctx.db
-    const follows = await getManyFollows(d, (follow) => follow.followerId == args.userId).collect();
-		const followedUserIds = follows.map(follow => follow.followedId);
-		const followedUsers = await Promise.all(followedUserIds.map(userId => getOneUsers(d, userId)));
-		return followedUsers;
+    const incomingMatches = await getManyMatches(d, (m) => m.to == user._id).collect();
+    return incomingMatches;
   },
 });
 
-//Retrieves the list of users following a user
-export const getFollowers = query({
+//Retrieves a list of outgoing match requests sent by the current user.
+export const getOutgoingMatches = query({
   args: {
-    userId: v.id("users"), //The ID of the user to get the followers list for
   },
   handler: async (ctx, args) => {
+    const [identity, user] = await verify(ctx) //security //security
+
     const d = ctx.db
-    const follows = await getManyFollows(d, (follow) => follow.followedId == args.userId).collect();
-		const followerUserIds = follows.map(follow => follow.followerId);
-		const followerUsers = await Promise.all(followerUserIds.map(userId => getOneUsers(d, userId)));
-		return followerUsers;
+    const outgoingMatches = await getManyMatches(d, (m) => m.from == user._id).collect();
+    return outgoingMatches;
   },
 });
 
-//Posts a new tweet by the authenticated user
-export const postTweet = mutation({
+//Creates a new user profile document.
+export const createUserProfile = mutation({
   args: {
-    text: v.string(), //The text content of the new tweet
+    name: v.string(), //The user's full name
+    linkedin: v.string(), //URL to the user's LinkedIn profile
+    description: v.string(), //Brief user description
+    isTechnical: v.boolean(), //Whether the user is a technical cofounder
   },
   handler: async (ctx, args) => {
-		const [identity, user] = await verify(ctx) //security
+    const [identity, user] = await verify(ctx) //security
 
     const d = ctx.db
-    const tweetId = await createOneTweets(d, {userId: user._id, text: args.text});
-		const tweet = await getOneTweets(d, tweetId);
-		return tweet;
+    const userId = await createOneUsers(d, { email: identity.email, name: args.name, linkedin: args.linkedin, description: args.description, isTechnical: args.isTechnical, isAvailable: true, tokenIdentifier: identity.tokenIdentifier });
+    return userId;
   },
 });
 
-//Creates a follow relationship from the authenticated user to another user
-export const followUser = mutation({
+//Updates the current user's profile document.
+export const updateUserProfile = mutation({
   args: {
-    userId: v.id("users"), //The ID of the user to follow
+    name: v.string(), //The user's full name
+    linkedin: v.string(), //URL to the user's LinkedIn profile
+    description: v.string(), //Brief user description
+    isTechnical: v.boolean(), //Whether the user is a technical cofounder
+    isAvailable: v.boolean(), //Whether the user is available for matching
   },
   handler: async (ctx, args) => {
-		const [identity, user] = await verify(ctx) //security
+    const [identity, user] = await verify(ctx) //security
 
     const d = ctx.db
-    const followId = await createOneFollows(d, {followerId: user._id, followedId: args.userId});
-		const follow = await getOneFollows(d, followId);
-		return follow;
+    await updateOneUsers(d, user._id, { name: args.name, linkedin: args.linkedin, description: args.description, isTechnical: args.isTechnical, isAvailable: args.isAvailable });
+    const updatedUser = await getOneUsers(d, user._id);
+    return updatedUser;
   },
 });
 
-//Removes a follow relationship from the authenticated user to another user
-export const unfollowUser = mutation({
+//Sends a new match request from the current user to another user.
+export const sendMatchRequest = mutation({
   args: {
-    userId: v.id("users"), //The ID of the user to unfollow
+    toUserId: v.id("users"), //ID of the user to send the request to
+    message: v.string(), //Message to include with the match request
   },
   handler: async (ctx, args) => {
-		const [identity, user] = await verify(ctx) //security
+    const [identity, user] = await verify(ctx) //security
 
     const d = ctx.db
-    const follow = await getManyFollows(d, (follow) => follow.followerId == user._id && follow.followedId == args.userId).unique();
-		await deleteOneFollows(d, follow!._id);
-		return follow;
+    const matchId = await createOneMatches(d, { from: user._id, to: args.toUserId, status: "pending", requestMessage: args.message });
+    return matchId;
+  },
+});
+
+//Accepts an incoming match request.
+export const acceptMatchRequest = mutation({
+  args: {
+    matchId: v.id("matches"), //ID of the match request document
+    message: v.optional(v.string()), //Optional message when accepting the request
+  },
+  handler: async (ctx, args) => {
+    const [identity, user] = await verify(ctx) //security
+
+    const d = ctx.db
+    const match = await getOneMatches(d, args.matchId);
+    if (match!.to != user._id) { throw new Error("Unauthorized"); }
+    await updateOneMatches(d, args.matchId, { status: "accepted", acceptMessage: args.message });
+    const updatedMatch = await getOneMatches(d, args.matchId);
+    return updatedMatch;
+  },
+});
+
+//Rejects an incoming match request.
+export const rejectMatchRequest = mutation({
+  args: {
+    matchId: v.id("matches"), //ID of the match request document
+  },
+  handler: async (ctx, args) => {
+    const [identity, user] = await verify(ctx) //security
+
+    const d = ctx.db
+    const match = await getOneMatches(d, args.matchId);
+    if (match!.to != user._id) { throw new Error("Unauthorized"); }
+    await updateOneMatches(d, args.matchId, { status: "rejected" });
+    const updatedMatch = await getOneMatches(d, args.matchId);
+    return updatedMatch;
   },
 });
