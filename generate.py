@@ -105,6 +105,10 @@ If you are not sure or cannot generate something for any possible reason, return
         system = '''You are writing landing pages with React and Tailwind. You will be given a breakdown of how the landing page should be separated into components. Use Tailwind for styling, basing the design off the reference image and reference breakdown, and write only the code for the component being written. Do not leave anything blank, or to be filled in later. If you need to do some copywriting then do so. Do not leave unfinished sections, for example, do not write "Add more feature items here". Make sure to adhere to the prompt, which will be supplied by the user. Write ONLY code, do not explain the code.'''
         messages=[
             self.create_user_message(f'''
+Here is the component for the website you should be making:
+
+{prompt}
+
 Here's the page structure for the landing page:
 {newline.join([component["name"] + ": " + component["description"] for component in components])}
 
@@ -148,7 +152,7 @@ Z-index: z-10, z-50
 Opacity: opacity-30
 Transformations: transform-gpu, -translate-x-1/2, rotate-[30deg]
 Gradients: from-[#ff80b5], to-[#9089fc]
-Clip-path: polygon(...)
+Clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)
 Flexbox: flex, flex-1, items-center, justify-center, justify-between, gap-x-6, gap-x-12
 Grid: grid, grid-cols-1, gap-y-10
 Responsive design: sm:, lg:
@@ -183,29 +187,29 @@ newline = '\n'
 # prompt = 'A landing page for vly.ai with a navbar, hero section, info section, faq, try it out section, and footer. The website should talk abotu how vly.ai is a revolutionary no-code platform for generating SaaS apps with natural language. We use LLMs and a highly optimized knowledge base with vector retrievals and recursive iteration system to allow full control over creating and modifying web apps - all with no code. The try it out section should include a textbox for users to enter a prompt, like this one, and with the click of a button, have it generate their landing page. While generating, there should be a space to view system output and what files are being generated.'
 
 project = Project()
-# # components = project.create_page_structure(prompt)
-# components = json.loads('''[
-#     {
-#         "name": "Navbar",
-#         "description": "A navigation bar with links to different sections of the landing page and possibly a logo."
-#     },
-#     {
-#         "name": "HeroSection",
-#         "description": "A prominent section showcasing the main value proposition of vly.ai, with a catchy headline, a brief description, and a call-to-action button."
-#     },
-#     {
-#         "name": "FaqSection",
-#         "description": "A section addressing common questions and concerns about vly.ai, presented in a frequently asked questions (FAQ) format."
-#     },
-#     {
-#         "name": "TryItOutSection",
-#         "description": "A section allowing users to interact with vly.ai by entering a prompt, generating a landing page, and viewing the system output and generated files."
-#     },
-#     {
-#         "name": "Footer",
-#         "description": "A footer section with additional links, contact information, and possibly social media icons or a newsletter signup form."
-#     }
-# ]''')
-# # for i in range(3, len(components)):
-# #     project.write_code_to_file(project.write_component_code_from_description(prompt, reference_media_type, reference_data, components, i), f'vly/src/{components[i]["name"]}.jsx')
-# project.write_code_to_file(project.write_page_code_from_description(prompt, components), f'vly/src/App.jsx')
+# components = project.create_page_structure(prompt)
+components = json.loads('''[
+    {
+        "name": "Navbar",
+        "description": "A navigation bar with links to different sections of the landing page and possibly a logo."
+    },
+    {
+        "name": "HeroSection",
+        "description": "A prominent section showcasing the main value proposition, with a catchy headline, a brief description, and a call-to-action button."
+    },
+    {
+        "name": "FaqSection",
+        "description": "A section addressing common questions and concerns about the company, presented in a frequently asked questions (FAQ) format."
+    },
+    {
+        "name": "TryItOutSection",
+        "description": "A section allowing users to interact with the product by entering a prompt, generating a landing page, and viewing the system output and generated files."
+    },
+    {
+        "name": "Footer",
+        "description": "A footer section with additional links, contact information, and possibly social media icons or a newsletter signup form."
+    }
+]''')
+#for i in range(0, len(components)):
+ #   project.write_code_to_file(project.write_component_code_from_description(prompt, reference_media_type, reference_data, components, i), f'vly/src/{components[i]["name"]}.jsx')
+project.write_code_to_file(project.write_page_code_from_description(prompt, components), f'vly/src/App.jsx')
