@@ -437,7 +437,7 @@ import '@radix-ui/themes/layout/utilities.css';
 ```
 
 
-Use the following list of documentation sections to gain information about how Radix Themes works. Call the get_radix_doc tool with the following source fields as the parameter, and documentation about those sections will be returned.
+Use the following list of documentation sections to gain information about how Radix Themes works. Call the get_radix_doc tool with the following source fields as the parameter, and documentation about those sections will be returned. You MUST call get_radix_doc with the sources of any features you will use from Radix Themes.
 [
   {
     "title": "Text Area",

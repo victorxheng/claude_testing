@@ -1,205 +1,91 @@
-
 {
-  "description": "A simple Twitter-like application that allows users to post tweets, follow other users, and view a timeline of tweets from followed users.",
-  "features_description": "The main features are on the home page which shows the user's timeline of tweets from followed users. The user profile page shows the user's own tweets. The nav bar allows navigating between pages and has a button to post a new tweet.",
-  "pages": [
-    {
-      "route_name": "home",
-      "docs": "The main page showing the logged in user's timeline of tweets",
-      "page_title": "Your Timeline",
-      "description": "See the latest tweets from people you follow",
-      "data_calls": [
+    "pages": [
         {
-          "query_name": "getTweets",
-          "purpose": "Fetch the tweets to display in the timeline",
-          "arguments": [
-            {
-              "argument_name": "limit",
-              "type": "number",
-              "value_description": "The number of tweets to fetch, defaults to 50"
-            }
-          ]
-        }
-      ],
-      "workflows": [],
-      "components": [
-        {
-          "name": "Timeline",
-          "docs": "Displays fetched tweets in a scrollable list",
-          "props": [
-            {
-              "property_name": "tweets",
-              "property_type": "array",
-              "docs": "The fetched tweets to render"
-            }
-          ],
-          "layout": "Renders tweets in a vertical list, each showing the user's name, username, avatar, tweet text and timestamp. Newest tweets appear at the top. Scrolls to load more when scrolled to the bottom."
-        }
-      ],
-      "layout": "Shows the Timeline component, passing in the fetched tweets from the getTweets data call.",
-      "states": "No additional states needed."
-    },
-    {
-      "route_name": "user/[username]",
-      "docs": "Profile page for a specific user showing their tweets",
-      "page_title": "[name]",
-      "description": "See tweets posted by [name]",
-      "data_calls": [
-        {
-          "query_name": "getUserProfile",
-          "purpose": "Fetch the user's profile details",
-          "arguments": [
-            {
-              "argument_name": "userId",
-              "type": "id",
-              "value_description": "The ID of the user, obtained from the [username] route parameter"
-            }
-          ]
+            "url": "/",
+            "title": "Home",
+            "description": "The main timeline view showing tweets from followed users",
+            "components": [
+                {
+                    "name": "Navbar",
+                    "description": "Navigation bar component"
+                },
+                {
+                    "name": "Timeline",
+                    "description": "Component for displaying tweets from followed users"
+                },
+                {
+                    "name": "TweetComposer",
+                    "description": "Component for composing and posting new tweets"
+                }
+            ]
         },
         {
-          "query_name": "getUserTweets",
-          "purpose": "Fetch the user's tweets to display",
-          "arguments": [
-            {
-              "argument_name": "userId",
-              "type": "id",
-              "value_description": "The ID of the user, obtained from the [username] route parameter"  
-            },
-            {
-              "argument_name": "limit",
-              "type": "number",
-              "value_description": "The number of tweets to fetch, defaults to 50"
-            }
-          ]
-        }
-      ],
-      "workflows": [
-        {
-          "workflow_name": "followUser",
-          "docs": "Triggered when clicking the Follow button to follow the user",
-          "where_called": "Triggered by clicking the Follow button",
-          "actions_used": [
-            {
-              "action_name": "followUser",
-              "arguments": [
+            "url": "/login",
+            "title": "Login",
+            "description": "User login page",
+            "components": [
                 {
-                  "argument_name": "userId",
-                  "type": "id",
-                  "value_description": "The ID of the user being followed"
+                    "name": "Navbar",
+                    "description": "Navigation bar component"
+                },
+                {
+                    "name": "LoginForm",
+                    "description": "Form for user login"
                 }
-              ]
-            }
-          ],
-          "workflow": [
-            {
-              "step": "Call the followUser mutation with the user ID"
-            },
-            {
-              "step": "If successful, update the Follow button state to show Unfollow"
-            }
-          ]
+            ]
         },
         {
-          "workflow_name": "unfollowUser",
-          "docs": "Triggered when clicking the Unfollow button to unfollow the user",
-          "where_called": "Triggered by clicking the Unfollow button",
-          "actions_used": [
-            {
-              "action_name": "unfollowUser",
-              "arguments": [
+            "url": "/register",
+            "title": "Register",
+            "description": "User registration page",
+            "components": [
                 {
-                  "argument_name": "userId",
-                  "type": "id",
-                  "value_description": "The ID of the user being unfollowed"
+                    "name": "Navbar",
+                    "description": "Navigation bar component"
+                },
+                {
+                    "name": "RegistrationForm",
+                    "description": "Form for user registration"
                 }
-              ]
-            }
-          ],
-          "workflow": [
-            {
-              "step": "Call the unfollowUser mutation with the user ID"
-            },
-            {
-              "step": "If successful, update the Unfollow button state to show Follow"  
-            }
-          ]
-        }
-      ],
-      "components": [
-        {
-          "name": "ProfileHeader",
-          "docs": "Displays the user's profile details and follow button",
-          "props": [
-            {
-              "property_name": "user",
-              "property_type": "object",
-              "docs": "The fetched user profile object"
-            }
-          ],
-          "layout": "Shows the user's name, username, avatar, bio, and a Follow/Unfollow button. The button shows Follow if not following the user, or Unfollow if already following."
+            ]
         },
         {
-          "name": "Timeline",
-          "docs": "Displays fetched tweets in a scrollable list",
-          "props": [
-            {
-              "property_name": "tweets",
-              "property_type": "array", 
-              "docs": "The fetched tweets to render"
-            }
-          ],
-          "layout": "Renders tweets in a vertical list, each showing the tweet text and timestamp. Newest tweets appear at the top. Scrolls to load more when scrolled to the bottom."  
-        }
-      ],
-      "layout": "Shows the ProfileHeader component at the top, passing in the fetched user profile. Below that shows the Timeline component, passing in the fetched user tweets.",
-      "states": "Stores the follow/unfollow state of the Follow button to show the correct label and trigger the appropriate workflow when clicked."
-    },
-    {
-      "route_name": "compose/tweet",
-      "docs": "Page for composing a new tweet",
-      "page_title": "Compose Tweet",
-      "description": "Compose a new tweet to post",
-      "data_calls": [],
-      "workflows": [
-        {
-          "workflow_name": "postTweet",
-          "docs": "Triggered when submitting the tweet form to post the tweet",
-          "where_called": "Triggered by submitting the tweet form",
-          "actions_used": [
-            {
-              "action_name": "postTweet",
-              "arguments": [
+            "url": "/compose",
+            "title": "ComposeTweet",
+            "description": "Page for composing and posting new tweets",
+            "components": [
                 {
-                  "argument_name": "text",
-                  "type": "string",
-                  "value_description": "The text content of the tweet, obtained from the tweet text input field"
+                    "name": "Navbar",
+                    "description": "Navigation bar component"
+                },
+                {
+                    "name": "TweetComposer",
+                    "description": "Component for composing and posting new tweets"
                 }
-              ]
-            }
-          ],
-          "workflow": [
-            {
-              "step": "Call the postTweet mutation with the tweet text"
-            },
-            {
-              "step": "If successful, navigate back to the home page"
-            },
-            {
-              "step": "If unsuccessful, display the error message and allow retrying"
-            }
-          ]
-        }
-      ],
-      "components": [
+            ]
+        },
         {
-          "name": "TweetForm",
-          "docs": "Form for entering and submitting a new tweet",
-          "props": [],
-          "layout": "Displays a textarea input for entering the tweet text, and a submit button. The submit button triggers the postTweet workflow when clicked. Shows a live character count and disables submit if over 280 characters."
+            "url": "/profile/[username]",
+            "title": "UserProfile",
+            "description": "Profile page showing a user's tweets and follow status",
+            "components": [
+                {
+                    "name": "Navbar",
+                    "description": "Navigation bar component"
+                },
+                {
+                    "name": "ProfileHeader",
+                    "description": "Component displaying user profile information"
+                },
+                {
+                    "name": "FollowButton",
+                    "description": "Button to follow or unfollow the user"
+                },
+                {
+                    "name": "UserTweets",
+                    "description": "Component displaying the user's posted tweets"
+                }
+            ]
         }
-      ],
-      "layout": "Shows the TweetForm component.",
-      "states": "Stores the current tweet text and character count to control the form buttons and display."
-    }
-  ]
+    ]
 }

@@ -60,14 +60,13 @@ interface Props {
 }
 
 export default ({ userId }: Props) => {
-  const tweets = useQuery(api.backend.getTimelineTweets, userId ? { userId } : 'skip')
+  const tweets = useQuery(api.backend.getUserTweets, userId ? { userId } : 'skip')
 
   return (
     <div>
       {tweets?.map(tweet => (
         <div key={tweet._id}>
           <p>{tweet.text}</p>
-          <p>By: {tweet.author.username}</p>
         </div>
       ))}
     </div>

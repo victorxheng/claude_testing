@@ -4,7 +4,8 @@ from typing import Callable, Dict, List
 import anthropic
 from anthropic.types.beta.tools import ToolParam
 
-model = "claude-3-sonnet-20240229"
+# model = "claude-3-sonnet-20240229"
+model = "claude-3-opus-20240229"
 
 client = anthropic.Anthropic()
 
@@ -22,7 +23,7 @@ def has_tool(response):
   for message in response["content"]:
     if message["type"] == "tool_use":
       return True
-    return False
+  return False
 
 def use_tool(tools: List[Tool], system: str, messages: List):
   output = ''
@@ -38,6 +39,8 @@ def use_tool(tools: List[Tool], system: str, messages: List):
       if message["type"] == "text":
         print(message["text"])
         output += message["text"] + '\n'
+      elif message["type"] == "tool_use":
+        print(message["input"])
     messages.append({
       "role": "assistant",
       "content": response["content"]
@@ -57,4 +60,6 @@ def use_tool(tools: List[Tool], system: str, messages: List):
     if message["type"] == "text":
       print(message["text"])
       output += message["text"] + '\n'
+    elif message["type"] == "tool_use":
+      print(message["input"])
   return output

@@ -1,23 +1,33 @@
+
 'use client'
-import { Flex, Box, Link, Avatar } from '@radix-ui/themes'
-import { Doc } from "@/convex/_generated/dataModel";
+import { useUser, useClerk } from "@clerk/clerk-react";
+import { Avatar, Button, Flex, Link } from "@radix-ui/themes";
 
 interface Props {
 }
 
 export default ({}: Props) => {
+  const { user } = useUser();
+  const { signOut } = useClerk();
+
   return (
-    <Flex align="center" justify="between" p="4">
-      <Flex gap="4">
-        <Link href="/" size="3" weight="bold">
-          Home
-        </Link>
-        <Link href="/profile/[username]" size="3" weight="bold">
-          Profile
-        </Link>
-        <Link href="/compose" size="3" weight="bold">
-          Compose
-        </Link>
+    <Flex as="div" justify="between" align="center" p="4">
+      <Link href="/" size="4" weight="bold">Tweeter</Link>
+      <Flex align="center" gap="4">
+        {user ? (
+          <>
+            <Link href="/compose">Compose</Link>
+            <Link href={`/profile/${user.username}`}>
+              <Avatar src={user.imageUrl} fallback={user.firstName!} />  
+            </Link>
+            <Button variant="outline" onClick={() => signOut()}>Logout</Button>
+          </>
+        ) : (
+          <>
+            <Link href="/login">Login</Link>
+            <Link href="/register">Register</Link>
+          </>  
+        )}
       </Flex>
     </Flex>
   );

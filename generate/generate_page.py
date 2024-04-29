@@ -17,7 +17,8 @@ def p(name):
     return f.read()
 
 client = anthropic.Anthropic()
-model = "claude-3-sonnet-20240229"
+# model = "claude-3-sonnet-20240229"
+model = "claude-3-opus-20240229"
 
 def send_message(system: str, messages: List):
     reply = ''
@@ -199,6 +200,8 @@ def diff_replace_tags(file_path, tags: List[ReplaceTag]):
   
   write(file_path, '\n'.join(lines))
 
+def write_tsx(file_path, message):
+  write(file_path, message.split('```tsx')[1].split('```')[0])
 
 def generate_page(pages, page, schema_path, actions_path):
   prompt, schema, queries, mutations = extract_backend(schema_path, actions_path)
@@ -209,26 +212,26 @@ List of pages:
 {json.dumps(pages, indent=2)}
 {p("radixui_docs")}
 {backend_info}
-{p("edit")}
+Edit the file, and output the rewritten file as tsx code in markdown:
+{p("component_ex")}
 '''
+  
   dir = f'generated/frontend/{page["title"]}/'
   os.makedirs(os.path.join(dir, 'components'), exist_ok=True)
   page_file_path = os.path.join(dir, 'page.tsx')
   write(page_file_path, page_boilerplate)
 
   for i, component in enumerate(page['components']):
-    print(f'Writing the {component["name"]} component... (enter)')
-    input()
     component_file_path = os.path.join(dir, 'components', component['name'] + '.tsx')
     write(component_file_path, component_boilerplate)
 
     message = use_tool([get_radix_doc], system, messages=[
-       user_msg(f'Use the get_radix_doc tool, then edit the following file for the {component["name"]} component of the {page["title"]} page:\n{add_lines(component_boilerplate)}')
+       user_msg(f'Edit the following file for the {component["name"]} component of the {page["title"]} page:\n{add_lines(component_boilerplate)}\nInfer what components you will need from Radix Themes first, then use the get_radix_doc function before writing the component.')
     ])
-    replace_tags = get_replace_tags(message)
-    diff_replace_tags(component_file_path, replace_tags)
-    print(f'Writing the page.tsx... (enter)')
-    input()
+    # NO MORE DIFFING
+    # replace_tags = get_replace_tags(message)
+    # diff_replace_tags(component_file_path, replace_tags)
+    write_tsx(component_file_path, message)
 
     user_message = '''So far, you have the following components in the components/ directory, which is in the same directory as the page.tsx file:
   '''
@@ -241,12 +244,16 @@ List of pages:
     message = send_message(system, messages=[
       user_msg(user_message)
     ])
-    replace_tags = get_replace_tags(message)
-    diff_replace_tags(page_file_path, replace_tags)
+    # NO MORE DIFFING
+    # replace_tags = get_replace_tags(message)
+    # diff_replace_tags(page_file_path, replace_tags)
+    write_tsx(page_file_path, message)
   
     while (edits := input('Edits to this component (enter to accept): ').strip()) != '':
       message = send_message(system, messages=[
-        user_msg(f'If you need to, use the get_radix_doc tool, then make the following changes to the file for the {component["name"]} component of the {page["title"]} page: {edits}\n{add_lines(read(component_file_path))}')
+        user_msg(f'Make the following changes to the file for the {component["name"]} component of the {page["title"]} page: {edits}\n{add_lines(read(component_file_path))}')
       ])
-      replace_tags = get_replace_tags(message)
-      diff_replace_tags(component_file_path, replace_tags)
+      # NO MORE DIFFING
+      # replace_tags = get_replace_tags(message)
+      # diff_replace_tags(component_file_path, replace_tags)
+      write_tsx(component_file_path, message)
