@@ -177,6 +177,12 @@ def diff_replace_tags(file_path, tags: List[ReplaceTag]):
   
   write(file_path, '\n'.join(lines))
 
+def get_knowledge_base():
+  return json.loads(read("generated/knowledge_base.json"))
+
+def write_knowledge_base(knowledge_base):
+  write("generated/knowledge_base.json", json.dumps(knowledge_base, indent=2))
+
 class Project:
   def __init__(self, path, pages, schema_path, actions_path):
     self.path = path
@@ -250,6 +256,29 @@ List of pages:
       user_msg(user_message)
     ])
     diff_replace_tags(page_file_path, get_replace_tags(message))
+
+  def extract_styles(self, code: str):
+    system = f'''You are an expert in Tailwind. Take the code the user gives you and break down the styles and themes used in the code, similar to the following breakdown:
+    {p("styling")}
+    '''
+    send_message(system, messages=[user_msg(code)])
+
+
+  def add_to_knowledge_base(self, page_idx: int, component_idx: int):
+    knowledge_base = get_knowledge_base()
+
+    component = {'name': self.pages[page_idx]['components'][component_idx]['name'], 'description': self.pages[page_idx]['components'][component_idx]['description']}
+    page = {'title': self.pages[page_idx]['title'], 'description': self.pages[page_idx]['description']}
+
+    page_dir = f'{self.path}{self.pages[page_idx]["url"]}/'
+    if self.pages[page_idx]['components'][component_idx]['shared']:
+      component_file_path = os.path.join(self.path, 'components', component['name'] + '.tsx')
+    else:
+      component_file_path = os.path.join(page_dir, 'components', component['name'] + '.tsx')
+    component['code'] = read(component_file_path)
+    page['components'] = [component]
+    knowledge_base['pages'].append(page)
+    write_knowledge_base(knowledge_base)
   
   def edit_component(self, page_idx: int, component_idx: int, edit_request: str = ''):
     page = self.pages[page_idx]
@@ -300,7 +329,6 @@ List of pages:
         user_msg(f'Make the following changes to the file for the {component["name"]} component of the {page["title"]} page: {edit_request}\n{add_lines(read(component_file_path))}')
       ])
       diff_replace_tags(component_file_path, get_replace_tags(message))
-
 
 def generate_page(path, pages, page, schema_path, actions_path, skip=0):
   # extracts information and builds prompts

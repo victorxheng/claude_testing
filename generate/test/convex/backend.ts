@@ -61,12 +61,13 @@ async function deleteOneMatches(db: DatabaseWriter, id: Id<"matches">) { await d
 //Retrieves the profile of the currently logged in user.
 export const getUserProfile = query({
   args: {
+    userId: v.id("users")
   },
   handler: async (ctx, args) => {
     const [identity, user] = await verify(ctx) //security
 
     const d = ctx.db
-    const userProfile = await getOneUsers(d, user._id);
+    const userProfile = await getOneUsers(d, args.userId);
     return userProfile;
   },
 });

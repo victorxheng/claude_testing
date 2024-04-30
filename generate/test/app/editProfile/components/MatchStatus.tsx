@@ -1,14 +1,14 @@
 'use client'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
-import { Doc } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 
 interface Props {
-  userId: string | null
+  userId: Id<"users"> | null
 }
 
 export default ({ userId }: Props) => {
-  const profile = useQuery(api.backend.getUserProfile, userId ? {  } : 'skip')
+  const profile = useQuery(api.backend.getUserProfile, userId ? { userId } : 'skip')
   const updateProfile = useMutation(api.backend.updateUserProfile)
 
   const handleToggleAvailable = async () => {

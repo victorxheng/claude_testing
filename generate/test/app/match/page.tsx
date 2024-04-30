@@ -2,12 +2,12 @@
 import { api } from "@/convex/_generated/api";
 import useStoreUserEffect from "@/lib/useStoreUserEffect";
 import { useQuery, useMutation } from "convex/react";
-import Header from "./components/Header";
+import Header from "@/app/components/Header";
 import ProfileList from "./components/ProfileList";
 import { Doc } from "@/convex/_generated/dataModel";
 import MatchRequestForm from "./components/MatchRequestForm";
 import ProfileCard from "./components/ProfileCard";
-import Footer from "../components/Footer";
+import Footer from "@/app/components/Footer";
 
 
 export default () => {

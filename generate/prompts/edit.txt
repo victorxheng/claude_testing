@@ -58,6 +58,4 @@ Which would result in the following file:
 Note the use of an equivalent start and end value in order to insert a line without deleting. Similarly, an empty set of <replace></replace> tags can be used to delete a line without inserting anything. 
 Make sure to put the beginning and ending tags on separate lines. 
 Do not write them with the code on the same line like this: <replace start=3 end=4>const postTweet = useMutation(api.backend.postTweet)</replace>. 
-When replacing, make sure to replace everything you want to be gone and not just the first few lines.
-
-You are to write everything in tsx. 
+When replacing, make sure to replace everything you want to be gone and not just the first few lines. Also, just outputting the <replace /> tags is enough. Do not output what the file should like like after editing. 

@@ -1,8 +1,7 @@
 'use client';
-import { api } from "@/convex/_generated/api";
 import useStoreUserEffect from "@/lib/useStoreUserEffect";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
+import Header from "@/app/components/Header";
+import Footer from "@/app/components/Footer";
 import IncomingRequestList from "./components/IncomingRequestList";
 import OutgoingRequestList from "./components/OutgoingRequestList";
 

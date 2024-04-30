@@ -1,26 +1,37 @@
 'use client'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { Doc } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import useStoreUserEffect from '@/lib/useStoreUserEffect';
 
 interface Props {
+  userId: Id<"users"> | null
 }
 
-export default ({}: Props) => {
-  const user = useQuery(api.backend.getUserProfile);
+export default ({ userId }: Props) => {
+  const user = useQuery(api.backend.getUserProfile, userId ? { userId } : 'skip');
   
-  const [name, setName] = useState(user?.name ?? '');
-  const [linkedin, setLinkedIn] = useState(user?.linkedin ?? '');
-  const [description, setDescription] = useState(user?.description ?? '');
-  const [isTechnical, setIsTechnical] = useState(user?.isTechnical ?? false);
-  const [isAvailable, setIsAvailable] = useState(user?.isAvailable ?? true);
+  const [name, setName] = useState('');
+  const [linkedin, setLinkedIn] = useState('');
+  const [description, setDescription] = useState('');
+  const [isTechnical, setIsTechnical] = useState(false);
+  const [isAvailable, setIsAvailable] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setLinkedIn(user.linkedin);
+      setDescription(user.description);
+      setIsTechnical(user.isTechnical);
+      setIsAvailable(user.isAvailable);
+    }
+  }, [user]);
+
 
   const updateProfile = useMutation(api.backend.updateUserProfile);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log("HELP");
     e.preventDefault();
     await updateProfile({ 
       name, 
@@ -125,26 +136,7 @@ export default ({}: Props) => {
               </div>
             </div>
 
-            <div className="sm:col-span-6">
-              <div className="relative flex items-start">
-                <div className="flex h-5 items-center">
-                  <input
-                    id="available"
-                    name="available"
-                    type="checkbox"
-                    checked={isAvailable}
-                    onChange={() => setIsAvailable(!isAvailable)}
-                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  />
-                </div>
-                <div className="ml-3 text-sm">
-                  <label htmlFor="available" className="font-medium text-gray-700">
-                    Available for matching
-                  </label>
-                  <p className="text-gray-500">Check this box if you are currently available and looking for a co-founder.</p>
-                </div>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>

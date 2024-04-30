@@ -1,18 +1,17 @@
 'use client';
-import { api } from "@/convex/_generated/api";
 import useStoreUserEffect from "@/lib/useStoreUserEffect";
-import { useQuery, useMutation } from "convex/react";
-import Header from "./components/Header";
-import MatchStatus from "./components/MatchStatus";
+import Header from "@/app/components/Header";
+import Footer from "@/app/components/Footer";
 import ProfileForm from "./components/ProfileForm";
-import Footer from "./components/Footer";
+import MatchStatus from "./components/MatchStatus";
+
 export default () => {
   const userId = useStoreUserEffect();
-  const user = useQuery(api.backend.getUserProfile, userId ? {  } : 'skip');
-  const updateProfile = useMutation(api.backend.updateUserProfile);
-  if (!user) {
+
+  if (!userId) {
     return <div>Loading...</div>
   }
+
   return (
     <div className="bg-white min-h-screen">
       <Header />
@@ -20,7 +19,7 @@ export default () => {
         <div className="mx-auto max-w-xl lg:max-w-2xl">
           <h1 className="text-4xl font-bold tracking-tight text-gray-900">Edit Profile</h1>
           <p className="mt-4 text-lg text-gray-600">Update your profile details and co-founder matching status.</p>
-          <ProfileForm />
+          <ProfileForm userId={userId} />
           <MatchStatus userId={userId} />
         </div>
       </div>

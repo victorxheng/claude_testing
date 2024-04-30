@@ -11,7 +11,7 @@ export default () => {
   const profiles = useQuery(api.backend.getAvailableProfiles, userId ? { } : 'skip');
 
   return (
-    <div className="grid grid-cols-1 gap-y-10 sm:grid-cols-2 gap-x-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+    <div className="py-10 grid grid-cols-1 gap-y-10 sm:grid-cols-2 gap-x-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
       {profiles?.map((profile: Doc<"users">) => (
         <ProfileCard key={profile._id} profile={profile} />
       ))}
