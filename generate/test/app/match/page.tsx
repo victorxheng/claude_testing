@@ -29,19 +29,8 @@ export default () => {
         <p className="mx-auto mt-6 max-w-2xl text-lg tracking-tight text-slate-700">
           Browse available entrepreneurs and send match requests to connect.
         </p>
-        {profiles ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {profiles.map((profile: Doc<"users">) => (
-              <div key={profile._id} className="bg-white shadow-lg rounded-lg p-6">
-                <ProfileCard profile={profile} />
-                <MatchRequestForm toUserId={profile._id} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>Loading profiles...</p>
-        )}
-        <ProfileList/>
+  <ProfileList />
+
       </main>
 
       <Footer/>

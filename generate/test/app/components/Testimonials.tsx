@@ -13,7 +13,30 @@ const testimonials = [
     company: 'Tech LLC',
     testimonial: 'As a technical founder, I was looking for a business-savvy partner. YC Co-founder Matching made it easy to connect with potential matches and find the right fit.',
   },
-  // Add more testimonials as needed
+  {
+    name: 'Mark Johnson',
+    role: 'Co-founder & COO',
+    company: 'SaaS Startup',
+    testimonial: 'Finding a co-founder with complementary skills was crucial for our startup. YC Co-founder Matching connected me with an amazing technical co-founder and we\'ve been able to grow our company together.',
+  },
+  {
+    name: 'Emily Davis',
+    role: 'Co-founder & CPO',
+    company: 'Health Tech Inc.',
+    testimonial: 'As a non-technical founder in the healthcare space, I needed a partner who could handle the technical aspects. YC Co-founder Matching helped me find the perfect match and we\'ve built a successful health tech company.',
+  },
+  {
+    name: 'Alex Brown',
+    role: 'Co-founder & CMO',
+    company: 'E-commerce Venture',
+    testimonial: 'I had a great business idea but lacked the technical skills to bring it to life. Through YC Co-founder Matching, I found a talented technical co-founder and we\'ve built a thriving e-commerce business.',
+  },
+  {
+    name: 'Sarah Lee',
+    role: 'Co-founder & CDO',
+    company: 'AI Startup',
+    testimonial: 'Finding a co-founder with expertise in AI and machine learning was essential for our startup. YC Co-founder Matching made the process easy and connected me with an incredible technical partner.',
+  },
 ]
 
 export default function Testimonials() {

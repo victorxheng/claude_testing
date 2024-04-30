@@ -9,8 +9,7 @@ interface Props {
 }
 
 export default ({}: Props) => {
-  const userId = useStoreUserEffect();
-  const user = useQuery(api.backend.getUserProfile, userId ? {  } : 'skip') as Doc<"users">;
+  const user = useQuery(api.backend.getUserProfile);
   
   const [name, setName] = useState(user?.name ?? '');
   const [linkedin, setLinkedIn] = useState(user?.linkedin ?? '');
@@ -21,6 +20,7 @@ export default ({}: Props) => {
   const updateProfile = useMutation(api.backend.updateUserProfile);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    console.log("HELP");
     e.preventDefault();
     await updateProfile({ 
       name, 
@@ -55,7 +55,7 @@ export default ({}: Props) => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   autoComplete="name"
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"
                 />
               </div>
             </div>
@@ -71,7 +71,7 @@ export default ({}: Props) => {
                   id="linkedin"
                   value={linkedin}
                   onChange={(e) => setLinkedIn(e.target.value)}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"
                 />
               </div>
             </div>
@@ -87,7 +87,7 @@ export default ({}: Props) => {
                   rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"
                 />
               </div>
               <p className="mt-2 text-sm text-gray-500">Write a few sentences about yourself.</p>

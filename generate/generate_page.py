@@ -177,15 +177,138 @@ def diff_replace_tags(file_path, tags: List[ReplaceTag]):
   
   write(file_path, '\n'.join(lines))
 
+class Project:
+  def __init__(self, path, pages, schema_path, actions_path):
+    self.path = path
+    prompt, schema, queries, mutations = extract_backend(schema_path, actions_path)
+    backend_info = dump_backend(schema, queries, mutations)
+    self.system = f'''
+You are writing a web app with Next.js, Convex, and Tailwind. Take the following description of the app and a list of pages and components, and edit the file. When editing, write all the code necessary, do not leave any unfinished sections.
+The app description is as follows: \n{prompt}
+List of pages:
+{json.dumps(pages, indent=2)}
+{p("styling")}
+{backend_info}
+{p("edit")}
+'''
+    self.shared_components = set()
+    components = set()
+    for page in pages:
+        for component in page['components']:
+          if (component['name'], component['description']) in components:
+              self.shared_components.add((component['name'], component['description']))
+          components.add((component['name'], component['description']))
+    
+    for page in pages:
+      page_file_path = f'{path}{page["url"]}/'
+      page['generated'] = True
+      for component in page['components']:
+        if (component['name'], component['description']) in self.shared_components:
+          component['shared'] = True
+          component_file_path = os.path.join(path, 'components', component['name'] + '.tsx')
+        else:
+          component['shared'] = False
+          component_file_path = os.path.join(page_file_path, 'components', component['name'] + '.tsx')
+        if os.path.isfile(component_file_path):
+          component['generated'] = True
+        else:
+          page['generated'] = False
+          component['generated'] = False
+
+    self.pages = pages
+
+  def print_pages_menu(self):
+    for i, page in enumerate(self.pages):
+      print(f'{(i)} {page["title"]} ({"g" if page["generated"] else "ng"})')
+  
+  def print_page_menu(self, page_idx):
+    page = self.pages[page_idx]
+    print(f'{page["title"]} ({"g" if page["generated"] else "ng"})')
+    for i, component in enumerate(page['components']):
+      print(f'({i}) {component["name"]} ({"g" if component["generated"] else "ng"}) ({"s" if component["shared"] else "ns"})')
+
+  def edit_page(self, page_idx: int, edit_request: str):
+    page = self.pages[page_idx]
+    page_dir = f'{self.path}{page["url"]}/'
+    page_file_path = os.path.join(page_dir, 'page.tsx')
+    user_message = '''You have the following components in the ./components directory, which is in the same directory as the page.tsx file:
+    '''
+    for component in page['components']:
+      if component['generated'] and not component['shared']:
+        user_message += f'{component["name"]}.tsx:\n'
+        user_message += read(os.path.join(page_dir, 'components', component['name'] + '.tsx')) + '\n\n'
+
+    user_message += '''And the following components in @/app/components directory:
+'''
+    for component in page['components']:
+      if component['generated'] and component['shared']:
+        user_message += f'{component["name"]}.tsx:\n'
+        user_message += read(os.path.join(page_dir, 'components', component['name'] + '.tsx')) + '\n\n'
+
+    user_message += f'Make the following changes to the page.tsx for the {page["title"]} page: {edit_request}\n{add_lines(read(page_file_path))}'
+    message = send_message(self.system, messages=[
+      user_msg(user_message)
+    ])
+    diff_replace_tags(page_file_path, get_replace_tags(message))
+  
+  def edit_component(self, page_idx: int, component_idx: int, edit_request: str = ''):
+    page = self.pages[page_idx]
+    component = page['components'][component_idx]
+    page_dir = f'{self.path}{page["url"]}/'
+    page_file_path = os.path.join(page_dir, 'page.tsx')
+    # get component path
+    if component['shared']:
+      component_file_path = os.path.join(self.path, 'components', component['name'] + '.tsx')
+    else:
+      component_file_path = os.path.join(page_dir, 'components', component['name'] + '.tsx')
+
+    # initial generation
+    if not component['generated']:
+      # edit component
+      write(component_file_path, component_boilerplate)
+      message = send_message(self.system, messages=[
+        user_msg(f'Edit the following file for the {component["name"]} component of the {page["title"]} page:\n<page>\n{add_lines(component_boilerplate)}\n</page>')
+      ])
+      diff_replace_tags(component_file_path, get_replace_tags(message))
+      component['generated'] = True
+
+      # edit page.tsx
+      if not os.path.exists(page_file_path):
+        write(page_file_path, page_boilerplate)
+
+      user_message = '''So far, you have the following components in the ./components directory, which is in the same directory as the page.tsx file:
+    '''
+      for component in page['components']:
+        if component['generated'] and not component['shared']:
+          user_message += f'{component["name"]}.tsx:\n'
+          user_message += read(os.path.join(page_dir, 'components', component['name'] + '.tsx')) + '\n\n'
+
+      user_message += '''And the following components in @/app/components directory:
+'''
+      for component in page['components']:
+        if component['generated'] and component['shared']:
+          user_message += f'{component["name"]}.tsx:\n'
+          user_message += read(os.path.join(page_dir, 'components', component['name'] + '.tsx')) + '\n\n'
+      
+      user_message += f'Use the currently written components and edit the following file for the {page["title"]} page. Do not use components that haven\'t been explicitly stated as written; just ignore that part of the page.tsx file:\n{add_lines(read(page_file_path))}'
+      message = send_message(self.system, messages=[
+        user_msg(user_message)
+      ])
+      diff_replace_tags(page_file_path, get_replace_tags(message))
+    else:
+      message = send_message(self.system, messages=[
+        user_msg(f'Make the following changes to the file for the {component["name"]} component of the {page["title"]} page: {edit_request}\n{add_lines(read(component_file_path))}')
+      ])
+      diff_replace_tags(component_file_path, get_replace_tags(message))
+
 
 def generate_page(path, pages, page, schema_path, actions_path, skip=0):
   # extracts information and builds prompts
   prompt, schema, queries, mutations = extract_backend(schema_path, actions_path)
   backend_info = dump_backend(schema, queries, mutations)
   system = f'''
-You are writing a web app with Next.js, Convex, and Tailwind. Take the following description of the app and a list of pages and components, and edit the boilerplate file. 
+You are writing a web app with Next.js, Convex, and Tailwind. Take the following description of the app and a list of pages and components, and edit the file. When editing, write all the code necessary, do not leave any unfinished sections.
 The app description is as follows: \n{prompt}
-You are to write the {page['title']} page.
 List of pages:
 {json.dumps(pages, indent=2)}
 {p("styling")}
@@ -210,8 +333,7 @@ List of pages:
     message = send_message(system, messages=[
       user_msg(f'Edit the following file for the {component["name"]} component of the {page["title"]} page:\n<page>\n{add_lines(component_boilerplate)}\n</page>')
     ])
-    replace_tags = get_replace_tags(message)
-    diff_replace_tags(component_file_path, replace_tags)
+    diff_replace_tags(component_file_path, get_replace_tags(message))
     print(f'Writing the page.tsx... (enter)')
 
 
@@ -220,7 +342,7 @@ List of pages:
     for component in page['components'][:i + 1]:
       user_message += f'{component["name"]}.tsx:\n'
       user_message += read(component_file_path) + '\n\n'
-      user_message += f'Use the currently written components and edit the following file for the {page["title"]} page. Do not use components that haven\'t been explicitly stated as written; just ignore that part of the page.tsx file:\n{add_lines(read(page_file_path))}'
+    user_message += f'Use the currently written components and edit the following file for the {page["title"]} page. Do not use components that haven\'t been explicitly stated as written; just ignore that part of the page.tsx file:\n{add_lines(read(page_file_path))}'
 
     message = send_message(system, messages=[
       user_msg(user_message)
