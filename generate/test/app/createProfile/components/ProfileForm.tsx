@@ -1,7 +1,7 @@
 'use client'
 import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
-import { Field, FieldGroup, FieldGroup, Fieldset, Label } from '@/components/fieldset'
+import { Field, FieldGroup, Fieldset, Label } from '@/components/fieldset'
 import { Input } from '@/components/input'
 import { Textarea } from '@/components/textarea'
 import { Checkbox, CheckboxField, CheckboxGroup } from '@/components/checkbox'
@@ -26,25 +26,25 @@ export default () => {
     <form onSubmit={handleSubmit}>
       <Fieldset>
         <FieldGroup>
-        <Field>
-          <Label>Name</Label>
-          <Input name="name" required />
-        </Field>
-        <Field>
-          <Label>LinkedIn Profile URL</Label>
-          <Input type="url" name="linkedin" required />
-        </Field>
-        <Field>
-          <Label>Brief background and description</Label>
-          <Textarea name="description" required />
-        </Field>
-        <CheckboxGroup>
-          <CheckboxField>
-            <Checkbox name="isTechnical" />
-            <Label>I am a technical co-founder</Label>
-          </CheckboxField>
-        </CheckboxGroup>
-        <Button type="submit">Create Profile</Button>
+          <Field>
+            <Label>Name</Label>
+            <Input name="name" required />
+          </Field>
+          <Field>
+            <Label>LinkedIn Profile URL</Label>
+            <Input type="url" name="linkedin" required />
+          </Field>
+          <Field>
+            <Label>Brief background and description</Label>
+            <Textarea name="description" required />
+          </Field>
+          <CheckboxGroup>
+            <CheckboxField>
+              <Checkbox name="isTechnical" />
+              <Label>I am a technical co-founder</Label>
+            </CheckboxField>
+          </CheckboxGroup>
+          <Button type="submit">Create Profile</Button>
         </FieldGroup>
       </Fieldset>
     </form>
