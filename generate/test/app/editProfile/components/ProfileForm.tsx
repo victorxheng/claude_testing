@@ -5,7 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { Field, Label } from '@/components/fieldset'
 import { Input } from '@/components/input'
 import { Textarea } from '@/components/textarea'
-import { Checkbox, CheckboxField } from '@/components/checkbox'
+import { Checkbox, CheckboxField, CheckboxGroup } from '@/components/checkbox'
 import { Button } from '@/components/button'
 
 interface Props {
@@ -46,14 +46,16 @@ export default ({ userId }: Props) => {
         <Label>Description</Label>
         <Textarea name="description" defaultValue={user.description} />
       </Field>
-      <CheckboxField>
-        <Checkbox name="isTechnical" defaultChecked={user.isTechnical} />
-        <Label>I am a technical co-founder</Label>
-      </CheckboxField>
-      <CheckboxField>
-        <Checkbox name="isAvailable" defaultChecked={user.isAvailable} />
-        <Label>I am available and looking for a co-founder</Label>
-      </CheckboxField>
+      <CheckboxGroup>
+        <CheckboxField>
+          <Checkbox name="isTechnical" defaultChecked={user.isTechnical} />
+          <Label>I am a technical co-founder</Label>
+        </CheckboxField>
+        <CheckboxField>
+          <Checkbox name="isAvailable" defaultChecked={user.isAvailable} />
+          <Label>I am available and looking for a co-founder</Label>
+        </CheckboxField>
+      </CheckboxGroup>
       <Button type="submit">Update Profile</Button>
     </form>
   );

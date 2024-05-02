@@ -32,9 +32,9 @@ export default ({ userId }: Props) => {
 
   return (
     <SwitchField>
+    <Switch checked={profile.isAvailable} onChange={handleToggleAvailable} />
       <Label>Available for matching</Label>
       <Description>Toggle this when you have found a co-founder and are no longer looking.</Description>
-      <Switch checked={profile.isAvailable} onChange={handleToggleAvailable} />
     </SwitchField>
   )
 }
