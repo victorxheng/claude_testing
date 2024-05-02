@@ -1,11 +1,18 @@
 You are writing a web app with Next.js, Convex, and Tailwind. Take the following description of the app and a list of pages and components, and generate the entire file for the requested component. The app description is as follows: {prompt}
 Use the following breakdown as a reference for styling:
+Use the following breakdown as a reference for styling:
 Background:
 The overall background color is white (bg-white)
-There are two decorative background gradient elements positioned absolutely:
-Top gradient: Positioned above the main content, rotated 30deg, using a gradient from #ff80b5 to #9089fc, with 30% opacity. It has a complex polygon clip-path.
+There are two decorative background elements:
+Top background: An SVG element positioned absolutely at the top, with a complex pattern and mask. It has a light gray color (stroke-gray-200 and fill-gray-50).
 
-Bottom gradient: Positioned below the main content, using the same gradient and opacity as the top one, but with a different polygon clip-path.
+Bottom background: An SVG element positioned absolutely, centered vertically. It has a repeating pattern and a light gray color (stroke-gray-200 and fill-gray-50). It is hidden behind the content using a mask.
+
+There are also two decorative gradient elements positioned absolutely:
+Top gradient: Positioned above the hero section, rotated and skewed, using a gradient from #ff80b5 to #9089fc, with 30% opacity. It has a complex polygon clip-path.
+
+Bottom gradient: Positioned below the logo cloud section, using a gradient from #ff80b5 to #9089fc, with 30% opacity. It has a different polygon clip-path.
+
 Header:
 The header is positioned absolutely at the top (absolute inset-x-0 top-0) with a high z-index (z-50)
 It contains a navigation bar with a logo on the left, navigation links in the center (hidden on mobile), and a "Log in" link on the right (hidden on mobile)
@@ -13,32 +20,115 @@ The mobile menu is hidden by default and shown when the menu button is clicked
 The mobile menu is a full-screen overlay with navigation links and a close button
 
 Hero Section:
-The hero section has a maximum width (max-w-2xl) and is centered horizontally (mx-auto)
-It has top and bottom padding that adjusts based on the screen size (py-32 sm:py-48 lg:py-56)
-The content is centered within the hero section (text-center)
-It contains a hidden announcement bar (hidden sm:flex) with rounded corners and a ring border
-The main heading is large (text-4xl sm:text-6xl) with bold font weight and tight letter spacing
-The paragraph has a light gray color (text-gray-600) and a larger font size (text-lg)
-The call-to-action buttons are centered (flex items-center justify-center) with a gap between them (gap-x-6)
-The primary button has a indigo background (bg-indigo-600), white text (text-white), and a hover effect (hover:bg-indigo-500)
-The secondary button has a dark gray text color (text-gray-900) and an arrow icon
+The hero section has a maximum width (max-w-7xl) and is centered horizontally (mx-auto)
+It has a background with a complex SVG pattern and two decorative gradient elements
+The content is split into two columns on larger screens (lg:flex lg:items-center)
+The left column contains the main heading (text-4xl sm:text-6xl) and a paragraph of text (text-lg text-gray-600)
+The right column contains a grid of images with rounded corners and shadows
+The images are positioned using negative margins and CSS transforms to create an overlapping effect
+
+Content Sections:
+The content sections have a maximum width (max-w-7xl) and are centered horizontally (mx-auto)
+They use a two-column layout on larger screens (lg:flex)
+The left column contains a heading (text-3xl sm:text-4xl), a paragraph of text (text-lg text-gray-600), and additional content
+The right column contains a list of stats or values
+The "Our mission" section has a wide image below the content
+The "Our values" section uses a three-column grid on larger screens (lg:grid-cols-3)
+The "Our team" section uses a grid layout for the team member images and names
+
+Logo Cloud:
+The logo cloud section has a decorative SVG background with a repeating pattern
+It contains a heading (text-lg text-gray-900) and a grid of company logos (grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-5)
+The logos are centered within the grid cells (mx-auto) and have a maximum height (max-h-12)
+
+Blog Section:
+The blog section has a heading (text-3xl sm:text-4xl), a paragraph of text (text-lg text-gray-600), and a grid of blog post cards
+The blog post cards have a background image, a gradient overlay, and a rounded shape (rounded-2xl)
+The cards contain the post date, author information, and title
+The author information includes the author's profile picture and name
+
+Footer:
+The footer has a maximum width (max-w-7xl) and is centered horizontally (mx-auto)
+It contains a navigation menu (columns-2 sm:flex sm:justify-center) with links to different pages
+Below the navigation, there are social media icons (flex justify-center space-x-10) and a copyright notice (text-center text-xs text-gray-500)
 
 Tailwind Classes:
-Font sizes: text-sm, text-base, text-lg, text-xl, text-4xl, text-6xl
+Background colors: bg-white, bg-gray-900/5
+Text colors: text-gray-900, text-gray-600, text-white, text-gray-300, text-gray-500
+Font sizes: text-sm, text-base, text-lg, text-xl, text-3xl, text-4xl, text-5xl, text-6xl
 Font weights: font-semibold, font-bold
-Text colors: text-gray-600, text-gray-900, text-white, text-indigo-600
-Background colors: bg-white, bg-gray-50, bg-indigo-600
-Padding: p-1.5, p-2.5, p-3, p-6, px-3, px-6, px-8, py-1, py-2, py-6, py-32, py-48, py-56
-Margin: m-1.5, mx-auto, mt-6, mt-10
-Border radius: rounded-md, rounded-lg, rounded-full
-Ring width: ring-1
-Ring color: ring-gray-900/10, ring-gray-900/20
-Hover effects: hover:bg-gray-50, hover:bg-indigo-500, hover:ring-gray-900/20
-Focus effects: focus-visible:outline, focus-visible:outline-2, focus-visible:outline-offset-2, focus-visible:outline-indigo-600
-Z-index: z-10, z-50
-Opacity: opacity-30
-Transformations: transform-gpu, -translate-x-1/2, rotate-[30deg]
-Gradients: from-[#ff80b5], to-[#9089fc]
-Clip-path: polygon(...)
-Flexbox: flex, flex-1, items-center, justify-center, justify-between, gap-x-6, gap-x-12
-Grid: grid, grid-cols-1, gap-y-10
+Padding: px-6, px-8, py-32, py-48, py-56, pb-20, pb-24, pt-36, pt-60, pt-32, pt-80, pb-8
+Margin: mx-auto, mt-6, mt-10, mt-16, mt-20, mt-32, mt-40, mt-48, mt-64, mb-6, -mt-12, -mt-8, -mt-44
+Width: w-full, w-64, w-80, w-44, w-24, w-6
+Height: h-8, h-6, h-24, h-full
+Positioning: absolute, inset-0, inset-x-0, top-0, top-1/2, left-1/2, right-0, -translate-y-1/2
+Z-index: z-50, -z-10
+Flexbox: flex, flex-col, flex-wrap, items-center, justify-center, justify-end, gap-x-8, gap-y-20, space-x-10, space-x-12
+Grid: grid, grid-cols-1, grid-cols-2, grid-cols-3, grid-cols-4, grid-cols-5, grid-cols-6, gap-8, gap-16, auto-rows-fr
+Rounded corners: rounded-md, rounded-lg, rounded-xl, rounded-2xl, rounded-3xl, rounded-full
+Shadows: shadow-lg
+SVG: viewBox, stroke-gray-200, fill-gray-50, stroke-width, mask-image, radial-gradient
+Transforms: transform, translate-y-1/2, -translate-y-1/2, rotate-30, skew-x-12
+Transitions: transition, duration-300, ease-in-out
+Interactivity: hover:text-gray-900, hover:bg-gray-50, focus:outline-none, focus:ring-2, focus:ring-inset, focus:ring-white
+
+Testimonial:
+The testimonial section has horizontal padding that adjusts based on screen size (px-6 lg:px-8) and vertical padding (py-24 sm:py-32)
+It uses the "isolate" utility class to create a new stacking context
+It has a decorative radial gradient background positioned absolutely behind the content (inset-0 -z-10) with 20% opacity, using indigo-100 color from the theme
+There is a skewed white background element positioned absolutely on the right side (inset-y-0 right-1/2 -z-10) with a shadow and a ring border
+The content is centered with a maximum width (mx-auto max-w-2xl lg:max-w-4xl)
+It includes a logo image (h-12) centered horizontally (mx-auto)
+The testimonial quote is wrapped in a <figure> element with top margin (mt-10)
+The quote text is centered (text-center), has a larger font size (text-xl sm:text-2xl), semibold font weight (font-semibold), and a dark gray color (text-gray-900)
+The quote attribution is in a <figcaption> element with top margin (mt-10)
+It includes a rounded avatar image (rounded-full) centered horizontally (mx-auto) with specific dimensions (h-10 w-10)
+The attribution text is centered (flex items-center justify-center) with horizontal spacing (space-x-3) and a base font size (text-base)
+The name has a semibold font weight and dark gray color (font-semibold text-gray-900)
+There is a decorative dot separator using an SVG icon (fill-gray-900)
+The title has a light gray color (text-gray-600)
+
+Container:
+The main container has horizontal padding that adjusts based on screen size (px-4 sm:px-0)
+
+Heading:
+The heading uses a base font size (text-base), semibold font weight (font-semibold), a line height of 7 (leading-7), and a dark gray color (text-gray-900)
+
+Subheading:
+The subheading has a top margin (mt-1), a maximum width (max-w-2xl), a small font size (text-sm), a line height of 6 (leading-6), and a light gray color (text-gray-500)
+
+Details Container:
+The details container has a top margin (mt-6), a top border (border-t), and a light gray border color (border-gray-100)
+
+Definition List:
+The definition list uses the "divide-y" utility class to add horizontal dividers between each item, with a light gray color (divide-gray-100)
+
+Definition Term (dt):
+The definition terms have a small font size (text-sm), medium font weight (font-medium), a line height of 6 (leading-6), and a dark gray color (text-gray-900)
+
+Definition Description (dd):
+The definition descriptions have a top margin on mobile (mt-1) that is removed on larger screens (sm:mt-0)
+They have a small font size (text-sm), a line height of 6 (leading-6), and a slightly darker gray color (text-gray-700)
+On larger screens, they span 2 columns (sm:col-span-2)
+
+Attachments List:
+The attachments list has a top margin (mt-2) on mobile that is removed on larger screens (sm:mt-0)
+It uses the "divide-y" utility class to add horizontal dividers between each item, with a light gray color (divide-gray-100)
+The list has a rounded shape (rounded-md), a border (border), and a light gray border color (border-gray-200)
+
+Attachment Item:
+Each attachment item is a flex container (flex) with vertical padding (py-4), left padding (pl-4), and right padding (pr-5)
+The items are vertically centered (items-center) and have space between the content and the download link (justify-between)
+The text uses a small font size (text-sm) and a line height of 6 (leading-6)
+
+Attachment Icon:
+The paper clip icon has a fixed height and width (h-5 w-5), shrinks if needed (flex-shrink-0), and uses a gray color (text-gray-400)
+
+Attachment Details:
+The attachment details are a flex container (flex) with a minimum width of 0 (min-w-0) and a flex value of 1 (flex-1)
+The filename has a truncated text overflow (truncate) and a medium font weight (font-medium)
+The file size has a smaller width (flex-shrink-0) and uses a gray color (text-gray-400)
+
+Download Link:
+The download link has a left margin (ml-4), shrinks if needed (flex-shrink-0), and uses a medium font weight (font-medium)
+The link color is indigo (text-indigo-600) and changes on hover (hover:text-indigo-500)

@@ -3,87 +3,131 @@
         {
             "url": "/",
             "title": "Home",
-            "description": "The main timeline page showing tweets from users the logged-in user is following",
+            "description": "Landing page advertising the site with Clerk authentication to create account",
             "components": [
                 {
-                    "name": "Navbar",
-                    "description": "Navigation bar with links to other pages"
+                    "name": "Header",
+                    "description": "Header component with site logo and navigation"
                 },
                 {
-                    "name": "TweetFeed",
-                    "description": "Displays a feed of tweets from followed users"
+                    "name": "Hero",
+                    "description": "Hero section with site tagline and call-to-action"
+                },
+                {
+                    "name": "Features",
+                    "description": "Feature highlights of the site"
+                },
+                {
+                    "name": "Testimonials",
+                    "description": "User testimonials and success stories"
+                },
+                {
+                    "name": "Footer",
+                    "description": "Footer with site links and copyright"
+                },
+                {
+                    "name": "SignInButton",
+                    "description": "Clerk sign in button component"
+                },
+                {
+                    "name": "SignUpButton",
+                    "description": "Clerk sign up button component"
                 }
             ]
         },
         {
-            "url": "/login",
-            "title": "Login",
-            "description": "The login page for users to sign in to their account",
+            "url": "/createProfile",
+            "title": "CreateProfile",
+            "description": "Profile creation page to fill out name, background, LinkedIn profile, and technical cofounder status",
             "components": [
                 {
-                    "name": "Navbar",
-                    "description": "Navigation bar with links to other pages"
+                    "name": "Header",
+                    "description": "Header component with site logo and navigation"
                 },
                 {
-                    "name": "LoginForm",
-                    "description": "Form for users to enter their credentials and log in"
+                    "name": "ProfileForm",
+                    "description": "Form to input profile details and submit"
+                },
+                {
+                    "name": "Footer",
+                    "description": "Footer with site links and copyright"
                 }
             ]
         },
         {
-            "url": "/register",
-            "title": "Register",
-            "description": "The registration page for new users to create an account",
+            "url": "/match",
+            "title": "Match",
+            "description": "Match page to view other available user profiles and send match requests with message",
             "components": [
                 {
-                    "name": "Navbar",
-                    "description": "Navigation bar with links to other pages"
+                    "name": "Header",
+                    "description": "Header component with site logo and navigation"
                 },
                 {
-                    "name": "RegistrationForm",
-                    "description": "Form for new users to create an account"
+                    "name": "ProfileList",
+                    "description": "List of available user profiles fetched with getAvailableProfiles query"
+                },
+                {
+                    "name": "ProfileCard",
+                    "description": "Card displaying user profile info with match request button"
+                },
+                {
+                    "name": "MatchRequestForm",
+                    "description": "Form to input message and send match request, triggers sendMatchRequest mutation"
+                },
+                {
+                    "name": "Footer",
+                    "description": "Footer with site links and copyright"
                 }
             ]
         },
         {
-            "url": "/profile/[username]",
-            "title": "UserProfile",
-            "description": "A user's profile page showing their bio, tweets, followers, and users they are following",
+            "url": "/matchRequests",
+            "title": "MatchRequests",
+            "description": "View and manage incoming match requests, approve to connect on LinkedIn or reject", 
             "components": [
                 {
-                    "name": "Navbar",
-                    "description": "Navigation bar with links to other pages"
+                    "name": "Header",
+                    "description": "Header component with site logo and navigation"
                 },
                 {
-                    "name": "UserProfileHeader",
-                    "description": "Displays the user's profile picture, name, bio, and stats"
+                    "name": "IncomingRequestList",
+                    "description": "List of incoming match requests fetched with getIncomingMatches query"
                 },
                 {
-                    "name": "TweetFeed",
-                    "description": "Displays a feed of the user's tweets"
+                    "name": "OutgoingRequestList",
+                    "description": "List of outgoing match requests fetched with getOutgoingMatches query"  
                 },
                 {
-                    "name": "FollowingList",
-                    "description": "List of users the profile user is following"
+                    "name": "MatchRequestCard",
+                    "description": "Card displaying match request info with accept/reject buttons, triggers acceptMatchRequest or rejectMatchRequest mutations"
                 },
                 {
-                    "name": "FollowersList",
-                    "description": "List of users following the profile user"
+                    "name": "Footer",
+                    "description": "Footer with site links and copyright"
                 }
             ]
         },
         {
-            "url": "/compose",
-            "title": "ComposeTweet",
-            "description": "A page for the logged-in user to compose and post a new tweet",
+            "url": "/editProfile",
+            "title": "EditProfile",
+            "description": "Edit profile page and mark profile as matched once co-founder is found",
             "components": [
                 {
-                    "name": "Navbar",
-                    "description": "Navigation bar with links to other pages"
+                    "name": "Header",
+                    "description": "Header component with site logo and navigation"
                 },
                 {
-                    "name": "TweetComposer",
-                    "description": "Form for the user to enter and post a new tweet"
+                    "name": "ProfileForm",
+                    "description": "Form to edit profile details, populated with getUserProfile query, submits with updateUserProfile mutation"
+                },
+                {
+                    "name": "MatchStatus",
+                    "description": "Component to display current match status and toggle isAvailable"
+                },
+                {
+                    "name": "Footer",
+                    "description": "Footer with site links and copyright" 
                 }
             ]
         }

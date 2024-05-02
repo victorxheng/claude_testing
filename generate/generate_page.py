@@ -15,7 +15,7 @@ def p(name):
     return f.read()
 
 client = anthropic.Anthropic()
-model = "claude-3-sonnet-20240229"
+model = "claude-3-opus-20240229"
 
 def send_message(system: str, messages: List):
     reply = ''
@@ -46,7 +46,7 @@ def write(file_path, content):
     f.write(content)
 
 def json_prompt_guard(json):
-    return '''Output a json object fitting the schema in the following <jsonSchema> tag.
+    return '''Output a json object that is correctly formated with quotes around field names and only single line fields, fitting the schema in the following <jsonSchema> tag.
 Code only, no commentary, no introduction sentence, no codefence block.
 Do not output triple backticks with or without json language name. Start with the content of the json object or array directly.
 
@@ -96,30 +96,35 @@ def extract_backend(schema_json_path, actions_json_path):
 def generate_component_list(schema_path, actions_path):
     prompt, schema, queries, mutations = extract_backend(schema_path, actions_path)
     backend_info = dump_backend(schema, queries, mutations)
-    system = f'''You are writing a web app with Next.js, Convex, and Tailwind. Take the user's description of the app and list out what pages the app will need. The titles of pages should not have spaces. {backend_info}
+    system = f'''You are writing a web app with Next.js, Convex, and Tailwind. Take the user's description of the app and list out what pages the app will need. The titles of pages should not have spaces. 
+Additionally, use information provided on the backend:
+{backend_info}
 ''' + json_prompt_guard('''{
     pages: [
         {
-            url: string,
-            title: string,
-            description: string
+            "url": string,
+            "title": string,
+            "description": string
         }
     ]
 }''')
     pages = send_message(system, messages=[
         user_msg(prompt)
     ])
-    system = f'''You are writing a web app with Next.js, Convex, and Tailwind. Take the user's description of the app and list of pages they want, and for each page, add an array of components that are necessary to make up that page. If any components are shared, do not omit them. For example, if there should be a navbar, then include the Navbar component in every page. {backend_info}
+    system = f'''You are writing a web app with Next.js, Convex, and Tailwind. 
+Take the user's description of the app and list of pages they want, and for each page, add an array of components that are necessary to make up that page. If any components are shared, do not omit them. For example, if there should be a navbar, then include the Navbar component in every page. 
+You must base components on what is available in the back end and its requirements:
+{backend_info}
 ''' + json_prompt_guard('''{
     pages: [
         {
-            url: string,
-            title: string,
-            description: string,
-            components: [
+            "url": string route path in next js form,
+            "title": string page title,
+            "description": string description of the page,
+            "components": [
                 {
-                    name: string,
-                    description: string
+                    "name": string,
+                    "description": string
                 }
             ]
         }
@@ -128,7 +133,7 @@ def generate_component_list(schema_path, actions_path):
     message = send_message(system, messages=[
         user_msg(prompt + '\n\n Here are the pages:\n' + pages)
     ])
-    return message
+    return str(message)
 
 page_boilerplate = read('boilerplate/boilerplate-page.txt')
 component_boilerplate = read('boilerplate/boilerplate-component.txt')
@@ -165,53 +170,213 @@ def get_replace_tags(llm_output: str) -> List[ReplaceTag]:
 def diff_replace_tags(file_path, tags: List[ReplaceTag]):
   lines = read(file_path).split('\n')
   for tag in tags[::-1]:
-    for line_num in reversed(range(tag.start, tag.end)):
+    for line_num in reversed(range(tag.start, tag.end+1)):
       del lines[line_num]
     for line_num, line in enumerate(tag.content.split('\n')):
       lines.insert(tag.start + line_num, line)
   
   write(file_path, '\n'.join(lines))
 
+def get_knowledge_base():
+  return json.loads(read("generated/knowledge_base.json"))
 
-def generate_page(pages, page, schema_path, actions_path):
-  prompt, schema, queries, mutations = extract_backend(schema_path, actions_path)
-  backend_info = dump_backend(schema, queries, mutations)
+def write_knowledge_base(knowledge_base):
+  write("generated/knowledge_base.json", json.dumps(knowledge_base, indent=2))
 
-  system = f'''
-You are writing a web app with Next.js, Convex, and Tailwind. Take the following description of the app and a list of pages and components, and edit the boilerplate file. 
+class Project:
+  def __init__(self, path, pages, schema_path, actions_path):
+    self.path = path
+    prompt, schema, queries, mutations = extract_backend(schema_path, actions_path)
+    backend_info = dump_backend(schema, queries, mutations)
+    self.system = f'''
+You are writing a web app with Next.js, Convex, and Tailwind. Take the following description of the app and a list of pages and components, and edit the file. When editing, write all the code necessary, do not leave any unfinished sections.
 The app description is as follows: \n{prompt}
-You are to write the {page['title']} page.
 List of pages:
 {json.dumps(pages, indent=2)}
-{p("styling")}
+
+{p("catalyst")}
+
 {backend_info}
+
 {p("edit")}
 '''
-  dir = f'generated/frontend/{page["title"]}/'
+    self.shared_components = set()
+    components = set()
+    for page in pages:
+        for component in page['components']:
+          if (component['name'], component['description']) in components:
+              self.shared_components.add((component['name'], component['description']))
+          components.add((component['name'], component['description']))
+    
+    for page in pages:
+      page_file_path = f'{path}{page["url"]}/'
+      page['generated'] = True
+      for component in page['components']:
+        if (component['name'], component['description']) in self.shared_components:
+          component['shared'] = True
+          component_file_path = os.path.join(path, 'components', component['name'] + '.tsx')
+        else:
+          component['shared'] = False
+          component_file_path = os.path.join(page_file_path, 'components', component['name'] + '.tsx')
+        if os.path.isfile(component_file_path):
+          component['generated'] = True
+        else:
+          page['generated'] = False
+          component['generated'] = False
+
+    self.pages = pages
+
+  def print_pages_menu(self):
+    for i, page in enumerate(self.pages):
+      print(f'{(i)} {page["title"]} ({"g" if page["generated"] else "ng"})')
+  
+  def print_page_menu(self, page_idx):
+    page = self.pages[page_idx]
+    print(f'{page["title"]} ({"g" if page["generated"] else "ng"})')
+    for i, component in enumerate(page['components']):
+      print(f'({i}) {component["name"]} ({"g" if component["generated"] else "ng"}) ({"s" if component["shared"] else "ns"})')
+
+  def edit_page(self, page_idx: int, edit_request: str):
+    page = self.pages[page_idx]
+    page_dir = f'{self.path}{page["url"]}/'
+    page_file_path = os.path.join(page_dir, 'page.tsx')
+    user_message = '''You have the following components in the ./components directory, which is in the same directory as the page.tsx file:
+    '''
+    for component in page['components']:
+      if component['generated'] and not component['shared']:
+        user_message += f'{component["name"]}.tsx:\n'
+        user_message += read(os.path.join(page_dir, 'components', component['name'] + '.tsx')) + '\n\n'
+
+    user_message += '''And the following components in @/app/components directory:
+'''
+    for component in page['components']:
+      if component['generated'] and component['shared']:
+        user_message += f'{component["name"]}.tsx:\n'
+        user_message += read(os.path.join(page_dir, 'components', component['name'] + '.tsx')) + '\n\n'
+
+    user_message += f'Make the following changes to the page.tsx for the {page["title"]} page: {edit_request}\n{add_lines(read(page_file_path))}'
+    message = send_message(self.system, messages=[
+      user_msg(user_message)
+    ])
+    diff_replace_tags(page_file_path, get_replace_tags(message))
+
+  def extract_styles(self, code: str):
+    system = f'''You are an expert in Tailwind. Take the code the user gives you and break down the styles and themes used in the code, similar to the following breakdown:
+    {p("styling")}
+    '''
+    send_message(system, messages=[user_msg(code)])
+
+
+  def add_to_knowledge_base(self, page_idx: int, component_idx: int):
+    knowledge_base = get_knowledge_base()
+
+    component = {'name': self.pages[page_idx]['components'][component_idx]['name'], 'description': self.pages[page_idx]['components'][component_idx]['description']}
+    page = {'title': self.pages[page_idx]['title'], 'description': self.pages[page_idx]['description']}
+
+    page_dir = f'{self.path}{self.pages[page_idx]["url"]}/'
+    if self.pages[page_idx]['components'][component_idx]['shared']:
+      component_file_path = os.path.join(self.path, 'components', component['name'] + '.tsx')
+    else:
+      component_file_path = os.path.join(page_dir, 'components', component['name'] + '.tsx')
+    component['code'] = read(component_file_path)
+    page['components'] = [component]
+    knowledge_base['pages'].append(page)
+    write_knowledge_base(knowledge_base)
+  
+  def edit_component(self, page_idx: int, component_idx: int, edit_request: str = ''):
+    page = self.pages[page_idx]
+    component = page['components'][component_idx]
+    page_dir = f'{self.path}{page["url"]}/'
+    page_file_path = os.path.join(page_dir, 'page.tsx')
+    # get component path
+    if component['shared']:
+      component_file_path = os.path.join(self.path, 'components', component['name'] + '.tsx')
+    else:
+      component_file_path = os.path.join(page_dir, 'components', component['name'] + '.tsx')
+
+    # initial generation
+    if not component['generated']:
+      # edit component
+      write(component_file_path, component_boilerplate)
+      message = send_message(self.system, messages=[
+        user_msg(f'Edit the following file for the {component["name"]} component of the {page["title"]} page:\n<page>\n{add_lines(component_boilerplate)}\n</page>')
+      ])
+      diff_replace_tags(component_file_path, get_replace_tags(message))
+      component['generated'] = True
+
+      # edit page.tsx
+      if not os.path.exists(page_file_path):
+        write(page_file_path, page_boilerplate)
+
+      user_message = '''So far, you have the following components in the ./components directory, which is in the same directory as the page.tsx file:
+    '''
+      for component in page['components']:
+        if component['generated'] and not component['shared']:
+          user_message += f'{component["name"]}.tsx:\n'
+          user_message += read(os.path.join(page_dir, 'components', component['name'] + '.tsx')) + '\n\n'
+
+      user_message += '''And the following components in @/app/components directory:
+'''
+      for component in page['components']:
+        if component['generated'] and component['shared']:
+          user_message += f'{component["name"]}.tsx:\n'
+          user_message += read(os.path.join(page_dir, 'components', component['name'] + '.tsx')) + '\n\n'
+      
+      user_message += f'Use the currently written components and edit the following file for the {page["title"]} page. Do not use components that haven\'t been explicitly stated as written; just ignore that part of the page.tsx file:\n{add_lines(read(page_file_path))}'
+      message = send_message(self.system, messages=[
+        user_msg(user_message)
+      ])
+      diff_replace_tags(page_file_path, get_replace_tags(message))
+    else:
+      message = send_message(self.system, messages=[
+        user_msg(f'Make the following changes to the file for the {component["name"]} component of the {page["title"]} page: {edit_request}\n{add_lines(read(component_file_path))}')
+      ])
+      diff_replace_tags(component_file_path, get_replace_tags(message))
+
+def generate_page(path, pages, page, schema_path, actions_path, skip=0):
+  # extracts information and builds prompts
+  prompt, schema, queries, mutations = extract_backend(schema_path, actions_path)
+  backend_info = dump_backend(schema, queries, mutations)
+  system = f'''
+You are writing a web app with Next.js, Convex, and Tailwind. Take the following description of the app and a list of pages and components, and edit the file. When editing, write all the code necessary, do not leave any unfinished sections.
+The app description is as follows: \n{prompt}
+List of pages:
+
+{json.dumps(pages, indent=2)}
+
+{p("catalyst")}
+
+{backend_info}
+
+{p("edit")}
+'''
+
+
+  dir = f'{path}{page["url"]}/'
   os.makedirs(os.path.join(dir, 'components'), exist_ok=True)
   page_file_path = os.path.join(dir, 'page.tsx')
   write(page_file_path, page_boilerplate)
 
   for i, component in enumerate(page['components']):
+    if i < skip:
+       continue
     print(f'Writing the {component["name"]} component... (enter)')
-    input()
+
     component_file_path = os.path.join(dir, 'components', component['name'] + '.tsx')
     write(component_file_path, component_boilerplate)
     message = send_message(system, messages=[
-      user_msg(f'Edit the following file for the {component["name"]} component of the {page["title"]} page:\n{add_lines(component_boilerplate)}')
+      user_msg(f'Edit the following file for the {component["name"]} component of the {page["title"]} page:\n<page>\n{add_lines(component_boilerplate)}\n</page>')
     ])
-    replace_tags = get_replace_tags(message)
-    diff_replace_tags(component_file_path, replace_tags)
+    diff_replace_tags(component_file_path, get_replace_tags(message))
     print(f'Writing the page.tsx... (enter)')
-    input()
+
 
     user_message = '''So far, you have the following components in the components/ directory, which is in the same directory as the page.tsx file:
   '''
     for component in page['components'][:i + 1]:
       user_message += f'{component["name"]}.tsx:\n'
       user_message += read(component_file_path) + '\n\n'
-      
-      user_message += f'Use the currently written components and edit the following file for the {page["title"]} page. Do not use components that haven\'t been explicitly stated as written; just ignore that part of the page.tsx file:\n{add_lines(read(page_file_path))}'
+    user_message += f'Use the currently written components and edit the following file for the {page["title"]} page. Do not use components that haven\'t been explicitly stated as written; just ignore that part of the page.tsx file:\n{add_lines(read(page_file_path))}'
 
     message = send_message(system, messages=[
       user_msg(user_message)
@@ -226,3 +391,23 @@ List of pages:
       replace_tags = get_replace_tags(message)
       diff_replace_tags(component_file_path, replace_tags)
 
+
+def generate_pages(path, pages, schema_path, actions_path):
+   for page in pages:
+      generate_page(path, pages, page, schema_path, actions_path)
+
+
+def extract_ui_styles(styles):
+   system = """
+You are an expert in Tailwind and React with 20 years of professional coding for both. You have all the knowledge of each in the world and no one is better at creating good looking UI designs than you. You are very good at taking reference styles and reference code that I personally write beforehand that don't exist on the internet, breaking them down into components, and making it very easy to understand each part and what each one does so that it can be used in the future to match the styling and theme. You can then take that theme style reference and use it to create similar UIs with the same style.
+
+Your job is split into two parts:
+
+First is to create a style theme in Tailwind based on reference code. Your job is to use the reference code that I write personally and extract components and the corresponding styling of the components. You then output a sheet that can be used later that describes the breakdown of the styling, descriptions, and exact tailwind stylings to be used for each component and the functionality of those components in the UI. This includes listing out the background component, the text styles, the button styles, the spacing aesthetic, the list arrangements, the icons, the colors, and other styling properties, and aggregating it into a descriptive reference breakdown to be used later on to match the style.
+
+
+Second is to use the same aesthetic and components from before to recreate new UI structures with the same theme. Your job is to take the user's desired UI interface that it wishes to make and use the styling from before to create the UI interface in the manner that is described. You will match the colors, spacing, background, layout, and other properties based on the reference sheet.
+
+
+"""
+   send_message(system, [user_msg("Here is the code that I wrote personally myself that needs to be componentized into parts so it can be used and understood later: " + styles)])
