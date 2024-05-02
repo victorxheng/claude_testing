@@ -1,7 +1,7 @@
 'use client'
 import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
-import { Field, Fieldset, Label } from '@/components/fieldset'
+import { Field, FieldGroup, Fieldset, Label } from '@/components/fieldset'
 import { Input } from '@/components/input'
 import { Textarea } from '@/components/textarea'
 import { Checkbox, CheckboxField, CheckboxGroup } from '@/components/checkbox'
@@ -25,6 +25,7 @@ export default () => {
   return (
     <form onSubmit={handleSubmit}>
       <Fieldset>
+        <FieldGroup>
         <Field>
           <Label>Name</Label>
           <Input name="name" required />
@@ -44,6 +45,7 @@ export default () => {
           </CheckboxField>
         </CheckboxGroup>
         <Button type="submit">Create Profile</Button>
+        </FieldGroup>
       </Fieldset>
     </form>
   )

@@ -6,6 +6,8 @@ import Header from "./components/Header";
 import ProfileForm from "./components/ProfileForm";
 import MatchStatus from "./components/MatchStatus";
 import { Text } from "@/components/text";
+import { FieldGroup } from "@/components/fieldset";
+import Footer from "./components/Footer";
 
 export default () => {
   const userId = useStoreUserEffect();
@@ -16,12 +18,15 @@ export default () => {
       {userId && (
         <>
         <div className="max-w-md mx-auto mt-8">
+          <FieldGroup>
           <Text>Edit Your Profile</Text>
           <ProfileForm  userId={userId}/>
           <MatchStatus userId={userId} />
+          </FieldGroup>
         </div>
         </>
       )}
+      <Footer/>
     </main>
   );
 };
