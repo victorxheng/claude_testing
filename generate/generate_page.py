@@ -193,8 +193,11 @@ You are writing a web app with Next.js, Convex, and Tailwind. Take the following
 The app description is as follows: \n{prompt}
 List of pages:
 {json.dumps(pages, indent=2)}
-{p("styling")}
+
+{p("catalyst")}
+
 {backend_info}
+
 {p("edit")}
 '''
     self.shared_components = set()
@@ -338,12 +341,15 @@ def generate_page(path, pages, page, schema_path, actions_path, skip=0):
 You are writing a web app with Next.js, Convex, and Tailwind. Take the following description of the app and a list of pages and components, and edit the file. When editing, write all the code necessary, do not leave any unfinished sections.
 The app description is as follows: \n{prompt}
 List of pages:
+
 {json.dumps(pages, indent=2)}
-{p("styling")}
+
+{p("catalyst")}
+
 {backend_info}
+
 {p("edit")}
 '''
-  print(system)
 
 
   dir = f'{path}{page["url"]}/'
@@ -404,4 +410,4 @@ Second is to use the same aesthetic and components from before to recreate new U
 
 
 """
-   send_message(system, "Here is the code that I wrote personally myself that needs to be componentized into parts so it can be used and understood later: " + user_msg(styles))
+   send_message(system, [user_msg("Here is the code that I wrote personally myself that needs to be componentized into parts so it can be used and understood later: " + styles)])

@@ -1,10 +1,12 @@
 'use client'
 import { useMutation, useQuery } from 'convex/react'
-import { api } from '@/convex/_generated/api'
 import { Doc, Id } from "@/convex/_generated/dataModel";
+import { api } from "@/convex/_generated/api";
+import { Switch, SwitchField } from '@/components/switch'
+import { Label, Description } from '@/components/fieldset'
 
 interface Props {
-  userId: Id<"users"> | null
+  userId: Id<"users">;
 }
 
 export default ({ userId }: Props) => {
@@ -27,23 +29,12 @@ export default ({ userId }: Props) => {
     return <div>Loading...</div>
   }
 
+
   return (
-    <div className="mt-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">Match Status</h2>
-      <p className="mb-4">
-        {profile.isAvailable ? 'Your profile is currently available for matching.' 
-          : 'Your profile is not currently available for matching.'}
-      </p>
-      <button
-        type="button"
-className={`inline-flex items-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white
-  ${profile.isAvailable ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500' 
-    : 'bg-green-600 hover:bg-green-700 focus:ring-green-500'} 
-          focus:outline-none focus:ring-2 focus:ring-offset-2`}
-        onClick={handleToggleAvailable}
-      >
-        {profile.isAvailable ? 'Mark Unavailable' : 'Mark Available'}
-      </button>
-    </div>
+    <SwitchField>
+      <Label>Available for matching</Label>
+      <Description>Toggle this when you have found a co-founder and are no longer looking.</Description>
+      <Switch checked={profile.isAvailable} onChange={handleToggleAvailable} />
+    </SwitchField>
   )
 }

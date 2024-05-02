@@ -1,0 +1,1085 @@
+You must import your UI components from @/components/name
+
+You will be using a UI library called Catalyst, that integrates directly into tailwind css, but comes with base styles taken care of,
+including all colors, shapes, etc. 
+
+This are the available components that you can use. No other components exist. These are pre-styled and do not need any styling on top of it.
+
+BUTTON:
+To use a button:
+<Button> Text</Button>
+
+You can pass in the props:
+<Button outline plain disabled href="/get-started> Text</Button>
+
+You can also add a hero icon by inserting <HeroIconName /> between the tags.
+
+<Examples>
+import { Button } from '@/components/button'
+
+//normal button
+function Example() {
+  return <Button>Save changes</Button>
+}
+
+// outline
+function Example() {
+  return <Button outline>Save draft</Button>
+}
+
+// plain, no border or background, just text
+function Example() {
+  return <Button plain>Save draft</Button>
+}
+
+// disabled
+function Example() {
+  return <Button disabled>Save changes</Button>
+}
+
+// with icon
+import { PlusIcon } from '@heroicons/react/16/solid'
+
+function Example() {
+  return (
+    <Button>
+      <PlusIcon />
+      Add item
+    </Button>
+  )
+}
+</Examples>
+
+TEXT: For any text, use this <Text>
+
+Here is an example, with a link:
+
+import { Strong, Text, TextLink } from '@/components/text'
+
+function Example() {
+  return (
+    <Text>
+      This feature is only available to users on the <Strong>Business Plan</Strong>. To upgrade, visit your{' '}
+      <TextLink href="#">billing settings</TextLink>.
+    </Text>
+  )
+}
+
+Here are some more:
+<Examples>
+import { Text, TextLink } from '@/components/text'
+
+function Example() {
+  return (
+    <Text>
+      Deleting your account is permanent, and your data will not be able to be recovered. If you still want to use this
+      account in the future, learn about <TextLink href="#">pausing your subscription</TextLink> instead.
+    </Text>
+  )
+}
+
+With Strong:
+import { Strong, Text } from '@/components/text'
+
+function Example() {
+  return (
+    <Text>
+      Deleting your account is permanent, and <Strong>your account data cannot be recovered</Strong>.
+    </Text>
+  )
+}
+
+With code:
+import { Code, Text } from '@/components/text'
+
+function Example() {
+  return (
+    <Text>
+      Your new API token is <Code>BaVrRKpRMS_ndKU</Code>. Store this token somewhere safe as it will only be displayed
+      once.
+    </Text>
+  )
+}
+</Examples>
+
+TEXTAREA: For multiline input boxes, use <Textarea>, and format the space with <Field>, <Label>, <Description>, and more:
+
+import { Field, Label } from '@/components/fieldset'
+import { Textarea } from '@/components/textarea'
+
+function Example() {
+  return (
+    <Field>
+      <Label>Description</Label>
+      <Textarea name="description" />
+    </Field>
+  )
+}
+
+<Examples>
+With description:
+import { Description, Field, Label } from '@/components/fieldset'
+import { Textarea } from '@/components/textarea'
+
+function Example() {
+  return (
+    <Field>
+      <Label>Description</Label>
+      <Description>This will be shown under the product title.</Description>
+      <Textarea name="name" />
+    </Field>
+  )
+}
+
+With errors:
+import { ErrorMessage, Field, Label } from '@/components/fieldset'
+import { Textarea } from '@/components/textarea'
+
+function Example({ errors }) {
+  return (
+    <Field>
+      <Label>Description</Label>
+      <Textarea name="description" invalid={errors.has('description')} />
+      {errors.has('description') && <ErrorMessage>{errors.get('description')}</ErrorMessage>}
+    </Field>
+  )
+}
+
+</Examples>
+
+
+CHECKBOX:
+To use a checkbox, use <CheckboxGroup> and <CheckboxField>, and in between, use <Checbox>, <Label>, and <Description>.
+
+The probs name and value are for html forms. 
+
+<CheckboxGroup>
+    <CheckboxField>
+        <Checkbox name="name" value="value" defaultChecked />
+        <Label>Checkbox label</Label>
+        <Description>Description of checkbox</Description>
+    </CheckboxField>
+    <CheckboxField>
+        <Checkbox name="discoverability" value="allow_embedding" />
+        <Label>Allow embedding</Label>
+        <Description>Allow others to embed your event details on their own site.</Description>
+    </CheckboxField>
+</CheckboxGroup>
+
+You can also pass defaultChecked as a prop.
+
+<Examples>
+import { Checkbox, CheckboxField } from '@/components/checkbox'
+import { Label, Description } from '@/components/fieldset'
+
+// normal checkbox with label
+function Example() {
+  return (
+    <CheckboxField>
+      <Checkbox name="allow_embedding" />
+      <Label>Allow embedding</Label>
+    </CheckboxField>
+  )
+}
+
+// adds second label
+function Example() {
+  return (
+    <CheckboxField>
+      <Checkbox name="allow_embedding" />
+      <Label>Allow embedding</Label>
+      <Description>Allow others to embed your event details on their own site.</Description>
+    </CheckboxField>
+  )
+}
+
+
+function Example() {
+  let [checked, setChecked] = useState(true)
+
+  return <Checkbox checked={checked} onChange={setChecked} />
+}
+
+//add title and description with <Fieldset>, <Legend>, and <Text>
+import { Description, Fieldset, Label, Legend } from '@/components/fieldset'
+import { Text } from '@/components/text'
+
+function Example() {
+  return (
+    <Fieldset>
+      <Legend>Discoverability</Legend>
+      <Text>Decide where your events can be found across the web.</Text>
+      <CheckboxGroup>
+        <CheckboxField>
+          <Checkbox name="discoverability" value="show_on_events_page" defaultChecked />
+          <Label>Show on events page</Label>
+          <Description>Make this event visible on your profile.</Description>
+        </CheckboxField>
+        <CheckboxField>
+          <Checkbox name="discoverability" value="allow_embedding" />
+          <Label>Allow embedding</Label>
+          <Description>Allow others to embed your event details on their own site.</Description>
+        </CheckboxField>
+      </CheckboxGroup>
+    </Fieldset>
+  )
+}
+
+
+
+</Examples>
+
+
+DIALOG BOX:
+For dialog, use <Dialog>, and inside, include <DialogTitle>, <DialogDescription>, <DialogBody>, and <DialogActions>.
+
+Props:
+Pass size="xl" into Dialog to change size.
+Use autoFocus on an input component to make it auto focus.
+
+<Examples>
+import { Button } from '@/components/button'
+import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } from '@/components/dialog'
+import { Field, Label } from '@/components/fieldset'
+import { Input } from '@/components/input'
+import { useState } from 'react'
+
+function Example() {
+  let [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <>
+      <Button type="button" onClick={() => setIsOpen(true)}>
+        Refund payment
+      </Button>
+      <Dialog open={isOpen} onClose={setIsOpen}>
+        <DialogTitle>Refund payment</DialogTitle>
+        <DialogDescription>
+          The refund will be reflected in the customer’s bank account 2 to 3 business days after processing.
+        </DialogDescription>
+        <DialogBody>
+          <Field>
+            <Label>Amount</Label>
+            <Input name="amount" placeholder="$0.00" />
+          </Field>
+        </DialogBody>
+        <DialogActions>
+          <Button plain onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={() => setIsOpen(false)}>Refund</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  )
+}
+
+import { Button } from '@/components/button'
+import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } from '@/components/dialog'
+import { useState } from 'react'
+
+function Example() {
+  let [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <>
+      <Button type="button" onClick={() => setIsOpen(true)}>
+        Agree to terms
+      </Button>
+      <Dialog open={isOpen} onClose={setIsOpen} size="xl">
+        <DialogTitle>Terms and conditions</DialogTitle>
+        <DialogDescription>Please agree to the following terms and conditions to continue.</DialogDescription>
+        <DialogBody className="text-sm/6 text-zinc-900 dark:text-white">
+          <p className="mt-4">
+            By accessing and using our services, you are agreeing to these terms, which have been meticulously tailored
+            for our benefit and your compliance.
+          </p>
+          <h3 className="mt-6 font-bold">Comprehensive Acceptance of Terms</h3>
+          <p className="mt-4">
+            Your engagement with our application signifies your irrevocable acceptance of these terms, which are binding
+            regardless of your awareness or understanding of them. Your continued use acts as a silent nod of agreement
+            to any and all stipulations outlined herein.
+          </p>
+          {/* Insert more content here for auto scrolling */}
+        </DialogBody>
+        <DialogActions>
+          <Button plain onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={() => setIsOpen(false)}>I agree</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  )
+}
+</Examples>
+
+
+DROPDOWN:
+
+To use dropdown, use <Dropdown> with <DropdownButton> for the button, and <DropdownMenu> with <DropdownItem> inside for the dropdown.
+
+
+<Examples>
+import { Dropdown, DropdownButton, DropdownItem, DropdownMenu } from '@/components/dropdown'
+import { ChevronDownIcon } from '@heroicons/react/16/solid'
+
+function Example() {
+  function deleteUser() {
+    if (confirm('Are you sure you want to delete this user?')) {
+      // ...
+    }
+  }
+
+  return (
+    <Dropdown>
+      <DropdownButton outline>
+        Options
+        <ChevronDownIcon />
+      </DropdownButton>
+      <DropdownMenu>
+        <DropdownItem href="/users/1">View</DropdownItem>
+        <DropdownItem href="/users/1/edit">Edit</DropdownItem>
+        <DropdownItem onClick={() => deleteUser()}>Delete</DropdownItem>
+      </DropdownMenu>
+    </Dropdown>
+  )
+}
+</Examples>
+
+
+FIELDSET:
+
+To build form fields, use fieldset inside of html <form>:
+
+import { Description, Field, FieldGroup, Fieldset, Label, Legend } from '@/components/fieldset'
+import { Input } from '@/components/input'
+import { Select } from '@/components/select'
+import { Text } from '@/components/text'
+import { Textarea } from '@/components/textarea'
+
+function Example() {
+  return (
+    <form action="/orders" method="POST">
+      {/* ... */}
+      <Fieldset>
+        <Legend>Shipping details</Legend>
+        <Text>Without this your odds of getting your order are low.</Text>
+        <FieldGroup>
+          <Field>
+            <Label>Street address</Label>
+            <Input name="street_address" />
+          </Field>
+          <Field>
+            <Label>Country</Label>
+            <Select name="country">
+              <option>Canada</option>
+              <option>Mexico</option>
+              <option>United States</option>
+            </Select>
+            <Description>We currently only ship to North America.</Description>
+          </Field>
+          <Field>
+            <Label>Delivery notes</Label>
+            <Textarea name="notes" />
+            <Description>If you have a tiger, we'd like to know about it.</Description>
+          </Field>
+        </FieldGroup>
+      </Fieldset>
+      {/* ... */}
+    </form>
+  )
+}
+
+With grid layout:
+import { Description, Field, FieldGroup, Fieldset, Label, Legend } from '@/components/fieldset'
+import { Input } from '@/components/input'
+import { Select } from '@/components/select'
+import { Text } from '@/components/text'
+import { Textarea } from '@/components/textarea'
+
+function Example() {
+  return (
+    <form action="/orders" method="POST">
+      {/* ... */}
+      <Fieldset>
+        <Legend>Shipping details</Legend>
+        <Text>Without this your odds of getting your order are low.</Text>
+        <FieldGroup>
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-4">
+            <Field>
+              <Label>First name</Label>
+              <Input name="first_name" />
+            </Field>
+            <Field>
+              <Label>Last name</Label>
+              <Input name="last_name" />
+            </Field>
+          </div>
+          <Field>
+            <Label>Street address</Label>
+            <Input name="street_address" />
+          </Field>
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-4">
+            <Field className="sm:col-span-2">
+              <Label>Country</Label>
+              <Select name="country">
+                <option>Canada</option>
+                <option>Mexico</option>
+                <option>United States</option>
+              </Select>
+            </Field>
+            <Field>
+              <Label>Postal code</Label>
+              <Input name="postal_code" />
+            </Field>
+          </div>
+          <Field>
+            <Label>Delivery notes</Label>
+            <Textarea name="notes" />
+            <Description>If you have a tiger, we'd like to know about it.</Description>
+          </Field>
+        </FieldGroup>
+      </Fieldset>
+      {/* ... */}
+    </form>
+  )
+}
+
+
+INPUT:
+To use an input, use <Input>. Add label and put it inside a field like below:
+
+import { Field, Label } from '@/components/fieldset'
+import { Input } from '@/components/input'
+
+function Example() {
+  return (
+    <Field>
+      <Label>Full name</Label>
+      <Input name="full_name" />
+    </Field>
+  )
+}
+
+<Examples>
+
+import { Description, Field, Label } from '@/components/fieldset'
+import { Input } from '@/components/input'
+
+function Example() {
+  return (
+    <Field>
+      <Label>Product name</Label>
+      <Description>Use the name you'd like people to see in their cart.</Description>
+      <Input name="product_name" />
+    </Field>
+  )
+}
+
+// with types passed with type prop. The supported types are email, number, password, search, tel, text, url, date, datetime-local, month, time, and week.
+function Example() {
+  return (
+    <Field>
+      <Label>Your website</Label>
+      <Input type="url" name="url" />
+    </Field>
+  )
+}
+
+//Validation errors
+//Add the invalid prop to the Input component to indicate a validation error, and render the error using the ErrorMessage component:
+
+import { ErrorMessage, Field, Label } from '@/components/fieldset'
+import { Input } from '@/components/input'
+
+function Example({ errors }) {
+  return (
+    <Field>
+      <Label>Full name</Label>
+      <Input name="full_name" invalid={errors.has('full_name')} />
+      {errors.has('full_name') && <ErrorMessage>{errors.get('full_name')}</ErrorMessage>}
+    </Field>
+  )
+}
+
+//Constrain width:
+function Example() {
+  return (
+    <Field>
+      <Label>CVC</Label>
+      <Input className="max-w-[6rem]" name="cvc" pattern="[0-9]*" />
+    </Field>
+  )
+}
+</Examples>
+
+
+LISTBOX: A painstakingly re-engineered select menu, just so you can put a flag in it or have a placeholder.
+
+Use the Listbox, ListboxOption, and ListboxLabel components to build a basic listbox:
+
+<Examples>
+import { Listbox, ListboxLabel, ListboxOption } from '@/components/listbox'
+
+function Example() {
+  return (
+    <Listbox name="status" defaultValue="active">
+      <ListboxOption value="active">
+        <ListboxLabel>Active</ListboxLabel>
+      </ListboxOption>
+      <ListboxOption value="paused">
+        <ListboxLabel>Paused</ListboxLabel>
+      </ListboxOption>
+      <ListboxOption value="delayed">
+        <ListboxLabel>Delayed</ListboxLabel>
+      </ListboxOption>
+      <ListboxOption value="canceled">
+        <ListboxLabel>Canceled</ListboxLabel>
+      </ListboxOption>
+    </Listbox>
+  )
+}
+
+With label
+Wrap a Label and Listbox with the Field component to automatically associate them using a generated ID:
+Use the Description component to add a description above or below your Listbox:
+
+
+import { Field, Label } from '@/components/fieldset'
+import { Listbox, ListboxLabel, ListboxOption } from '@/components/listbox'
+
+function Example() {
+  return (
+    <Field>
+      <Label>Project status</Label>
+      <Description>This will be visible to clients on the project.</Description>
+      <Listbox name="status" defaultValue="active">
+        <ListboxOption value="active">
+          <ListboxLabel>Active</ListboxLabel>
+        </ListboxOption>
+        <ListboxOption value="paused">
+          <ListboxLabel>Paused</ListboxLabel>
+        </ListboxOption>
+        <ListboxOption value="delayed">
+          <ListboxLabel>Delayed</ListboxLabel>
+        </ListboxOption>
+        <ListboxOption value="canceled">
+          <ListboxLabel>Canceled</ListboxLabel>
+        </ListboxOption>
+      </Listbox>
+    </Field>
+  )
+}
+
+Use the placeholder prop to add a placeholder to your Listbox when no value is selected:
+
+
+function Example() {
+  return (
+    <Field>
+      <Label>Project status</Label>
+      <Listbox name="status" placeholder="Select status&hellip;">
+        <ListboxOption value="active">
+          <ListboxLabel>Active</ListboxLabel>
+        </ListboxOption>
+        <ListboxOption value="paused">
+          <ListboxLabel>Paused</ListboxLabel>
+        </ListboxOption>
+        <ListboxOption value="delayed">
+          <ListboxLabel>Delayed</ListboxLabel>
+        </ListboxOption>
+        <ListboxOption value="canceled">
+          <ListboxLabel>Canceled</ListboxLabel>
+        </ListboxOption>
+      </Listbox>
+    </Field>
+  )
+}
+
+Add an icon to a ListboxOption by inserting it before your ListboxLabel:
+
+
+function Example() {
+  return (
+    <Field>
+      <Label>Alignment</Label>
+      <Listbox name="alignment" defaultValue="left">
+        <ListboxOption value="left">
+          <Bars3BottomLeftIcon />
+          <ListboxLabel>Left</ListboxLabel>
+        </ListboxOption>
+        <ListboxOption value="right">
+          <Bars3BottomRightIcon />
+          <ListboxLabel>Right</ListboxLabel>
+        </ListboxOption>
+        <ListboxOption value="justified">
+          <Bars3Icon />
+          <ListboxLabel>Justified</ListboxLabel>
+        </ListboxOption>
+      </Listbox>
+    </Field>
+  )
+}
+
+Use the normal value and onChange props to use the Listbox component as a controlled component:
+
+
+function Example() {
+  let [status, setStatus] = useState('active')
+
+  return (
+    <Field>
+      <Label>Project status</Label>
+      <Listbox name="status" value={status} onChange={setStatus}>
+        <ListboxOption value="active">
+          <ListboxLabel>Active</ListboxLabel>
+        </ListboxOption>
+        <ListboxOption value="paused">
+          <ListboxLabel>Paused</ListboxLabel>
+        </ListboxOption>
+        <ListboxOption value="delayed">
+          <ListboxLabel>Delayed</ListboxLabel>
+        </ListboxOption>
+        <ListboxOption value="canceled">
+          <ListboxLabel>Canceled</ListboxLabel>
+        </ListboxOption>
+      </Listbox>
+    </Field>
+  )
+}
+
+</Examples>
+
+
+Radio: For multiple choice, using <RadioGroup>, <RadioField>, and <Radio>
+
+<Example>
+import { Description, Fieldset, Label, Legend } from '@/components/fieldset'
+import { Radio, RadioField, RadioGroup } from '@/components/radio'
+import { Text } from '@/components/text'
+
+function Example() {
+  return (
+    <Fieldset>
+      <Legend>Resale and transfers</Legend>
+      <Text>Decide if people buy tickets from you or from scalpers.</Text>
+      <RadioGroup name="resale" defaultValue="permit">
+        <RadioField>
+          <Radio value="permit" />
+          <Label>Allow tickets to be resold</Label>
+          <Description>Customers can resell or transfer their tickets if they can’t make it to the event.</Description>
+        </RadioField>
+        <RadioField>
+          <Radio value="forbid" />
+          <Label>Don’t allow tickets to be resold</Label>
+          <Description>Tickets cannot be resold or transferred to another person.</Description>
+        </RadioField>
+      </RadioGroup>
+    </Fieldset>
+  )
+}
+</Example>
+
+Select: 
+
+function Example() {
+  return (
+    <Field>
+      <Label>Project status</Label>
+      <Select name="status">
+        <option value="active">Active</option>
+        <option value="paused">Paused</option>
+        <option value="delayed">Delayed</option>
+        <option value="canceled">Canceled</option>
+      </Select>
+    </Field>
+  )
+}
+
+With controlled:
+
+import { Field, Label } from '@/components/fieldset'
+import { Select } from '@/components/select'
+import { useState } from 'react'
+
+function Example() {
+  let [status, setStatus] = useState('active')
+
+  return (
+    <Field>
+      <Label>Project status</Label>
+      <Select name="status" value={status} onChange={setStatus}>
+        <option value="active">Active</option>
+        <option value="paused">Paused</option>
+        <option value="delayed">Delayed</option>
+        <option value="canceled">Canceled</option>
+      </Select>
+    </Field>
+  )
+}
+
+
+Switch: It's a toggle using <SwitchField>
+
+import { Description, Label } from '@/components/fieldset'
+import { Switch, SwitchField } from '@/components/switch'
+
+function Example() {
+  return (
+    <SwitchField>
+      <Label>Allow embedding</Label>
+      <Description>Allow others to embed your event details on their own site.</Description>
+      <Switch name="allow_embedding" defaultChecked />
+    </SwitchField>
+  )
+}
+
+<Examples>
+Basic:
+import { Switch } from '@/components/switch'
+
+function Example() {
+  return <Switch aria-label="Allow embedding" name="allow_embedding" />
+}
+
+Label, description:
+
+import { Description, Label } from '@/components/fieldset'
+import { Switch, SwitchField } from '@/components/switch'
+
+function Example() {
+  return (
+    <SwitchField>
+      <Label>Allow embedding</Label>
+      <Description>Allow others to embed your event details on their own site.</Description>
+      <Switch name="allow_embedding" />
+    </SwitchField>
+  )
+}
+
+Control:
+function Example() {
+  let [checked, setChecked] = useState(true)
+
+  return <Switch checked={checked} onChange={setChecked} />
+}
+
+Switch group:
+
+import { Description, Label } from '@/components/fieldset'
+import { Switch, SwitchField, SwitchGroup } from '@/components/switch'
+
+function Example() {
+  return (
+    <SwitchGroup>
+      <SwitchField>
+        <Label>Show on events page</Label>
+        <Description>Make this event visible on your profile.</Description>
+        <Switch name="show_on_events_page" defaultChecked />
+      </SwitchField>
+      <SwitchField>
+        <Label>Allow embedding</Label>
+        <Description>Allow others to embed your event details on their own site.</Description>
+        <Switch name="allow_embedding" />
+      </SwitchField>
+    </SwitchGroup>
+  )
+}
+
+
+With fieldset:
+
+import { Description, Fieldset, Label, Legend } from '@/components/fieldset'
+import { Switch, SwitchField, SwitchGroup } from '@/components/switch'
+import { Text } from '@/components/text'
+
+function Example() {
+  return (
+    <Fieldset>
+      <Legend>Discoverability</Legend>
+      <Text>Decide where your events can be found across the web.</Text>
+      <SwitchGroup>
+        <SwitchField>
+          <Label>Show on events page</Label>
+          <Description>Make this event visible on your profile.</Description>
+          <Switch name="show_on_events_page" defaultChecked />
+        </SwitchField>
+        <SwitchField>
+          <Label>Allow embedding</Label>
+          <Description>Allow others to embed your event details on their own site.</Description>
+          <Switch name="allow_embedding" />
+        </SwitchField>
+      </SwitchGroup>
+    </Fieldset>
+  )
+}
+</Examples>
+
+
+To make a styled table, use {Table, TableBody, TableCell, TableHead, TableHeader, TableRow}:
+
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
+
+function Example({ users }) {
+  return (
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableHeader>Name</TableHeader>
+          <TableHeader>Email</TableHeader>
+          <TableHeader>Role</TableHeader>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {users.map((user) => (
+          <TableRow key={user.handle}>
+            <TableCell className="font-medium">{user.name}</TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell className="text-zinc-500">{user.access}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
+
+<Examples>
+Responsive table:
+Set the CSS --gutter variable to match the padding of the containing element to make sure the table isn't cropped unnecessarily when it becomes scrollable. You can change the gutter responsively using media query variants, such as sm:[--gutter:theme(spacing.4)].
+
+
+
+function Example({ users }) {
+  return (
+    <Table bleed className="[--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]">
+      <TableHead>
+        <TableRow>
+          <TableHeader>Name</TableHeader>
+          <TableHeader>Handle</TableHeader>
+          <TableHeader>Role</TableHeader>
+          <TableHeader>Email</TableHeader>
+          <TableHeader>Access</TableHeader>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {users.map((user) => (
+          <TableRow key={user.handle}>
+            <TableCell className="font-medium">{user.name}</TableCell>
+            <TableCell>@{user.handle}</TableCell>
+            <TableCell>{user.role}</TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell className="text-zinc-500">{user.access}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
+
+Rows as links:
+function Example({ users }) {
+  return (
+    <Table className="[--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]">
+      <TableHead>
+        <TableRow>
+          <TableHeader>Name</TableHeader>
+          <TableHeader>Email</TableHeader>
+          <TableHeader>Role</TableHeader>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {users.map((user) => (
+          <TableRow key={user.handle} href={user.url}>
+            <TableCell className="font-medium">{user.name}</TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell className="text-zinc-500">{user.access}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
+
+Condensed spacing:
+function Example({ players }) {
+  return (
+    <Table dense className="[--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]">
+      <TableHead>
+        <TableRow>
+          <TableHeader>Rank</TableHeader>
+          <TableHeader>Player</TableHeader>
+          <TableHeader className="text-right">Pos</TableHeader>
+          <TableHeader className="text-right">GP</TableHeader>
+          <TableHeader className="text-right">G</TableHeader>
+          <TableHeader className="text-right">A</TableHeader>
+          <TableHeader className="text-right">P</TableHeader>
+          <TableHeader className="text-right">+/-</TableHeader>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {players.map((player) => (
+          <TableRow key={player.rank}>
+            <TableCell className="tabular-nums">{player.rank}</TableCell>
+            <TableCell className="font-medium">{player.name}</TableCell>
+            <TableCell className="text-right">{player.position}</TableCell>
+            <TableCell className="text-right tabular-nums">{player.gamesPlayed}</TableCell>
+            <TableCell className="text-right tabular-nums">{player.goals}</TableCell>
+            <TableCell className="text-right tabular-nums">{player.assists}</TableCell>
+            <TableCell className="text-right tabular-nums">{player.points}</TableCell>
+            <TableCell className="text-right tabular-nums">{player.plusMinus}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
+
+With grid lines:
+function Example({ users }) {
+  return (
+    <Table grid className="[--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]">
+      <TableHead>
+        <TableRow>
+          <TableHeader>Name</TableHeader>
+          <TableHeader>Email</TableHeader>
+          <TableHeader>Role</TableHeader>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {users.map((user) => (
+          <TableRow key={user.handle}>
+            <TableCell className="font-medium">{user.name}</TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell className="text-zinc-500">{user.access}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
+
+Stripped rows:
+function Example({ users }) {
+  return (
+    <Table striped className="[--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]">
+      <TableHead>
+        <TableRow>
+          <TableHeader>Name</TableHeader>
+          <TableHeader>Email</TableHeader>
+          <TableHeader>Role</TableHeader>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {users.map((user) => (
+          <TableRow key={user.handle}>
+            <TableCell className="font-medium">{user.name}</TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell className="text-zinc-500">{user.access}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
+
+With pagination:
+
+import {
+  Pagination,
+  PaginationGap,
+  PaginationList,
+  PaginationNext,
+  PaginationPage,
+  PaginationPrevious,
+} from '@/components/pagination'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
+
+function Example({ users }) {
+  return (
+    <>
+      <h1 className="mb-6 text-base font-semibold">Users</h1>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableHeader>Name</TableHeader>
+            <TableHeader>Email</TableHeader>
+            <TableHeader>Access</TableHeader>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {users.map((user) => (
+            <TableRow key={user.handle}>
+              <TableCell className="font-medium">{user.name}</TableCell>
+              <TableCell>{user.email}</TableCell>
+              <TableCell className="text-zinc-500">{user.access}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <Pagination className="mt-6">
+        <PaginationPrevious href="?page=2" />
+        <PaginationList>
+          <PaginationPage href="?page=1">1</PaginationPage>
+          <PaginationPage href="?page=2">2</PaginationPage>
+          <PaginationPage href="?page=3" current>
+            3
+          </PaginationPage>
+          <PaginationPage href="?page=4">4</PaginationPage>
+          <PaginationGap />
+          <PaginationPage href="?page=65">65</PaginationPage>
+          <PaginationPage href="?page=66">66</PaginationPage>
+        </PaginationList>
+        <PaginationNext href="?page=4" />
+      </Pagination>
+    </>
+  )
+}
+
+With dropdowns:
+import { Dropdown, DropdownButton, DropdownItem, DropdownMenu } from '@/components/dropdown'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
+import { EllipsisHorizontalIcon } from '@heroicons/react/16/solid'
+
+function Example({ users }) {
+  return (
+    <Table className="[--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]">
+      <TableHead>
+        <TableRow>
+          <TableHeader>Name</TableHeader>
+          <TableHeader>Email</TableHeader>
+          <TableHeader>Access</TableHeader>
+          <TableHeader className="relative w-0">
+            <span className="sr-only">Actions</span>
+          </TableHeader>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {users.map((user) => (
+          <TableRow key={user.handle}>
+            <TableCell className="font-medium">{user.name}</TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell className="text-zinc-500">{user.access}</TableCell>
+            <TableCell>
+              <div className="-mx-3 -my-1.5 sm:-mx-2.5">
+                <Dropdown>
+                  <DropdownButton plain aria-label="More options">
+                    <EllipsisHorizontalIcon />
+                  </DropdownButton>
+                  <DropdownMenu anchor="bottom end">
+                    <DropdownItem>View</DropdownItem>
+                    <DropdownItem>Edit</DropdownItem>
+                    <DropdownItem>Delete</DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
+
+
+</Examples>
