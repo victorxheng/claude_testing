@@ -2,5 +2,6 @@
     "python.analysis.extraPaths": [
         "./generate-",
         "./generate/ "
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "basic"
 }
